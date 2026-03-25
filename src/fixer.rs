@@ -319,10 +319,16 @@ pub fn suppress_convergent_issues(issues: &mut Vec<Issue>, applied_fixes: &[Appl
     if applied_fixes.is_empty() {
         return;
     }
+    // Build post-fix ranges in a single forward pass (O(n)) instead of
+    // calling remap_to_post_fix per fix (O(n) each, O(n^2) total).
+    // Applied fixes are sorted by offset and non-overlapping, so a running
+    // delta accumulator gives the correct remapped position for each fix.
+    let mut delta: isize = 0;
     let fix_ranges: Vec<(usize, usize)> = applied_fixes
         .iter()
         .map(|fix| {
-            let post = remap_to_post_fix(fix.offset, applied_fixes);
+            let post = (fix.offset as isize + delta).max(0) as usize;
+            delta += fix.replacement.len() as isize - fix.old_len as isize;
             (post, post + fix.replacement.len())
         })
         .collect();
@@ -704,6 +710,167 @@ mod tests {
         let text = "程序";
         let window = surrounding_window(text, 0, text.len());
         assert_eq!(window, "程序");
+    }
+
+    // -- suppress_convergent_issues O(n) equivalence tests --
+
+    #[test]
+    fn suppress_convergent_o_n_matches_o_n2() {
+        // Verify the O(n) forward-pass remap produces identical fix_ranges
+        // to the old per-fix remap_to_post_fix approach.
+        let cases: Vec<Vec<AppliedFix>> = vec![
+            // Empty
+            vec![],
+            // Single fix, same length (no shift)
+            vec![AppliedFix {
+                offset: 6,
+                old_len: 6,
+                replacement: "軟體".into(),
+            }],
+            // Single fix, expansion (6 bytes -> 9 bytes)
+            vec![AppliedFix {
+                offset: 6,
+                old_len: 6,
+                replacement: "記憶體".into(),
+            }],
+            // Single fix, contraction (9 bytes -> 6 bytes)
+            vec![AppliedFix {
+                offset: 6,
+                old_len: 9,
+                replacement: "軟體".into(),
+            }],
+            // Single fix, deletion (6 bytes -> 0 bytes)
+            vec![AppliedFix {
+                offset: 6,
+                old_len: 6,
+                replacement: String::new(),
+            }],
+            // Two fixes, both same length
+            vec![
+                AppliedFix {
+                    offset: 6,
+                    old_len: 6,
+                    replacement: "軟體".into(),
+                },
+                AppliedFix {
+                    offset: 15,
+                    old_len: 6,
+                    replacement: "記憶".into(),
+                },
+            ],
+            // Two fixes, first expands
+            vec![
+                AppliedFix {
+                    offset: 6,
+                    old_len: 6,
+                    replacement: "記憶體".into(),
+                },
+                AppliedFix {
+                    offset: 15,
+                    old_len: 6,
+                    replacement: "軟體".into(),
+                },
+            ],
+            // Two fixes, first contracts
+            vec![
+                AppliedFix {
+                    offset: 6,
+                    old_len: 9,
+                    replacement: "AB".into(),
+                },
+                AppliedFix {
+                    offset: 20,
+                    old_len: 6,
+                    replacement: "CD".into(),
+                },
+            ],
+            // Two fixes, first is deletion
+            vec![
+                AppliedFix {
+                    offset: 6,
+                    old_len: 6,
+                    replacement: String::new(),
+                },
+                AppliedFix {
+                    offset: 15,
+                    old_len: 6,
+                    replacement: "XY".into(),
+                },
+            ],
+            // Three fixes with mixed shifts
+            vec![
+                AppliedFix {
+                    offset: 0,
+                    old_len: 3,
+                    replacement: "ABCDE".into(),
+                },
+                AppliedFix {
+                    offset: 10,
+                    old_len: 6,
+                    replacement: "X".into(),
+                },
+                AppliedFix {
+                    offset: 20,
+                    old_len: 3,
+                    replacement: "YZW".into(),
+                },
+            ],
+        ];
+
+        for (i, fixes) in cases.iter().enumerate() {
+            // O(n^2) reference: call remap_to_post_fix per fix
+            let expected: Vec<(usize, usize)> = fixes
+                .iter()
+                .map(|fix| {
+                    let post = remap_to_post_fix(fix.offset, fixes);
+                    (post, post + fix.replacement.len())
+                })
+                .collect();
+
+            // O(n) forward pass
+            let mut delta: isize = 0;
+            let actual: Vec<(usize, usize)> = fixes
+                .iter()
+                .map(|fix| {
+                    let post = (fix.offset as isize + delta).max(0) as usize;
+                    delta += fix.replacement.len() as isize - fix.old_len as isize;
+                    (post, post + fix.replacement.len())
+                })
+                .collect();
+
+            assert_eq!(expected, actual, "case {i} mismatch: fixes={fixes:?}");
+        }
+    }
+
+    #[test]
+    fn suppress_convergent_deletion_suppresses_touching_issue() {
+        // A deletion (replacement is empty) should suppress issues that
+        // touch the deletion point.
+        let fixes = vec![AppliedFix {
+            offset: 6,
+            old_len: 6,
+            replacement: String::new(),
+        }];
+        // Issue at post-fix offset 6 (the deletion point) should be suppressed.
+        let mut issues = vec![make_issue(6, "XX", vec!["YY"])];
+        suppress_convergent_issues(&mut issues, &fixes);
+        assert!(
+            issues.is_empty(),
+            "issue touching deletion point should be suppressed"
+        );
+    }
+
+    #[test]
+    fn suppress_convergent_preserves_non_overlapping_issue() {
+        let fixes = vec![AppliedFix {
+            offset: 6,
+            old_len: 6,
+            replacement: "軟體".into(),
+        }];
+        // Issue at offset 20, well past the fix range -- should survive.
+        let mut issues = vec![make_issue(20, "內存", vec!["記憶體"])];
+        suppress_convergent_issues(&mut issues, &fixes);
+        assert_eq!(issues.len(), 1, "non-overlapping issue should be preserved");
     }
 
     #[test]
