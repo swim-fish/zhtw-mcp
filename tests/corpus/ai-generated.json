@@ -1,7 +1,8 @@
 {
   "id": "ai_generated",
   "label": "AI-generated zh-TW technical prose",
-  "profile": "editorial",
+  "profile": "base",
+  "detect_ai": true,
   "mode": "direct",
   "min_bytes": 51200,
   "cases": [

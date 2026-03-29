@@ -19,7 +19,7 @@ Read `zh-tw://style-guide/moe` resource for full conventions.
 
 - Terms: 軟體 (not 軟件), 資訊 (not 信息), 預設 (not 默認)
 - Punctuation: full-width ，。：；！？ in CJK prose; 「」 quotes, 『』 nested
-- Profiles: `default` | `strict_moe` (char variants) | `ui_strings` (relaxed) | `editorial` (AI writing review)
+- Profiles: `base` (default) | `strict` (char variants). Flags: `relaxed` (UI strings), `detect_ai` (AI writing review)
 
 ### Quality Gate
 
@@ -55,7 +55,7 @@ steps:
       fix_mode: "lexical_safe"
       max_errors: 0
       content_type: "{{if file_ext == 'md'}}markdown{{else}}plain{{end}}"
-      profile: "default"
+      profile: "base"
 
 context:
   resources:
@@ -193,10 +193,12 @@ Use `zhtw` for linting, fixing, and gating zh-TW text:
 - MoE character forms: 裡 (not 裏), 線 (not 綫), 著 (not 着)
 
 ## Profiles
-- `default`: Standard vocabulary + punctuation
-- `strict_moe`: Full MoE enforcement including character variants
-- `ui_strings`: Relaxed for software UI (half-width colons allowed)
-- `editorial`: AI writing review — detects filler phrases, semantic safety words, copula/passive overuse"#
+- `base`: Standard vocabulary + punctuation (default)
+- `strict`: Full MoE enforcement including character variants
+
+## Capability Flags
+- `relaxed`: Relaxed for software UI (disables colon/dunhao/grammar, uses en-dash)
+- `detect_ai`: AI writing review — detects filler phrases, semantic safety words, copula/passive overuse"#
         .to_string()
 }
 
@@ -209,7 +211,7 @@ The zhtw-mcp MCP server provides automated zh-TW linting and fixing.
 
 ## MCP Tool: zhtw
 - `zhtw({ "text": "...", "fix_mode": "lexical_safe", "max_errors": 0 })`
-- Profiles: default, strict_moe, ui_strings, editorial (AI writing review)
+- Profiles: base, strict. Flags: relaxed (UI), detect_ai (AI writing review)
 - Content types: plain, markdown
 
 ## Taiwan-Standard Terms
@@ -238,7 +240,7 @@ zhtw-mcp provides `zhtw` for Traditional Chinese (Taiwan) text enforcement.
 ## Quick Reference
 - Terms: 軟體/資訊/預設/程式/網路/硬體/品質/螢幕 (TW standard)
 - Punctuation: ，。：；！？ (full-width in CJK), 「」『』 (quotes)
-- Profiles: default | strict_moe | ui_strings | editorial (AI writing review)"#
+- Profiles: base | strict. Flags: relaxed (UI), detect_ai (AI writing review)"#
         .to_string()
 }
 
@@ -274,7 +276,8 @@ The single unified tool for linting, fixing, and gating zh-TW text.
 | text | string | (required) | Text to check |
 | fix_mode | string | "none" | "none", "orthographic", "lexical_safe", or "lexical_contextual" |
 | max_errors | integer | (none) | Gate: reject if errors exceed this |
-| profile | string | "default" | "default", "strict_moe", "ui_strings", "editorial" |
+| profile | string | "base" | "base" or "strict" (full MoE with character variants) |
+| relaxed | boolean | false | UI strings mode: disables colon/dunhao/grammar, en-dash ranges |
 | content_type | string | "plain" | "plain" or "markdown" |
 | political_stance | string | "roc_centric" | "roc_centric", "international", "neutral" |
 | ignore_terms | array | [] | Terms to downgrade to Info severity |

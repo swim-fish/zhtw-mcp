@@ -176,14 +176,14 @@ fn ir_cross_strait_fires() {
 #[test]
 fn ir_variant_skipped_for_simplified() {
     let scanner = Scanner::new(vec![spelling_variant("着", &["著"])], vec![]);
-    let out = scanner.scan_profiled("简体中文里着重", Profile::StrictMoe);
+    let out = scanner.scan_profiled("简体中文里着重", Profile::Strict);
     assert_eq!(out.issues.len(), 0, "variant should be skipped for SC");
 }
 
 #[test]
 fn ir_variant_fires_for_traditional() {
     let scanner = Scanner::new(vec![spelling_variant("着", &["著"])], vec![]);
-    let out = scanner.scan_profiled("繁體中文裡面着色", Profile::StrictMoe);
+    let out = scanner.scan_profiled("繁體中文裡面着色", Profile::Strict);
     // Should fire since text is Traditional Chinese.
     assert_eq!(out.issues.len(), 1, "variant should fire once for TC text");
 }
@@ -199,13 +199,19 @@ fn ir_ai_filler_gated_by_profile() {
         vec![],
     );
 
-    // Default profile does NOT enable AI filler detection.
+    // Base profile does NOT enable AI filler detection.
     let out = scanner.scan("值得注意的是這件事");
-    assert_eq!(out.issues.len(), 0, "ai_filler should be gated by profile");
+    assert_eq!(out.issues.len(), 0, "ai_filler should be gated by config");
 
-    // Editorial profile enables AI filler detection.
-    let out = scanner.scan_profiled("值得注意的是這件事", Profile::Editorial);
-    assert_eq!(out.issues.len(), 1, "ai_filler should fire under Editorial");
+    // detect_ai capability enables AI filler detection.
+    let mut cfg = Profile::Base.config();
+    cfg.ai_filler_detection = true;
+    cfg.ai_semantic_safety = true;
+    cfg.ai_density_detection = true;
+    cfg.ai_structural_patterns = true;
+    let out =
+        scanner.scan_for_content_type_with_config("值得注意的是這件事", ContentType::Plain, cfg);
+    assert_eq!(out.issues.len(), 1, "ai_filler should fire with detect_ai");
 }
 
 // ---------------------------------------------------------------------------
@@ -225,7 +231,7 @@ fn ir_political_gated_by_stance() {
     );
 
     // Neutral stance should suppress political rules.
-    let mut cfg = Profile::Default.config();
+    let mut cfg = Profile::Base.config();
     cfg.political_stance = PoliticalStance::Neutral;
     let out = scanner.scan_with_config("所謂中國台灣的問題", &[], cfg);
     assert_eq!(
@@ -365,8 +371,10 @@ fn ir_deletion_extends_span_over_comma() {
     let scanner = Scanner::new(vec![spelling_deletion("進行")], vec![]);
 
     // Deletion rule (AiFiller) with trailing fullwidth comma: span should extend.
-    // Must use Editorial profile since AiFiller requires ai_filler_detection.
-    let out = scanner.scan_profiled("進行，後續工作", Profile::Editorial);
+    // Must enable ai_filler_detection since AiFiller requires it.
+    let mut cfg = Profile::Base.config();
+    cfg.ai_filler_detection = true;
+    let out = scanner.scan_for_content_type_with_config("進行，後續工作", ContentType::Plain, cfg);
     assert_eq!(out.issues.len(), 1);
     // The extended span should include the comma.
     let issue = &out.issues[0];
@@ -386,8 +394,10 @@ fn ir_deletion_extends_span_over_comma() {
 #[test]
 fn ir_deletion_no_extension_without_comma() {
     let scanner = Scanner::new(vec![spelling_deletion("進行")], vec![]);
-    // Must use Editorial profile for AiFiller rules.
-    let out = scanner.scan_profiled("進行後續工作", Profile::Editorial);
+    // Must enable ai_filler_detection for AiFiller rules.
+    let mut cfg = Profile::Base.config();
+    cfg.ai_filler_detection = true;
+    let out = scanner.scan_for_content_type_with_config("進行後續工作", ContentType::Plain, cfg);
     assert_eq!(out.issues.len(), 1);
     assert_eq!(out.issues[0].found, "進行");
 }
@@ -445,7 +455,7 @@ fn ir_full_ruleset_cross_strait_sample() {
 #[test]
 fn ir_full_ruleset_variant_skipped_for_simplified() {
     let scanner = full_scanner();
-    let out = scanner.scan_profiled("简体中文里着重强调内容", Profile::StrictMoe);
+    let out = scanner.scan_profiled("简体中文里着重强调内容", Profile::Strict);
     // Variant rules should not fire on SC text.
     let variant_issues: Vec<_> = out.issues.iter().filter(|i| i.found == "着").collect();
     assert!(
@@ -467,11 +477,17 @@ fn ir_full_ruleset_ai_filler_gated() {
         .collect();
     assert!(
         ai_issues.is_empty(),
-        "AI filler should not fire under Default profile"
+        "AI filler should not fire under Base profile"
     );
 
-    // Under Editorial profile, AI filler rules should fire.
-    let out = scanner.scan_profiled("值得注意的是這個問題", Profile::Editorial);
+    // With detect_ai capability, AI filler rules should fire.
+    let mut ai_cfg = Profile::Base.config();
+    ai_cfg.ai_filler_detection = true;
+    let out = scanner.scan_for_content_type_with_config(
+        "值得注意的是這個問題",
+        ContentType::Plain,
+        ai_cfg,
+    );
     let ai_issues: Vec<_> = out
         .issues
         .iter()
@@ -480,7 +496,7 @@ fn ir_full_ruleset_ai_filler_gated() {
     assert_eq!(
         ai_issues.len(),
         1,
-        "AI filler should fire exactly once under Editorial profile"
+        "AI filler should fire exactly once with detect_ai"
     );
 }
 
@@ -539,12 +555,12 @@ fn ir_markdown_code_exclusion() {
 
     // Inside code block: excluded.
     let md = "```\n視頻\n```\n";
-    let out = scanner.scan_for_content_type(md, ContentType::Markdown, Profile::Default);
+    let out = scanner.scan_for_content_type(md, ContentType::Markdown, Profile::Base);
     assert_eq!(out.issues.len(), 0, "code block should exclude matches");
 
     // Outside code block: fires.
     let md = "觀看視頻內容\n";
-    let out = scanner.scan_for_content_type(md, ContentType::Markdown, Profile::Default);
+    let out = scanner.scan_for_content_type(md, ContentType::Markdown, Profile::Base);
     assert_eq!(out.issues.len(), 1, "outside code block should fire");
 }
 

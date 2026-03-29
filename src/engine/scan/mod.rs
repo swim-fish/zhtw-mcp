@@ -111,7 +111,7 @@ pub struct ScanOutput {
     pub issues: Vec<Issue>,
     pub detected_script: ChineseType,
     /// AI writing signature report.  Present only when AI scoring is
-    /// requested (editorial profile or explicit detect_ai/ai_score).
+    /// requested (detect_ai flag or explicit ai_score).
     #[serde(default)]
     pub ai_signature: Option<crate::engine::ai_score::AiSignatureReport>,
 }
@@ -784,13 +784,13 @@ impl Scanner {
         self.spelling_db.ac_charwise = None;
     }
 
-    /// Scan text with Profile::Default and return all issues found.
+    /// Scan text with Profile::Base and return all issues found.
     ///
     /// Applies NFC normalization, builds excluded ranges (including inline
     /// suppression markers), then scans and maps offsets back to the
     /// original text. Use scan_profiled for non-default profiles.
     pub fn scan(&self, text: &str) -> ScanOutput {
-        self.scan_profiled(text, Profile::Default)
+        self.scan_profiled(text, Profile::Base)
     }
 
     /// Scan text with the given profile and return all issues found.
@@ -872,7 +872,7 @@ impl Scanner {
 
     /// Scan with content-type-aware exclusions and explicit ProfileConfig.
     /// Use this when the caller needs to override individual config flags
-    /// (e.g. detect_ai enabling density detection on a non-editorial profile).
+    /// (e.g. detect_ai enabling density detection on the base profile).
     pub fn scan_for_content_type_with_config(
         &self,
         text: &str,
@@ -1348,9 +1348,7 @@ mod tests {
         let scanner = Scanner::new(rules, vec![]);
         assert!(scanner.spelling_db.ac_charwise.is_some());
 
-        let issues = scanner
-            .scan_profiled("裏面有東西", Profile::StrictMoe)
-            .issues;
+        let issues = scanner.scan_profiled("裏面有東西", Profile::Strict).issues;
         assert_eq!(issues.len(), 1);
         assert_eq!(issues[0].found, "裏");
         assert_eq!(issues[0].suggestions[..], vec!["裡"]);
@@ -1400,7 +1398,7 @@ mod tests {
         assert!(scanner.spelling_db.ac_charwise.is_some());
 
         // "下著" is an exception — should not fire.
-        let issues = scanner.scan_profiled("下著棋", Profile::StrictMoe).issues;
+        let issues = scanner.scan_profiled("下著棋", Profile::Strict).issues;
         assert!(
             issues.is_empty(),
             "exception phrase '下著' should suppress the match: {issues:?}"
@@ -1891,7 +1889,7 @@ mod tests {
         // at the excluded range boundary, so the clue is invisible.
         let md_text = "調用`函式`來處理";
         let issues = scanner
-            .scan_for_content_type(md_text, ContentType::Markdown, Profile::Default)
+            .scan_for_content_type(md_text, ContentType::Markdown, Profile::Base)
             .issues;
         assert!(
             issues.is_empty(),
@@ -1901,7 +1899,7 @@ mod tests {
         // Same text without code span — should fire.
         let plain_text = "調用函式來處理";
         let issues = scanner
-            .scan_for_content_type(plain_text, ContentType::Markdown, Profile::Default)
+            .scan_for_content_type(plain_text, ContentType::Markdown, Profile::Base)
             .issues;
         assert_eq!(
             issues.len(),
@@ -1931,7 +1929,7 @@ mod tests {
         // 函式 inside a code span (Markdown) — adjacent should not match.
         let md_text = "調用`函式`";
         let issues = scanner
-            .scan_for_content_type(md_text, ContentType::Markdown, Profile::Default)
+            .scan_for_content_type(md_text, ContentType::Markdown, Profile::Base)
             .issues;
         assert!(
             issues.is_empty(),

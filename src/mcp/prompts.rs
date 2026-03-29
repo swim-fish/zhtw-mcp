@@ -134,7 +134,8 @@ fn get_lint_natural(args: &std::collections::HashMap<String, String>) -> PromptG
 
 From the instruction, extract:
 - `fix_mode`: "lexical_safe" if the user asks to fix/correct/repair; "lexical_contextual" if they want all fixes; "orthographic" for punctuation/spacing only; "none" otherwise
-- `profile`: "strict_moe" if they mention MoE/standard forms/variants; "ui_strings" for software UI; "default" otherwise
+- `profile`: "strict" if they mention MoE/standard forms/variants; "base" otherwise
+- `relaxed`: true if the context is software UI strings (half-width colons allowed, no grammar); false otherwise
 - `detect_ai`: true if they mention AI writing/filler/naturalness review (can combine with any profile); false otherwise
 - `ai_threshold`: "low" if they want sensitive/strict AI detection; "high" if they want conservative/lenient AI detection; "medium" (default) otherwise. Only meaningful when `detect_ai` is true.
 - `max_errors`: integer if the user specifies a rejection threshold (e.g. "reject if more than 3 errors", "no errors allowed" = 0). Omit if no gate requested.

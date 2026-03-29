@@ -3,7 +3,7 @@
 // Covers the benchmark targets:
 //   1. Scanner construction (Aho-Corasick automaton build, clone-free)
 //   2. Plain-text scan on 1KB / 10KB / 100KB mixed CJK+ASCII text
-//   3. scan_profiled with StrictMoe profile (plain text)
+//   3. scan_profiled with Strict profile (plain text)
 //   4. Fix path: apply-only (50 issues) + end-to-end scan+fix on 10KB
 //   5. Context-clue-heavy scan (asserted >= 20% clue-gated issues)
 //   6. Markdown exclusion pass (build_markdown_excluded_ranges)
@@ -159,7 +159,7 @@ fn bench_scan(c: &mut Criterion) {
             b.iter(|| {
                 // scan_profiled_md(..., false) uses ContentType::Plain,
                 // avoiding Markdown exclusion pass that scan() implicitly runs.
-                let output = scanner.scan_profiled_md(black_box(text), Profile::Default, false);
+                let output = scanner.scan_profiled_md(black_box(text), Profile::Base, false);
                 black_box(&output);
             });
         });
@@ -167,20 +167,20 @@ fn bench_scan(c: &mut Criterion) {
     group.finish();
 }
 
-// 3. scan_profiled() with StrictMoe (plain text path)
+// 3. scan_profiled() with Strict (plain text path)
 
-fn bench_scan_profiled_strict_moe(c: &mut Criterion) {
+fn bench_scan_profiled_strict(c: &mut Criterion) {
     let ruleset = load_embedded_ruleset().expect("load embedded ruleset");
     let scanner = Scanner::new(ruleset.spelling_rules, ruleset.case_rules);
 
     let sizes: &[(usize, &str)] = &[(1_024, "1KB"), (10_240, "10KB"), (102_400, "100KB")];
 
-    let mut group = c.benchmark_group("scan_profiled_strict_moe");
+    let mut group = c.benchmark_group("scan_profiled_strict");
     for &(size, label) in sizes {
         let text = generate_text(size);
         group.bench_with_input(BenchmarkId::from_parameter(label), &text, |b, text| {
             b.iter(|| {
-                let output = scanner.scan_profiled_md(black_box(text), Profile::StrictMoe, false);
+                let output = scanner.scan_profiled_md(black_box(text), Profile::Strict, false);
                 black_box(&output);
             });
         });
@@ -198,9 +198,7 @@ fn bench_apply_fixes(c: &mut Criterion) {
     // Generate enough text to produce at least 50 issues.
     // The base paragraph has ~8 flaggable terms, so 10KB should yield plenty.
     let text = generate_text(10_240);
-    let mut issues = scanner
-        .scan_profiled_md(&text, Profile::Default, false)
-        .issues;
+    let mut issues = scanner.scan_profiled_md(&text, Profile::Base, false).issues;
 
     // Cap at exactly 50 issues for a controlled benchmark.
     issues.truncate(50);
@@ -230,7 +228,7 @@ fn bench_apply_fixes(c: &mut Criterion) {
     // 4b. End-to-end scan+fix on 10KB (the regression target from TODO 30.1).
     group.bench_function("scan_and_fix_10kb", |b| {
         b.iter(|| {
-            let output = scanner.scan_profiled_md(black_box(&text), Profile::Default, false);
+            let output = scanner.scan_profiled_md(black_box(&text), Profile::Base, false);
             let result = apply_fixes_with_context(
                 black_box(&text),
                 black_box(&output.issues),
@@ -266,7 +264,7 @@ fn bench_scan_context_clues(c: &mut Criterion) {
     {
         let check_text =
             CONTEXT_CLUE_PARAGRAPH.repeat((10_240 / CONTEXT_CLUE_PARAGRAPH.len()).max(1));
-        let output = scanner.scan_profiled_md(&check_text, Profile::Default, false);
+        let output = scanner.scan_profiled_md(&check_text, Profile::Base, false);
         let total = output.issues.len();
         let with_clues = output
             .issues
@@ -291,7 +289,7 @@ fn bench_scan_context_clues(c: &mut Criterion) {
         }
         group.bench_with_input(BenchmarkId::from_parameter(label), &text, |b, text| {
             b.iter(|| {
-                let output = scanner.scan_profiled_md(black_box(text), Profile::Default, false);
+                let output = scanner.scan_profiled_md(black_box(text), Profile::Base, false);
                 black_box(&output);
             });
         });
@@ -510,7 +508,7 @@ fn bench_cpu_attribution_100kb(c: &mut Criterion) {
     };
 
     // Full default config.
-    let cfg_full = Profile::Default.config();
+    let cfg_full = Profile::Base.config();
 
     let mut group = c.benchmark_group("cpu_attribution_100kb");
 
@@ -642,7 +640,7 @@ fn bench_pipeline_breakdown(c: &mut Criterion) {
     let scanner = Scanner::new(ruleset.spelling_rules, ruleset.case_rules);
     let text = generate_text(102_400);
     let excluded = &[];
-    let cfg = Profile::Default.config();
+    let cfg = Profile::Base.config();
 
     let mut group = c.benchmark_group("pipeline_100kb");
 
@@ -726,7 +724,7 @@ criterion_group!(
     bench_scanner_construction,
     bench_construction_breakdown,
     bench_scan,
-    bench_scan_profiled_strict_moe,
+    bench_scan_profiled_strict,
     bench_apply_fixes,
     bench_scan_context_clues,
     bench_markdown_exclusion,

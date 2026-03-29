@@ -13,7 +13,7 @@ impl Scanner {
     /// in a CJK context.
     ///
     /// Handles: , . ! ? ; ( ) : (2.1 + 2.2).
-    /// Colon enforcement is profile-dependent: UiStrings allows half-width :.
+    /// Colon enforcement is profile-dependent: relaxed allows half-width :.
     pub(crate) fn scan_punctuation(
         &self,
         text: &str,

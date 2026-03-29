@@ -77,7 +77,7 @@ fn traditional_rule_skipped_for_simplified_text() {
     // Variant rule (character-form correction) is skipped on Simplified text.
     let scanner = Scanner::new(vec![variant("着", &["著"])], vec![]);
     let issues = scanner
-        .scan_profiled("简体中文里着重", Profile::StrictMoe)
+        .scan_profiled("简体中文里着重", Profile::Strict)
         .issues;
     assert_eq!(issues.len(), 0);
 }
@@ -710,7 +710,7 @@ fn punct_definition_list_colon_skipped() {
     let scanner = Scanner::new(vec![], vec![]);
     // Markdown definition list: term on one line, `: definition` on the next.
     let text = "尾端延遲\n: 以互補累積分佈函數描述延遲";
-    let output = scanner.scan_for_content_type(text, ContentType::Markdown, Profile::Default);
+    let output = scanner.scan_for_content_type(text, ContentType::Markdown, Profile::Base);
     let colon_issues: Vec<_> = output
         .issues
         .iter()
@@ -729,7 +729,7 @@ fn punct_definition_list_colon_indented_skipped() {
     let scanner = Scanner::new(vec![], vec![]);
     // Indented definition list (e.g. nested in blockquote or list).
     let text = "術語\n  : 定義內容在此";
-    let output = scanner.scan_for_content_type(text, ContentType::Markdown, Profile::Default);
+    let output = scanner.scan_for_content_type(text, ContentType::Markdown, Profile::Base);
     let colon_issues: Vec<_> = output
         .issues
         .iter()
@@ -797,34 +797,35 @@ fn grammar_issues_have_line_col() {
 }
 
 #[test]
-fn grammar_disabled_in_ui_strings_profile() {
+fn grammar_disabled_with_relaxed() {
     use zhtw_mcp::engine::scan::ContentType;
     use zhtw_mcp::rules::ruleset::IssueType;
     let scanner = Scanner::new(vec![], vec![]);
     let text = "你是不是學生嗎？";
-    let output = scanner.scan_for_content_type(text, ContentType::Plain, Profile::UiStrings);
+    let cfg = Profile::Base.config().with_relaxed();
+    let output = scanner.scan_for_content_type_with_config(text, ContentType::Plain, cfg);
     assert!(
         !output
             .issues
             .iter()
             .any(|i| i.rule_type == IssueType::Grammar),
-        "UiStrings profile should not produce grammar issues"
+        "relaxed capability should not produce grammar issues"
     );
 }
 
 #[test]
-fn grammar_enabled_in_default_profile() {
+fn grammar_enabled_in_base_profile() {
     use zhtw_mcp::engine::scan::ContentType;
     use zhtw_mcp::rules::ruleset::IssueType;
     let scanner = Scanner::new(vec![], vec![]);
     let text = "你是不是學生嗎？";
-    let output = scanner.scan_for_content_type(text, ContentType::Plain, Profile::Default);
+    let output = scanner.scan_for_content_type(text, ContentType::Plain, Profile::Base);
     assert!(
         output
             .issues
             .iter()
             .any(|i| i.rule_type == IssueType::Grammar),
-        "Default profile should produce grammar issues"
+        "Base profile should produce grammar issues"
     );
 }
 
@@ -834,7 +835,7 @@ fn grammar_excluded_in_markdown_code_block() {
     use zhtw_mcp::rules::ruleset::IssueType;
     let scanner = Scanner::new(vec![], vec![]);
     let text = "```\n你是不是學生嗎？\n```";
-    let output = scanner.scan_for_content_type(text, ContentType::Markdown, Profile::Default);
+    let output = scanner.scan_for_content_type(text, ContentType::Markdown, Profile::Base);
     assert!(
         !output
             .issues
@@ -907,12 +908,12 @@ fn ai_filler_rule(from: &str, to: &[&str]) -> SpellingRule {
 }
 
 #[test]
-fn ai_filler_rules_suppressed_in_default_profile() {
+fn ai_filler_rules_suppressed_in_base_profile() {
     let rules = vec![ai_filler_rule("值得注意的是，", &[""])];
     let scanner = Scanner::new(rules, vec![]);
     let output =
-        scanner.scan_with_config("值得注意的是，系統需要重啟", &[], Profile::Default.config());
-    // Default profile has ai_filler_detection: false → no issues.
+        scanner.scan_with_config("值得注意的是，系統需要重啟", &[], Profile::Base.config());
+    // Base profile has ai_filler_detection: false → no issues.
     let ai_issues: Vec<_> = output
         .issues
         .iter()
@@ -928,7 +929,7 @@ fn ai_filler_rules_suppressed_in_default_profile() {
 fn ai_filler_rules_fire_when_profile_enabled() {
     let rules = vec![ai_filler_rule("值得注意的是，", &[""])];
     let scanner = Scanner::new(rules, vec![]);
-    let mut cfg = Profile::Default.config();
+    let mut cfg = Profile::Base.config();
     cfg.ai_filler_detection = true;
     let output = scanner.scan_with_config("值得注意的是，系統需要重啟", &[], cfg);
     let ai_issues: Vec<_> = output
@@ -943,7 +944,7 @@ fn ai_filler_rules_fire_when_profile_enabled() {
 #[test]
 fn ai_semantic_safety_fires_when_profile_enabled() {
     let scanner = Scanner::new(vec![], vec![]);
-    let mut cfg = Profile::Default.config();
+    let mut cfg = Profile::Base.config();
     cfg.ai_semantic_safety = true;
     let output = scanner.scan_with_config("這個定義意味著所有的值都必須為正", &[], cfg);
     let ai_issues: Vec<_> = output
@@ -956,7 +957,7 @@ fn ai_semantic_safety_fires_when_profile_enabled() {
 }
 
 #[test]
-fn ai_semantic_safety_suppressed_in_default_profile() {
+fn ai_semantic_safety_suppressed_in_base_profile() {
     let scanner = Scanner::new(vec![], vec![]);
     let output = scanner.scan("這個定義意味著所有的值都必須為正");
     let ai_issues: Vec<_> = output
@@ -983,7 +984,12 @@ fn ai_density_detection_fires_with_editorial_profile() {
             text.push_str(filler);
         }
     }
-    let output = scanner.scan_for_content_type(&text, ContentType::Plain, Profile::Editorial);
+    let mut cfg = Profile::Base.config();
+    cfg.ai_filler_detection = true;
+    cfg.ai_density_detection = true;
+    cfg.ai_semantic_safety = true;
+    cfg.ai_structural_patterns = true;
+    let output = scanner.scan_for_content_type_with_config(&text, ContentType::Plain, cfg);
     let density_issues: Vec<_> = output
         .issues
         .iter()
@@ -994,12 +1000,12 @@ fn ai_density_detection_fires_with_editorial_profile() {
         .collect();
     assert!(
         !density_issues.is_empty(),
-        "editorial profile should detect high density AI phrases"
+        "detect_ai should detect high density AI phrases"
     );
 }
 
 #[test]
-fn ai_density_detection_suppressed_in_default_profile() {
+fn ai_density_detection_suppressed_in_base_profile() {
     let scanner = Scanner::new(vec![], vec![]);
     let filler = "這是正常的技術內容段落。";
     let mut text = String::new();
@@ -1010,7 +1016,7 @@ fn ai_density_detection_suppressed_in_default_profile() {
             text.push_str(filler);
         }
     }
-    let output = scanner.scan_for_content_type(&text, ContentType::Plain, Profile::Default);
+    let output = scanner.scan_for_content_type(&text, ContentType::Plain, Profile::Base);
     let density_issues: Vec<_> = output
         .issues
         .iter()

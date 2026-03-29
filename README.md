@@ -47,14 +47,19 @@ Automatically check and correct zh-TW text produced by AI, catching cross-strait
 - Politically colored terms -- 祖國, 內地
 - Casing -- JavaScript, GitHub, macOS
 
-These standards are enforced across four configuration profiles. The `editorial` profile extends the official rules with AI writing artifact detection:
+These standards are enforced through two profiles on the strictness axis, plus orthogonal capability flags:
 
 | Profile | Purpose |
 |---------|---------|
-| `default` | Cross-strait vocabulary, punctuation, casing, grammar, politically colored terms |
-| `strict_moe` | Full MoE enforcement: character variants (裏→裡), grammar (臺/台), all punctuation |
-| `ui_strings` | Relaxed for software UI: half-width colons, en dash ranges; grammar checks disabled |
-| `editorial` | AI writing review: base rules + filler phrase detection, semantic safety words, copula/passive voice checks |
+| `base` | Cross-strait vocabulary, punctuation, casing, grammar, politically colored terms |
+| `strict` | Full MoE enforcement: character variants (裏→裡), grammar (臺/台), all punctuation |
+
+| Flag | Purpose |
+|------|---------|
+| `relaxed` | Relaxed for software UI: disables colon/dunhao enforcement and grammar checks; uses en-dash for ranges |
+| `detect_ai` | AI writing review: filler phrase detection, semantic safety words, copula/passive voice checks, density-based pattern detection |
+
+Profiles control how strict the zh-TW norm enforcement is. Flags are orthogonal -- `detect_ai` works with either profile, `relaxed` can combine with `strict` if you want variant normalization but lenient punctuation.
 
 See [docs/rules.md](docs/rules.md) for the full rule reference.
 
@@ -147,11 +152,12 @@ When running as an MCP server, you interact through natural language. The assist
 | Lint text | *"Check this paragraph for mainland terms"* | `zhtw({ "text": "..." })` | Returns issues with line/column, suggestions, and rule type |
 | Auto-fix | *"Fix the zh-TW issues in this document"* | `zhtw({ "text": "...", "fix_mode": "lexical_safe" })` | Deterministic fixes applied; corrected text returned |
 | Quality gate | *"Reject if more than 3 zh-TW errors"* | `zhtw({ "text": "...", "max_errors": 3 })` | `accepted: true/false` verdict based on error count |
-| Strict MoE | *"Check this with strict MoE rules"* | `zhtw({ "text": "...", "profile": "strict_moe" })` | Adds character variant (裏→裡) and full punctuation enforcement |
+| Strict MoE | *"Check this with strict MoE rules"* | `zhtw({ "text": "...", "profile": "strict" })` | Adds character variant (裏→裡) and full punctuation enforcement |
+| UI strings | *"Lint this UI string, skip grammar"* | `zhtw({ "text": "...", "relaxed": true })` | Disables colon/dunhao/grammar enforcement; uses en-dash for ranges |
 | AI writing review | *"Review this for AI writing artifacts"* | `zhtw({ "text": "...", "detect_ai": true })` | Flags filler phrases, semantic safety words, copula/passive overuse |
 | Markdown-aware | *"Lint this markdown, skip code blocks"* | `zhtw({ "text": "...", "content_type": "markdown" })` | Fenced code, inline code, and HTML blocks excluded from scanning |
 
-Each `zhtw` call is stateless -- parameters like `profile` are per-call, not session state. Omitting `profile` defaults to `default`.
+Each `zhtw` call is stateless -- parameters like `profile` are per-call, not session state. Omitting `profile` defaults to `base`.
 
 The server also exposes two read-only resources for assistants to consult: `zh-tw://style-guide/moe` (MoE standards) and `zh-tw://dictionary/ambiguous` (cross-strait term disambiguation). See [docs/mcp.md](docs/mcp.md) for the full prompt catalog.
 
