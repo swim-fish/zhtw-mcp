@@ -1,7 +1,7 @@
 {
   "id": "native_zh_tw",
   "label": "Native zh-TW technical prose",
-  "profile": "default",
+  "profile": "base",
   "mode": "direct",
   "min_bytes": 51200,
   "cases": [

@@ -1,29 +1,29 @@
 use serde::{Deserialize, Serialize};
 
-/// Linting profile that controls which rules are active and how strict they are.
+/// Linting profile controlling zh-TW norm enforcement strictness.
 ///
-/// Default is the baseline (current behavior). StrictMoe enables the full
-/// Ministry of Education standard (variants, colon, 臺). UiStrings is
-/// relaxed for software UI contexts (half-width : allowed). Editorial
-/// enables AI writing artifact detection (filler phrases, semantic safety
-/// words, copula avoidance, passive voice overuse) on top of base rules.
+/// Two profiles on the strictness axis:
+/// - Base: cross-strait vocabulary, political coloring, casing, basic
+///   punctuation, grammar. No character variant normalization.
+/// - Strict: full Ministry of Education enforcement including character
+///   variant normalization (裏→裡, 台→臺).
+///
+/// Orthogonal capabilities (applied on top of any profile):
+/// - `relaxed`: disables colon enforcement, dunhao detection, grammar
+///   checks, and uses en-dash for ranges. For software UI strings.
+/// - `detect_ai`: enables AI writing artifact detection (filler phrases,
+///   semantic safety words, copula/passive checks, density patterns).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Profile {
-    Default,
-    StrictMoe,
-    UiStrings,
-    /// Editorial review: base rules + AI writing artifact detection.
-    /// Flags discourse-level patterns statistically overrepresented in
-    /// LLM-generated zh-TW text (filler phrases, semantic safety words,
-    /// inflated copulas, passive voice overuse).
-    Editorial,
+    Base,
+    Strict,
 }
 
 /// Processing chain configuration for a profile.
 ///
 /// Each profile is a combination of enabled rule stages rather than a
-/// subset of rules. More specific profiles (strict_moe) add extra stages;
+/// subset of rules. More specific profiles (strict) add extra stages;
 /// they do not replace earlier ones.
 #[derive(Debug, Clone, Copy)]
 pub struct ProfileConfig {
@@ -76,41 +76,43 @@ impl ProfileConfig {
         self.political_stance = stance;
         self
     }
+
+    /// Apply the 'relaxed' capability: disable colon enforcement, dunhao
+    /// detection, and grammar checks; use en-dash for ranges. Designed for
+    /// software UI strings where strict punctuation rules are too noisy.
+    pub fn with_relaxed(mut self) -> Self {
+        self.colon_enforcement = false;
+        self.dunhao_detection = false;
+        self.grammar_checks = false;
+        self.range_en_dash = true;
+        self
+    }
 }
 
 impl Profile {
     /// All defined profiles.
-    pub const ALL: &'static [Profile] = &[
-        Profile::Default,
-        Profile::StrictMoe,
-        Profile::UiStrings,
-        Profile::Editorial,
-    ];
+    pub const ALL: &'static [Profile] = &[Profile::Base, Profile::Strict];
 
     /// Human-readable name.
     pub fn name(self) -> &'static str {
         match self {
-            Profile::Default => "default",
-            Profile::StrictMoe => "strict_moe",
-            Profile::UiStrings => "ui_strings",
-            Profile::Editorial => "editorial",
+            Profile::Base => "base",
+            Profile::Strict => "strict",
         }
     }
 
     /// Short description.
     pub fn description(self) -> &'static str {
         match self {
-            Profile::Default => "Base zh-TW rules: cross-strait vocabulary, political coloring, casing, basic punctuation, grammar",
-            Profile::StrictMoe => "Full MoE enforcement: all punctuation, character variants, 臺 normalization, grammar",
-            Profile::UiStrings => "Relaxed for software UI: half-width colon allowed, en dash for ranges, strict vocabulary, no grammar",
-            Profile::Editorial => "AI writing review: base rules + filler phrase detection, semantic safety words, copula/passive checks",
+            Profile::Base => "Base zh-TW rules: cross-strait vocabulary, political coloring, casing, basic punctuation, grammar",
+            Profile::Strict => "Full MoE enforcement: all punctuation, character variants, 臺 normalization, grammar",
         }
     }
 
     /// Processing chain stages enabled by this profile.
     pub fn config(self) -> ProfileConfig {
         match self {
-            Profile::Default => ProfileConfig {
+            Profile::Base => ProfileConfig {
                 spelling: true,
                 casing: true,
                 basic_punctuation: true,
@@ -129,7 +131,7 @@ impl Profile {
                 political_stance: PoliticalStance::RocCentric,
                 offset_only: false,
             },
-            Profile::StrictMoe => ProfileConfig {
+            Profile::Strict => ProfileConfig {
                 spelling: true,
                 casing: true,
                 basic_punctuation: true,
@@ -148,66 +150,14 @@ impl Profile {
                 political_stance: PoliticalStance::RocCentric,
                 offset_only: false,
             },
-            Profile::UiStrings => ProfileConfig {
-                spelling: true,
-                casing: true,
-                basic_punctuation: true,
-                colon_enforcement: false,
-                dunhao_detection: false,
-                range_normalization: true,
-                variant_normalization: false,
-                ellipsis_normalization: true,
-                range_en_dash: true,
-                grammar_checks: false,
-                ai_filler_detection: false,
-                ai_semantic_safety: false,
-                ai_density_detection: false,
-                ai_structural_patterns: false,
-                ai_threshold_multiplier: 1.0,
-                political_stance: PoliticalStance::RocCentric,
-                offset_only: false,
-            },
-            // Editorial: base rules + all AI writing artifact detection.
-            // Targets discourse-level patterns overrepresented in LLM output.
-            Profile::Editorial => ProfileConfig {
-                spelling: true,
-                casing: true,
-                basic_punctuation: true,
-                colon_enforcement: true,
-                dunhao_detection: true,
-                range_normalization: true,
-                variant_normalization: false,
-                ellipsis_normalization: true,
-                range_en_dash: false,
-                grammar_checks: true,
-                ai_filler_detection: true,
-                ai_semantic_safety: true,
-                ai_density_detection: true,
-                ai_structural_patterns: true,
-                ai_threshold_multiplier: 1.0,
-                political_stance: PoliticalStance::RocCentric,
-                offset_only: false,
-            },
-        }
-    }
-
-    /// Parse from string, defaulting to Default on unrecognized input.
-    pub fn from_str_lossy(s: &str) -> Self {
-        match s {
-            "strict_moe" => Profile::StrictMoe,
-            "ui_strings" => Profile::UiStrings,
-            "editorial" => Profile::Editorial,
-            _ => Profile::Default,
         }
     }
 
     /// Strict parse from string. Returns `None` on unrecognized input.
     pub fn from_str_strict(s: &str) -> Option<Self> {
         match s {
-            "default" => Some(Profile::Default),
-            "strict_moe" => Some(Profile::StrictMoe),
-            "ui_strings" => Some(Profile::UiStrings),
-            "editorial" => Some(Profile::Editorial),
+            "base" => Some(Profile::Base),
+            "strict" => Some(Profile::Strict),
             _ => None,
         }
     }

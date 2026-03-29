@@ -360,7 +360,7 @@ fn e2e_initialize_and_tools_list() {
         "code block 軟件 should be excluded"
     );
 
-    // -- E2E: profile: "strict_moe" -- variant rules fire --
+    // -- E2E: profile: "strict" -- variant rules fire --
 
     let resp = send_recv(
         &mut stdin,
@@ -373,7 +373,7 @@ fn e2e_initialize_and_tools_list() {
                 "name": "zhtw",
                 "arguments": {
                     "text": "裏面有線索",
-                    "profile": "strict_moe"
+                    "profile": "strict"
                 }
             }
         }),
@@ -381,11 +381,11 @@ fn e2e_initialize_and_tools_list() {
     assert_eq!(resp["id"], 21);
     let content_text = resp["result"]["content"][0]["text"].as_str().unwrap();
     let output: Value = serde_json::from_str(content_text).unwrap();
-    assert_eq!(output["profile"], "strict_moe");
+    assert_eq!(output["profile"], "strict");
     let issues = output["issues"].as_array().unwrap();
-    // strict_moe should catch 裏→裡 variant
+    // strict should catch 裏→裡 variant
     let variant_issue = issues.iter().find(|i| i["found"] == "裏");
-    assert!(variant_issue.is_some(), "strict_moe should flag 裏 variant");
+    assert!(variant_issue.is_some(), "strict should flag 裏 variant");
     assert!(variant_issue.unwrap()["suggestions"]
         .as_array()
         .unwrap()
@@ -1561,16 +1561,12 @@ fn e2e_invalid_profile_structured_error_data() {
         .expect("accepted should be an array");
     let accepted_strs: Vec<&str> = accepted.iter().map(|v| v.as_str().unwrap()).collect();
     assert!(
-        accepted_strs.contains(&"default"),
-        "accepted should include 'default': {accepted_strs:?}"
+        accepted_strs.contains(&"base"),
+        "accepted should include 'base': {accepted_strs:?}"
     );
     assert!(
-        accepted_strs.contains(&"strict_moe"),
-        "accepted should include 'strict_moe': {accepted_strs:?}"
-    );
-    assert!(
-        accepted_strs.contains(&"editorial"),
-        "accepted should include 'editorial': {accepted_strs:?}"
+        accepted_strs.contains(&"strict"),
+        "accepted should include 'strict': {accepted_strs:?}"
     );
 
     drop(stdin);

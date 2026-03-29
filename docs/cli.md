@@ -13,7 +13,7 @@ zhtw-mcp lint docs/ src/locales/ README.md
 zhtw-mcp lint -- < input.txt
 
 # With options
-zhtw-mcp lint file.md --format json --profile strict_moe --max-errors 5
+zhtw-mcp lint file.md --format json --profile strict --max-errors 5
 zhtw-mcp lint file.md --format tabular              # aligned columns
 zhtw-mcp lint docs/ --exclude "vendor/**"
 zhtw-mcp lint -- --content-type markdown < input.md
@@ -69,7 +69,7 @@ zhtw-mcp lint --diff-from main
 Create `.zhtw-mcp.toml` at your project root for team-wide settings:
 
 ```toml
-profile = "strict_moe"
+profile = "strict"
 max_errors = 0
 max_warnings = 10
 exclude = ["vendor/**", "*.bak"]

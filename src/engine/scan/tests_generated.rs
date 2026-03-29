@@ -1102,24 +1102,25 @@
     }
 
     #[test]
-    fn halfwidth_colon_allowed_in_ui_strings_profile() {
+    fn halfwidth_colon_allowed_with_relaxed() {
         let scanner = Scanner::new(vec![], vec![]);
+        let cfg = Profile::Base.config().with_relaxed();
         let issues = scanner
-            .scan_profiled("標題:內容", Profile::UiStrings)
+            .scan_for_content_type_with_config("標題:內容", ContentType::Plain, cfg)
             .issues;
         assert!(
             !issues.iter().any(|i| i.found == ":"),
-            ": should be allowed in UiStrings profile"
+            ": should be allowed with relaxed capability"
         );
     }
 
     #[test]
-    fn halfwidth_colon_flagged_in_default_profile() {
+    fn halfwidth_colon_flagged_in_base_profile() {
         let scanner = Scanner::new(vec![], vec![]);
-        let issues = scanner.scan_profiled("標題:內容", Profile::Default).issues;
+        let issues = scanner.scan_profiled("標題:內容", Profile::Base).issues;
         assert!(
             issues.iter().any(|i| i.found == ":"),
-            ": should be flagged in Default profile"
+            ": should be flagged in Base profile"
         );
     }
 
@@ -1481,7 +1482,7 @@
         let issues = scanner.scan("第一~第五").issues;
         let tilde: Vec<_> = issues.iter().filter(|i| i.found == "~").collect();
         assert!(!tilde.is_empty(), "~ between CJK should be flagged");
-        assert_eq!(tilde[0].suggestions[..], vec!["～"]); // Default profile → wave dash
+        assert_eq!(tilde[0].suggestions[..], vec!["～"]); // Base profile → wave dash
     }
 
     #[test]
@@ -1495,13 +1496,14 @@
     }
 
     #[test]
-    fn tilde_range_ui_strings_uses_en_dash() {
+    fn tilde_range_relaxed_uses_en_dash() {
         let scanner = Scanner::new(vec![], vec![]);
+        let cfg = Profile::Base.config().with_relaxed();
         let issues = scanner
-            .scan_profiled("第一~第五", Profile::UiStrings)
+            .scan_for_content_type_with_config("第一~第五", ContentType::Plain, cfg)
             .issues;
         let tilde: Vec<_> = issues.iter().filter(|i| i.found == "~").collect();
-        assert!(!tilde.is_empty(), "~ should still be flagged in UiStrings");
+        assert!(!tilde.is_empty(), "~ should still be flagged with relaxed");
         assert_eq!(tilde[0].suggestions[..], vec!["\u{2013}"]); // en dash
     }
 
@@ -1569,12 +1571,12 @@
     }
 
     #[test]
-    fn variant_fires_under_strict_moe() {
+    fn variant_fires_under_strict() {
         let rules = vec![variant_rule("裏", "裡")];
         let scanner = Scanner::new(rules, vec![]);
         // Traditional Chinese context (東西 has traditional-exclusive chars).
         let text = "在裏面的東西都是好的";
-        let issues = scanner.scan_profiled(text, Profile::StrictMoe).issues;
+        let issues = scanner.scan_profiled(text, Profile::Strict).issues;
         assert_eq!(issues.len(), 1);
         assert_eq!(issues[0].found, "裏");
         assert_eq!(issues[0].suggestions[..], vec!["裡"]);
@@ -1587,22 +1589,25 @@
         let rules = vec![variant_rule("裏", "裡")];
         let scanner = Scanner::new(rules, vec![]);
         let text = "在裏面的東西都是好的";
-        let issues = scanner.scan(text).issues; // Default profile
+        let issues = scanner.scan(text).issues; // Base profile
         assert!(
             !issues.iter().any(|i| i.rule_type == IssueType::Variant),
-            "variant rules should not fire under Default profile"
+            "variant rules should not fire under Base profile"
         );
     }
 
     #[test]
-    fn variant_silent_under_ui_strings() {
+    fn variant_silent_under_relaxed() {
         let rules = vec![variant_rule("裏", "裡")];
         let scanner = Scanner::new(rules, vec![]);
         let text = "在裏面的東西都是好的";
-        let issues = scanner.scan_profiled(text, Profile::UiStrings).issues;
+        let cfg = Profile::Base.config().with_relaxed();
+        let issues = scanner
+            .scan_for_content_type_with_config(text, ContentType::Plain, cfg)
+            .issues;
         assert!(
             !issues.iter().any(|i| i.rule_type == IssueType::Variant),
-            "variant rules should not fire under UiStrings profile"
+            "variant rules should not fire with relaxed capability"
         );
     }
 
@@ -1616,7 +1621,7 @@
         let scanner = Scanner::new(rules, vec![]);
         // Traditional context: 這, 條, 觀 are traditional-exclusive.
         let text = "這裏的麪條很好吃，觀眾看着他們";
-        let issues = scanner.scan_profiled(text, Profile::StrictMoe).issues;
+        let issues = scanner.scan_profiled(text, Profile::Strict).issues;
         assert_eq!(issues.len(), 3, "should flag 裏, 麪, 着");
         assert_eq!(issues[0].found, "裏");
         assert_eq!(issues[1].found, "麪");
@@ -1631,7 +1636,7 @@
         let rules = vec![variant_rule_with_exceptions("着", "著", vec!["下着棋"])];
         let scanner = Scanner::new(rules, vec![]);
         let text = "國際學術比賽中他下着棋，觀眾看着他";
-        let issues = scanner.scan_profiled(text, Profile::StrictMoe).issues;
+        let issues = scanner.scan_profiled(text, Profile::Strict).issues;
         // Only the second 着 (看着他) should be flagged.
         assert_eq!(
             issues.len(),
@@ -1647,11 +1652,11 @@
     // 臺/台 phrase rules
 
     #[test]
-    fn tai_phrase_fires_under_strict_moe() {
+    fn tai_phrase_fires_under_strict() {
         let rules = vec![variant_rule("台灣", "臺灣"), variant_rule("台北", "臺北")];
         let scanner = Scanner::new(rules, vec![]);
         let text = "我住在台灣的台北市";
-        let issues = scanner.scan_profiled(text, Profile::StrictMoe).issues;
+        let issues = scanner.scan_profiled(text, Profile::Strict).issues;
         assert_eq!(issues.len(), 2);
         assert_eq!(issues[0].found, "台灣");
         assert_eq!(issues[0].suggestions[..], vec!["臺灣"]);
@@ -1667,7 +1672,7 @@
         let issues = scanner.scan(text).issues;
         assert!(
             issues.is_empty(),
-            "台→臺 should not fire under Default profile"
+            "台→臺 should not fire under Base profile"
         );
     }
 
@@ -1678,7 +1683,7 @@
         let rules = vec![variant_rule("台灣", "臺灣"), variant_rule("台北", "臺北")];
         let scanner = Scanner::new(rules, vec![]);
         let text = "這個平台很好用，台灣也有很多使用者";
-        let issues = scanner.scan_profiled(text, Profile::StrictMoe).issues;
+        let issues = scanner.scan_profiled(text, Profile::Strict).issues;
         assert_eq!(issues.len(), 1, "should only flag 台灣, not 平台");
         assert_eq!(issues[0].found, "台灣");
     }
@@ -1689,7 +1694,7 @@
         let scanner = Scanner::new(rules, vec![]);
         // Simplified Chinese text: variant rules should be skipped.
         let text = "这裏面的东西都是好的"; // Simplified context
-        let issues = scanner.scan_profiled(text, Profile::StrictMoe).issues;
+        let issues = scanner.scan_profiled(text, Profile::Strict).issues;
         assert!(
             issues.is_empty(),
             "variant rule should not fire on Simplified Chinese text"
@@ -1699,7 +1704,7 @@
     // Profile processing chain tests
 
     #[test]
-    fn profile_strict_moe_catches_variants_default_does_not() {
+    fn profile_strict_catches_variants_base_does_not() {
         let rules = vec![
             SpellingRule {
                 from: "軟件".into(),
@@ -1720,53 +1725,59 @@
         let scanner = Scanner::new(rules, vec![]);
         let text = "軟件裏面有錯誤";
 
-        let default_issues = scanner.scan_profiled(text, Profile::Default).issues;
-        let strict_issues = scanner.scan_profiled(text, Profile::StrictMoe).issues;
+        let default_issues = scanner.scan_profiled(text, Profile::Base).issues;
+        let strict_issues = scanner.scan_profiled(text, Profile::Strict).issues;
 
         // Default catches spelling but not variants.
         assert_eq!(default_issues.len(), 1);
         assert_eq!(default_issues[0].found, "軟件");
 
-        // StrictMoe catches both spelling and variants.
+        // Strict catches both spelling and variants.
         assert_eq!(strict_issues.len(), 2);
     }
 
     #[test]
-    fn profile_ui_strings_skips_dunhao_and_colon() {
+    fn relaxed_skips_dunhao_and_colon() {
         let scanner = Scanner::new(sample_spelling_rules(), vec![]);
         let text = "類型:蘋果，香蕉，橘子，芒果";
 
-        let default_issues = scanner.scan_profiled(text, Profile::Default).issues;
-        let ui_issues = scanner.scan_profiled(text, Profile::UiStrings).issues;
+        let base_issues = scanner.scan_profiled(text, Profile::Base).issues;
+        let relaxed_cfg = Profile::Base.config().with_relaxed();
+        let relaxed_issues = scanner
+            .scan_for_content_type_with_config(text, ContentType::Plain, relaxed_cfg)
+            .issues;
 
-        // Default flags the colon and dunhao commas.
-        let colon_default = default_issues.iter().any(|i| i.found == ":");
-        let dunhao_default = default_issues.iter().any(|i| i.found == "\u{FF0C}");
-        assert!(colon_default, "Default should flag colon");
-        assert!(dunhao_default, "Default should flag dunhao");
+        // Base flags the colon and dunhao commas.
+        let colon_base = base_issues.iter().any(|i| i.found == ":");
+        let dunhao_base = base_issues.iter().any(|i| i.found == "\u{FF0C}");
+        assert!(colon_base, "Base should flag colon");
+        assert!(dunhao_base, "Base should flag dunhao");
 
-        // UiStrings skips colon and dunhao.
-        let colon_ui = ui_issues.iter().any(|i| i.found == ":");
-        let dunhao_ui = ui_issues.iter().any(|i| i.found == "\u{FF0C}");
-        assert!(!colon_ui, "UiStrings should not flag colon");
-        assert!(!dunhao_ui, "UiStrings should not flag dunhao");
+        // Relaxed skips colon and dunhao.
+        let colon_relaxed = relaxed_issues.iter().any(|i| i.found == ":");
+        let dunhao_relaxed = relaxed_issues.iter().any(|i| i.found == "\u{FF0C}");
+        assert!(!colon_relaxed, "relaxed should not flag colon");
+        assert!(!dunhao_relaxed, "relaxed should not flag dunhao");
     }
 
     #[test]
-    fn profile_ui_strings_range_en_dash() {
+    fn relaxed_range_en_dash() {
         let scanner = Scanner::new(vec![], vec![]);
         let text = "第一~第五";
-        let issues = scanner.scan_profiled(text, Profile::UiStrings).issues;
+        let cfg = Profile::Base.config().with_relaxed();
+        let issues = scanner
+            .scan_for_content_type_with_config(text, ContentType::Plain, cfg)
+            .issues;
         let tilde: Vec<_> = issues.iter().filter(|i| i.found == "~").collect();
         assert!(!tilde.is_empty());
         assert_eq!(tilde[0].suggestions[..], vec!["–"]); // en dash
     }
 
     #[test]
-    fn profile_default_range_wave_dash() {
+    fn profile_base_range_wave_dash() {
         let scanner = Scanner::new(vec![], vec![]);
         let text = "第一~第五";
-        let issues = scanner.scan_profiled(text, Profile::Default).issues;
+        let issues = scanner.scan_profiled(text, Profile::Base).issues;
         let tilde: Vec<_> = issues.iter().filter(|i| i.found == "~").collect();
         assert!(!tilde.is_empty());
         assert_eq!(tilde[0].suggestions[..], vec!["～"]); // wave dash
@@ -1775,25 +1786,26 @@
     #[test]
     fn profile_config_consistency() {
         // Verify that config() returns sensible values for each profile.
-        let default_cfg = Profile::Default.config();
+        let default_cfg = Profile::Base.config();
         assert!(default_cfg.spelling);
         assert!(default_cfg.basic_punctuation);
         assert!(default_cfg.colon_enforcement);
         assert!(!default_cfg.variant_normalization);
         assert!(!default_cfg.range_en_dash);
 
-        let strict_cfg = Profile::StrictMoe.config();
+        let strict_cfg = Profile::Strict.config();
         assert!(strict_cfg.spelling);
         assert!(strict_cfg.variant_normalization);
         assert!(strict_cfg.colon_enforcement);
         assert!(!strict_cfg.range_en_dash);
 
-        let ui_cfg = Profile::UiStrings.config();
-        assert!(ui_cfg.spelling);
-        assert!(!ui_cfg.colon_enforcement);
-        assert!(!ui_cfg.dunhao_detection);
-        assert!(!ui_cfg.variant_normalization);
-        assert!(ui_cfg.range_en_dash);
+        let relaxed_cfg = Profile::Base.config().with_relaxed();
+        assert!(relaxed_cfg.spelling);
+        assert!(!relaxed_cfg.colon_enforcement);
+        assert!(!relaxed_cfg.dunhao_detection);
+        assert!(!relaxed_cfg.variant_normalization);
+        assert!(relaxed_cfg.range_en_dash);
+        assert!(!relaxed_cfg.grammar_checks);
     }
 
     // ellipsis normalization tests
@@ -2054,7 +2066,7 @@
         let issues = scanner
             .scan_profiled_md(
                 "依據《[重編國語辭典](https://dict.revised.moe.edu.tw/)》，本文採用台灣標準。",
-                Profile::Default,
+                Profile::Base,
                 true,
             )
             .issues;
@@ -2161,7 +2173,7 @@
         let scanner = Scanner::new(vec![], vec![]);
         let md = "清單如下：\n\n- 第一項\n- 第二項\n- 第三項\n";
         let issues = scanner
-            .scan_profiled_md(md, crate::rules::ruleset::Profile::Default, true)
+            .scan_profiled_md(md, crate::rules::ruleset::Profile::Base, true)
             .issues;
         let dashes: Vec<_> = issues.iter().filter(|i| i.found == "-").collect();
         assert!(

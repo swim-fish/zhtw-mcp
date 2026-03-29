@@ -356,8 +356,16 @@ impl Server {
             .unwrap_or(false);
         let ai_threshold = optional_str_validated(args, "ai_threshold", &id)?;
 
-        // Build effective config: profile base + stance override + detect_ai override.
+        let relaxed = args
+            .get("relaxed")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+
+        // Build effective config: profile base + capability flags.
         let mut cfg = profile.config();
+        if relaxed {
+            cfg = cfg.with_relaxed();
+        }
         if let Some(st) = stance {
             cfg = cfg.with_stance(st);
         }
@@ -754,6 +762,7 @@ fn zhtw_known_params() -> &'static [&'static str] {
             "max_errors",
             "max_warnings",
             "profile",
+            "relaxed",
             "content_type",
             "political_stance",
             "ignore_terms",
@@ -773,6 +782,7 @@ fn zhtw_known_params() -> &'static [&'static str] {
             "max_errors",
             "max_warnings",
             "profile",
+            "relaxed",
             "content_type",
             "political_stance",
             "ignore_terms",
@@ -945,15 +955,9 @@ fn parse_profile(
     id: &Option<super::types::RequestId>,
 ) -> Result<Profile, JsonRpcResponse> {
     match optional_str_validated(args, "profile", id)? {
-        None => Ok(Profile::Default),
-        Some(s) => Profile::from_str_strict(s).ok_or_else(|| {
-            param_error(
-                id,
-                "profile",
-                s,
-                &["default", "strict_moe", "ui_strings", "editorial"],
-            )
-        }),
+        None => Ok(Profile::Base),
+        Some(s) => Profile::from_str_strict(s)
+            .ok_or_else(|| param_error(id, "profile", s, &["base", "strict"])),
     }
 }
 
@@ -2017,7 +2021,12 @@ fn tool_definitions() -> Vec<ToolDef> {
             props.insert("max_warnings".into(), json!({ "type": "integer" }));
             props.insert("profile".into(), json!({
                 "type": "string",
-                "enum": ["default", "strict_moe", "ui_strings", "editorial"]
+                "enum": ["base", "strict"],
+                "description": "Norm strictness: 'base' (default) or 'strict' (full MoE with character variants)"
+            }));
+            props.insert("relaxed".into(), json!({
+                "type": "boolean",
+                "description": "Capability flag for software UI strings: disables colon enforcement, dunhao detection, grammar checks; uses en-dash for ranges"
             }));
             props.insert("content_type".into(), json!({
                 "type": "string",

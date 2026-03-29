@@ -1,7 +1,7 @@
 {
   "id": "cn_to_tw_conversion",
   "label": "zh-CN text after SC->TC conversion",
-  "profile": "default",
+  "profile": "base",
   "mode": "s2t",
   "min_bytes": 51200,
   "cases": [

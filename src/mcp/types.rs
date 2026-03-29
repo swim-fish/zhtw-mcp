@@ -675,7 +675,7 @@ mod tests {
         let err = JsonRpcError {
             code: INVALID_REQUEST,
             message: "bad request".into(),
-            data: Some(json!({"field": "profile", "accepted": ["default"]})),
+            data: Some(json!({"field": "profile", "accepted": ["base", "strict"]})),
         };
         let json = serde_json::to_string(&err).unwrap();
         let parsed: Value = serde_json::from_str(&json).unwrap();

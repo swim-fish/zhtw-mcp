@@ -98,9 +98,13 @@ Use Taiwan-standard vocabulary rather than Mainland China equivalents:
 
 ## Profiles
 
-- `default`: vocabulary + basic punctuation (current behavior)
-- `strict_moe`: full MoE enforcement — all punctuation + character variants + 臺 normalization
-- `ui_strings`: relaxed for software UI — half-width colon allowed, en dash for ranges
+- `base`: vocabulary + basic punctuation (default)
+- `strict`: full MoE enforcement — all punctuation + character variants + 臺 normalization
+
+## Capability Flags
+
+- `relaxed`: for software UI — disables colon/dunhao/grammar enforcement, uses en-dash for ranges
+- `detect_ai`: AI writing review — filler phrases, semantic safety words, density patterns
 "#;
 
     ResourceReadResult {

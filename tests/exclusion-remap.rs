@@ -169,7 +169,7 @@ fn remap_exclusions_produces_identical_rescan_output() {
         .collect();
 
     let scanner = Scanner::new(spelling_rules, vec![]);
-    let cfg = Profile::Default.config();
+    let cfg = Profile::Base.config();
     let content_type = ContentType::Markdown;
 
     // Build the test document.

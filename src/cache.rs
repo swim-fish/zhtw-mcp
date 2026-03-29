@@ -381,7 +381,7 @@ mod tests {
     fn test_params() -> ScanParams {
         ScanParams {
             ruleset_hash: "rh".into(),
-            profile: "default".into(),
+            profile: "base".into(),
             content_type: "md".into(),
             fix_mode: "none".into(),
             detect_ai: false,
@@ -392,7 +392,7 @@ mod tests {
     fn test_params_plain() -> ScanParams {
         ScanParams {
             ruleset_hash: "rh".into(),
-            profile: "default".into(),
+            profile: "base".into(),
             content_type: "plain".into(),
             fix_mode: "none".into(),
             detect_ai: false,

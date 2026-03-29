@@ -43,7 +43,7 @@ Context-sensitive half-width to full-width punctuation normalization for Chinese
 | `!` | `！` | Adjacent CJK character |
 | `?` | `？` | Adjacent CJK character |
 | `;` | `；` | Adjacent CJK character |
-| `:` | `：` | Adjacent CJK character (exempted in `ui_strings` profile) |
+| `:` | `：` | Adjacent CJK character (exempted with `relaxed` flag) |
 | `(` / `)` | `（` / `）` | Adjacent CJK character |
 
 Also detects: CN curly quotation marks (`\u201c`/`\u201d` double, `\u2018`/`\u2019` single) with CJK adjacency guards to avoid false positives on English smart quotes and contractions (it's, don't); enumeration comma misuse (`，` where `、` is appropriate for coordinate lists); quotation mark hierarchy violations; extraneous space after full-width punctuation; and range indicator style (`～` vs `–`).
@@ -86,7 +86,7 @@ Character variant normalization per the MoE Standard Form of National Characters
 | 綫 | 線 | "thread/line" |
 | 麪 | 麵 | "noodle" |
 | 着 | 著 | Particle usage; exception: chess term 下著, proper nouns |
-| 台 | 臺 | `strict_moe` profile only; lexical contexts: 臺灣/臺北/臺中/臺南 |
+| 台 | 臺 | `strict` profile only; lexical contexts: 臺灣/臺北/臺中/臺南 |
 
 Variant rules use a separate engine pass (after spelling rules) with exception phrase checking.
 

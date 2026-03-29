@@ -12,7 +12,8 @@ Unified lint / fix / gate for zh-TW text.
 | `fix_mode` | `"none"` / `"orthographic"` / `"lexical_safe"` / `"lexical_contextual"` | Fix mode (default: `"none"`) |
 | `max_errors` | integer | Reject if residual errors exceed threshold |
 | `max_warnings` | integer | Reject if residual warnings exceed threshold |
-| `profile` | `"default"` / `"strict_moe"` / `"ui_strings"` | Rule profile |
+| `profile` | `"base"` / `"strict"` | Rule profile |
+| `relaxed` | boolean | Relax colon and other UI-string-level rules |
 | `content_type` | `"plain"` / `"markdown"` / `"markdown-scan-code"` / `"yaml"` | Content type (`markdown-scan-code` also lints inside code blocks) |
 | `political_stance` | `"roc_centric"` / `"neutral"` / `"international"` | Political stance filter |
 | `ignore_terms` | array of strings | Terms to downgrade to Info for this call |
@@ -121,7 +122,7 @@ early if zhtw returns accepted=true:
 ### Profile and suppression
 
 ```
-Check this UI copy in the ui_strings profile:
+Check this UI copy with the relaxed flag:
 [paste text]
 
 Lint this document but ignore "軟件" for this run, explain all other issues:

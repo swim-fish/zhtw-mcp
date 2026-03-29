@@ -16,6 +16,7 @@ const CONFIG_FILENAME: &str = ".zhtw-mcp.toml";
 #[serde(default)]
 pub struct ProjectConfig {
     pub profile: Option<String>,
+    pub relaxed: Option<bool>,
     pub content_type: Option<String>,
     pub max_errors: Option<usize>,
     pub max_warnings: Option<usize>,
@@ -86,11 +87,11 @@ mod tests {
         let dir = TempDir::new().unwrap();
         std::fs::write(
             dir.path().join(CONFIG_FILENAME),
-            "profile = \"strict_moe\"\nmax_errors = 5\n",
+            "profile = \"strict\"\nmax_errors = 5\n",
         )
         .unwrap();
         let cfg = ProjectConfig::discover(dir.path()).unwrap();
-        assert_eq!(cfg.profile.as_deref(), Some("strict_moe"));
+        assert_eq!(cfg.profile.as_deref(), Some("strict"));
         assert_eq!(cfg.max_errors, Some(5));
     }
 
@@ -99,20 +100,16 @@ mod tests {
         let dir = TempDir::new().unwrap();
         let sub = dir.path().join("sub").join("deep");
         std::fs::create_dir_all(&sub).unwrap();
-        std::fs::write(
-            dir.path().join(CONFIG_FILENAME),
-            "profile = \"ui_strings\"\n",
-        )
-        .unwrap();
+        std::fs::write(dir.path().join(CONFIG_FILENAME), "profile = \"base\"\n").unwrap();
         let cfg = ProjectConfig::discover(&sub).unwrap();
-        assert_eq!(cfg.profile.as_deref(), Some("ui_strings"));
+        assert_eq!(cfg.profile.as_deref(), Some("base"));
     }
 
     #[test]
     fn discover_stops_at_git_root() {
         let dir = TempDir::new().unwrap();
         // Place config above .git boundary.
-        std::fs::write(dir.path().join(CONFIG_FILENAME), "profile = \"default\"\n").unwrap();
+        std::fs::write(dir.path().join(CONFIG_FILENAME), "profile = \"base\"\n").unwrap();
         let sub = dir.path().join("repo");
         std::fs::create_dir_all(sub.join(".git")).unwrap();
         let deep = sub.join("src");
@@ -133,7 +130,7 @@ mod tests {
     #[test]
     fn parse_all_fields() {
         let toml = r#"
-profile = "strict_moe"
+profile = "strict"
 content_type = "markdown"
 max_errors = 0
 max_warnings = 10
@@ -144,7 +141,7 @@ suppressions = "/path/to/suppressions.json"
 packs = ["medical", "legal"]
 "#;
         let cfg: ProjectConfig = toml::from_str(toml).unwrap();
-        assert_eq!(cfg.profile.as_deref(), Some("strict_moe"));
+        assert_eq!(cfg.profile.as_deref(), Some("strict"));
         assert_eq!(cfg.content_type.as_deref(), Some("markdown"));
         assert_eq!(cfg.max_errors, Some(0));
         assert_eq!(cfg.max_warnings, Some(10));

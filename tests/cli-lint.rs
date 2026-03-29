@@ -66,15 +66,15 @@ fn cli_lint_json_format() {
 }
 
 #[test]
-fn cli_lint_profile_strict_moe() {
-    // 裏 is a variant only flagged under strict_moe
-    let output = run_lint_stdin(&["--format", "json", "--profile", "strict_moe"], "裏面");
+fn cli_lint_profile_strict() {
+    // 裏 is a variant only flagged under strict profile
+    let output = run_lint_stdin(&["--format", "json", "--profile", "strict"], "裏面");
     let stdout = String::from_utf8_lossy(&output.stdout);
     let parsed: serde_json::Value = serde_json::from_str(&stdout).expect("valid JSON");
     let issues = parsed["issues"].as_array().unwrap();
     assert!(
         issues.iter().any(|i| i["found"] == "裏"),
-        "strict_moe should flag 裏 variant"
+        "strict should flag 裏 variant"
     );
 }
 
@@ -776,22 +776,22 @@ fn cli_lint_grammar_does_not_suppress_spelling() {
 }
 
 #[test]
-fn cli_lint_grammar_disabled_in_ui_strings_profile() {
-    // UiStrings profile has grammar_checks: false.
+fn cli_lint_grammar_disabled_with_relaxed() {
+    // --relaxed disables grammar_checks.
     // Use input with both a grammar pattern and a spelling issue (軟件)
     // to prove grammar is selectively disabled, not that all issues vanish.
     let input = "你是不是喜歡這個軟件嗎？";
-    let output = run_lint_stdin(&["--format", "json", "--profile", "ui_strings"], input);
+    let output = run_lint_stdin(&["--format", "json", "--relaxed"], input);
     let stdout = String::from_utf8_lossy(&output.stdout);
     let parsed: serde_json::Value = serde_json::from_str(&stdout).expect("valid JSON");
     let issues = parsed["issues"].as_array().unwrap();
     assert!(
         issues.iter().any(|i| i["rule_type"] != "grammar"),
-        "ui_strings should still produce non-grammar issues: {stdout}"
+        "relaxed should still produce non-grammar issues: {stdout}"
     );
     assert!(
         !issues.iter().any(|i| i["rule_type"] == "grammar"),
-        "ui_strings profile should not produce grammar issues: {stdout}"
+        "relaxed should not produce grammar issues: {stdout}"
     );
 }
 
@@ -821,7 +821,7 @@ fn cli_lint_detect_ai_enables_density_detection() {
             text.push_str(filler);
         }
     }
-    // Without --detect-ai (default profile): no ai_style density issues.
+    // Without --detect-ai (base profile): no ai_style density issues.
     let output_default = run_lint_stdin(&["--format", "json"], &text);
     let stdout = String::from_utf8_lossy(&output_default.stdout);
     let json_default: serde_json::Value =
@@ -834,7 +834,7 @@ fn cli_lint_detect_ai_enables_density_detection() {
     });
     assert!(
         !has_ai_density_default,
-        "default profile should not report ai_style density issues: {stdout}"
+        "base profile should not report ai_style density issues: {stdout}"
     );
 
     // With --detect-ai: ai_style density issues should appear.

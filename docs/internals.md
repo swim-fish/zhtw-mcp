@@ -13,7 +13,7 @@ The scanner detects Traditional vs. Simplified Chinese by counting exclusive cha
 5. Punctuation pass: full-width conversion, CN curly quotes, enumeration comma, quote hierarchy, CJK spacing
 6. Variant pass: character variant normalization with exception phrase checking
 7. Overlap resolution: longer match wins, higher severity on tie
-8. Profile filtering (e.g., `臺`/`台` only in `strict_moe`)
+8. Profile filtering (e.g., `臺`/`台` only in `strict`)
 9. Sampling (optional): ambiguous terms escalated to host LLM
 
 ## Design decisions

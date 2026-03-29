@@ -3,13 +3,15 @@ use zhtw_mcp::engine::s2t::S2TConverter;
 use zhtw_mcp::engine::scan::{ContentType, Scanner};
 use zhtw_mcp::engine::segment::Segmenter;
 use zhtw_mcp::fixer::{apply_fixes_with_context, FixMode};
-use zhtw_mcp::rules::ruleset::{Issue, IssueType, Profile, Ruleset};
+use zhtw_mcp::rules::ruleset::{Issue, IssueType, Profile, ProfileConfig, Ruleset};
 
 #[derive(Debug, Deserialize)]
 struct CorpusSpec {
     id: String,
     label: String,
     profile: String,
+    #[serde(default)]
+    detect_ai: bool,
     mode: String,
     min_bytes: usize,
     cases: Vec<CorpusCase>,
@@ -75,8 +77,17 @@ fn load_scanner() -> (Scanner, Segmenter) {
     (scanner, segmenter)
 }
 
-fn parse_profile(name: &str) -> Profile {
-    Profile::from_str_strict(name).unwrap_or_else(|| panic!("unknown profile: {name}"))
+fn build_config(spec: &CorpusSpec) -> ProfileConfig {
+    let profile = Profile::from_str_strict(&spec.profile)
+        .unwrap_or_else(|| panic!("unknown profile: {}", spec.profile));
+    let mut cfg = profile.config();
+    if spec.detect_ai {
+        cfg.ai_filler_detection = true;
+        cfg.ai_semantic_safety = true;
+        cfg.ai_density_detection = true;
+        cfg.ai_structural_patterns = true;
+    }
+    cfg
 }
 
 fn parse_issue_type(name: &str) -> IssueType {
@@ -190,7 +201,7 @@ fn evaluate_positive_corpus(
     segmenter: &Segmenter,
     converter: &S2TConverter,
 ) -> (ScoreCounts, FixCounts, usize) {
-    let profile = parse_profile(&spec.profile);
+    let cfg = build_config(spec);
     let mut score = ScoreCounts::default();
     let mut fix = FixCounts::default();
     let mut total_bytes = 0usize;
@@ -214,7 +225,7 @@ fn evaluate_positive_corpus(
 
         let expected = resolve_expected_issues(scan_text, &case.expected_issues);
         let issues = scanner
-            .scan_for_content_type(scan_text, ContentType::Plain, profile)
+            .scan_for_content_type_with_config(scan_text, ContentType::Plain, cfg)
             .issues;
         let doc_score = score_document(&issues, &expected);
         let fixed = apply_fixes_with_context(
@@ -243,14 +254,14 @@ fn evaluate_native_corpus(
     scanner: &Scanner,
     segmenter: &Segmenter,
 ) -> (NativeCounts, FixCounts, usize) {
-    let profile = parse_profile(&spec.profile);
+    let cfg = build_config(spec);
     let mut native = NativeCounts::default();
     let mut fix = FixCounts::default();
     let mut total_bytes = 0usize;
 
     for case in &spec.cases {
         let issues = scanner
-            .scan_for_content_type(&case.input, ContentType::Plain, profile)
+            .scan_for_content_type_with_config(&case.input, ContentType::Plain, cfg)
             .issues;
         let fixed = apply_fixes_with_context(
             &case.input,

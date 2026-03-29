@@ -155,7 +155,7 @@ fn existing_it_rules_still_fire() {
     assert!(issues.iter().any(|i| i.found == "軟件"));
 }
 
-// Profile interaction: strict_moe catches all + variants
+// Profile interaction: strict catches all + variants
 #[test]
 fn political_nouns_fire_under_all_profiles() {
     let scanner = full_scanner();
@@ -309,7 +309,7 @@ fn country_rules_have_english_field() {
 #[test]
 fn roc_centric_flags_all_political_terms() {
     let scanner = full_scanner();
-    let cfg = Profile::Default.config();
+    let cfg = Profile::Base.config();
     // RocCentric (default): 內地 should be flagged
     let excluded = vec![];
     let issues = scanner
@@ -324,7 +324,7 @@ fn roc_centric_flags_all_political_terms() {
 #[test]
 fn roc_centric_flags_asean() {
     let scanner = full_scanner();
-    let cfg = Profile::Default.config();
+    let cfg = Profile::Base.config();
     let issues = scanner.scan_with_config("東盟峰會", &[], cfg).issues;
     assert!(
         issues.iter().any(|i| i.found == "東盟"),
@@ -335,7 +335,7 @@ fn roc_centric_flags_asean() {
 #[test]
 fn international_skips_identity_terms() {
     let scanner = full_scanner();
-    let cfg = Profile::Default
+    let cfg = Profile::Base
         .config()
         .with_stance(PoliticalStance::International);
     // International: 內地 should NOT be flagged (identity-loaded)
@@ -351,7 +351,7 @@ fn international_skips_identity_terms() {
 #[test]
 fn international_keeps_org_names() {
     let scanner = full_scanner();
-    let cfg = Profile::Default
+    let cfg = Profile::Base
         .config()
         .with_stance(PoliticalStance::International);
     // International: 東盟 should still be flagged (org name)
@@ -365,9 +365,7 @@ fn international_keeps_org_names() {
 #[test]
 fn neutral_suppresses_all_political() {
     let scanner = full_scanner();
-    let cfg = Profile::Default
-        .config()
-        .with_stance(PoliticalStance::Neutral);
+    let cfg = Profile::Base.config().with_stance(PoliticalStance::Neutral);
     // Neutral: neither 內地 nor 東盟 should be flagged
     let issues = scanner.scan_with_config("內地的東盟峰會", &[], cfg).issues;
     let political: Vec<_> = issues
@@ -384,9 +382,7 @@ fn neutral_suppresses_all_political() {
 #[test]
 fn neutral_still_flags_cross_strait() {
     let scanner = full_scanner();
-    let cfg = Profile::Default
-        .config()
-        .with_stance(PoliticalStance::Neutral);
+    let cfg = Profile::Base.config().with_stance(PoliticalStance::Neutral);
     // Neutral suppresses political but NOT cross_strait vocabulary
     let issues = scanner
         .scan_with_config("這個軟件需要更新", &[], cfg)

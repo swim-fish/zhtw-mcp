@@ -77,6 +77,7 @@ fn main() -> Result<()> {
     let mut fix_mode: Option<zhtw_mcp::fixer::FixMode> = None;
     let mut dry_run = false;
     let mut explain = false;
+    let mut relaxed = false;
     let mut detect_ai = false;
     let mut ai_threshold_multiplier: f32 = 1.0;
     let mut baseline_path: Option<PathBuf> = None;
@@ -154,6 +155,9 @@ fn main() -> Result<()> {
                             i += 1;
                             profile_str =
                                 Some(args.get(i).context("--profile requires a value")?.clone());
+                        }
+                        "--relaxed" => {
+                            relaxed = true;
                         }
                         "--content-type" => {
                             i += 1;
@@ -448,6 +452,8 @@ fn main() -> Result<()> {
         let eff_profile = profile_str
             .as_deref()
             .or_else(|| cfg_ref.and_then(|c| c.profile.as_deref()));
+        // CLI --relaxed flag overrides config file relaxed setting.
+        let eff_relaxed = relaxed || cfg_ref.and_then(|c| c.relaxed).unwrap_or(false);
         let eff_content_type = content_type_str
             .as_deref()
             .or_else(|| cfg_ref.and_then(|c| c.content_type.as_deref()));
@@ -501,6 +507,7 @@ fn main() -> Result<()> {
             diff_from: diff_from.as_deref(),
             #[cfg(feature = "translate")]
             verify,
+            relaxed: eff_relaxed,
             detect_ai,
             ai_threshold_multiplier,
             tm_path: Some(eff_tm_path),
@@ -689,6 +696,7 @@ struct LintBatchParams<'a> {
     diff_from: Option<&'a str>,
     #[cfg(feature = "translate")]
     verify: bool,
+    relaxed: bool,
     detect_ai: bool,
     ai_threshold_multiplier: f32,
     tm_path: Option<PathBuf>,
@@ -697,13 +705,17 @@ struct LintBatchParams<'a> {
 fn run_lint_batch(params: &LintBatchParams<'_>) -> Result<()> {
     let c = if use_color() { &COLORS_ON } else { &COLORS_OFF };
 
-    let profile = params
-        .profile_name
-        .map(zhtw_mcp::rules::ruleset::Profile::from_str_lossy)
-        .unwrap_or(zhtw_mcp::rules::ruleset::Profile::Default);
+    let profile = match params.profile_name {
+        None => zhtw_mcp::rules::ruleset::Profile::Base,
+        Some(s) => zhtw_mcp::rules::ruleset::Profile::from_str_strict(s)
+            .ok_or_else(|| anyhow::anyhow!("unknown profile: {s} (expected 'base' or 'strict')"))?,
+    };
 
-    // Build effective config: profile base + detect_ai override.
+    // Build effective config: profile base + capability flags.
     let mut cfg = profile.config();
+    if params.relaxed {
+        cfg = cfg.with_relaxed();
+    }
     if params.detect_ai {
         cfg.ai_filler_detection = true;
         cfg.ai_semantic_safety = true;
@@ -1584,7 +1596,7 @@ fn run_convert(
         let scan_out = scanner.scan_with_prebuilt_excluded(
             &text,
             &excluded,
-            zhtw_mcp::rules::ruleset::Profile::Default,
+            zhtw_mcp::rules::ruleset::Profile::Base,
             content_type,
         );
         let issues = scan_out.issues;
@@ -1624,7 +1636,7 @@ fn run_convert(
         let scan_out = scanner.scan_with_prebuilt_excluded(
             &text,
             &excluded,
-            zhtw_mcp::rules::ruleset::Profile::Default,
+            zhtw_mcp::rules::ruleset::Profile::Base,
             content_type,
         );
         let mut remaining = scan_out.issues;
