@@ -22,15 +22,36 @@ from pathlib import Path
 from typing import Any
 
 
-def dedup_sort(rules: list[dict[str, Any]], key: str) -> list[dict[str, Any]]:
+def dedup_sort(
+    rules: list[dict[str, Any]], key: str
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Deduplicate by exact key and by space-normalized key, then sort.
+
+    Two rules whose key values differ only by whitespace (e.g.
+    "標準 C 庫" vs "標準C庫") are treated as duplicates — the first
+    occurrence wins.
+
+    Returns (deduplicated_rules, space_dup_warnings).
+    """
     seen: set[str] = set()
+    seen_nospace: dict[str, str] = {}  # nospace -> first key
     out: list[dict[str, Any]] = []
+    space_warnings: list[str] = []
     for rule in rules:
         k = rule[key]
-        if k not in seen:
-            seen.add(k)
-            out.append(rule)
-    return sorted(out, key=lambda r: r[key])
+        if k in seen:
+            continue
+        ns = k.replace(" ", "").replace("\u3000", "")
+        if ns in seen_nospace:
+            space_warnings.append(
+                f'space-dup: "{k}" collapsed as duplicate of '
+                f'"{seen_nospace[ns]}" (differ only by whitespace)'
+            )
+            continue
+        seen.add(k)
+        seen_nospace[ns] = k
+        out.append(rule)
+    return sorted(out, key=lambda r: r[key]), space_warnings
 
 
 # Valid rule types (must match RuleType enum in src/rules/ruleset.rs).
@@ -437,6 +458,218 @@ VALID_DOMAINS = {
 # Valid @geo sub-types.
 VALID_GEO_TYPES = {"country", "city", "landmark", "university"}
 
+# Boilerplate IT clues often get copy-pasted onto unrelated rules.
+STOCK_IT_CONTEXT_CLUES = ["程式", "軟體", "系統", "電腦", "網路"]
+TECHNICAL_DOMAINS_WITH_STOCK_IT_CLUES = {
+    "IT",
+    "UI",
+    "作業系統",
+    "資料",
+    "資料庫",
+    "資料結構",
+    "硬體",
+    "程式設計",
+    "網路",
+    "軟體授權",
+    "通訊",
+    "雲端",
+    "電子",
+}
+
+# Common Simplified Chinese → Traditional Chinese single-char pairs.
+# Used by checks 23/23b to detect SC characters in non-variant rules.
+COMMON_SC2TC: dict[str, str] = {
+    "儿": "兒",
+    "车": "車",
+    "长": "長",
+    "门": "門",
+    "开": "開",
+    "见": "見",
+    "贝": "貝",
+    "气": "氣",
+    "电": "電",
+    "写": "寫",
+    "学": "學",
+    "对": "對",
+    "时": "時",
+    "头": "頭",
+    "机": "機",
+    "线": "線",
+    "钱": "錢",
+    "间": "間",
+    "话": "話",
+    "认": "認",
+    "识": "識",
+    "边": "邊",
+    "过": "過",
+    "运": "運",
+    "进": "進",
+    "远": "遠",
+    "连": "連",
+    "选": "選",
+    "达": "達",
+    "还": "還",
+    "这": "這",
+    "设": "設",
+    "计": "計",
+    "让": "讓",
+    "议": "議",
+    "记": "記",
+    "许": "許",
+    "论": "論",
+    "语": "語",
+    "说": "說",
+    "请": "請",
+    "读": "讀",
+    "课": "課",
+    "调": "調",
+    "转": "轉",
+    "软": "軟",
+    "输": "輸",
+    "农": "農",
+    "邮": "郵",
+    "钟": "鐘",
+    "铁": "鐵",
+    "银": "銀",
+    "错": "錯",
+    "键": "鍵",
+    "镜": "鏡",
+    "页": "頁",
+    "顾": "顧",
+    "显": "顯",
+    "风": "風",
+    "飞": "飛",
+    "饭": "飯",
+    "馆": "館",
+    "马": "馬",
+    "驱": "驅",
+    "验": "驗",
+    "龙": "龍",
+    "园": "園",
+    "网": "網",
+    "络": "絡",
+    "点": "點",
+    "视": "視",
+    "频": "頻",
+    "审": "審",
+    "广": "廣",
+    "应": "應",
+    "录": "錄",
+    "态": "態",
+    "总": "總",
+    "据": "據",
+    "数": "數",
+    "断": "斷",
+    "无": "無",
+    "术": "術",
+    "条": "條",
+    "构": "構",
+    "标": "標",
+    "检": "檢",
+    "毕": "畢",
+    "测": "測",
+    "热": "熱",
+    "现": "現",
+    "产": "產",
+    "盘": "盤",
+    "监": "監",
+    "码": "碼",
+    "确": "確",
+    "种": "種",
+    "笔": "筆",
+    "类": "類",
+    "级": "級",
+    "组": "組",
+    "经": "經",
+    "结": "結",
+    "给": "給",
+    "统": "統",
+    "维": "維",
+    "缓": "緩",
+    "编": "編",
+    "脑": "腦",
+    "节": "節",
+    "药": "藥",
+    "营": "營",
+    "获": "獲",
+    "规": "規",
+    "观": "觀",
+    "触": "觸",
+    "证": "證",
+    "评": "評",
+    "资": "資",
+    "与": "與",
+    "专": "專",
+    "业": "業",
+    "两": "兩",
+    "严": "嚴",
+    "丰": "豐",
+    "临": "臨",
+    "为": "為",
+    "举": "舉",
+    "义": "義",
+    "书": "書",
+    "买": "買",
+    "争": "爭",
+    "亿": "億",
+    "从": "從",
+    "仓": "倉",
+    "价": "價",
+    "众": "眾",
+    "优": "優",
+    "传": "傳",
+    "体": "體",
+    "们": "們",
+    "关": "關",
+    "养": "養",
+    "决": "決",
+    "净": "淨",
+    "准": "準",
+    "击": "擊",
+    "创": "創",
+    "别": "別",
+    "办": "辦",
+    "务": "務",
+    "动": "動",
+    "区": "區",
+    "医": "醫",
+    "华": "華",
+    "单": "單",
+    "卖": "賣",
+    "卫": "衛",
+    "厂": "廠",
+    "历": "歷",
+    "厅": "廳",
+    "压": "壓",
+    "变": "變",
+    "号": "號",
+    "叶": "葉",
+    "听": "聽",
+    "员": "員",
+    "问": "問",
+    "阅": "閱",
+    "阳": "陽",
+    "队": "隊",
+    "际": "際",
+    "阶": "階",
+    "陈": "陳",
+    "陆": "陸",
+    "险": "險",
+    "随": "隨",
+    "隐": "隱",
+    "难": "難",
+    "预": "預",
+    "饮": "飲",
+    "桥": "橋",
+    "装": "裝",
+    "简": "簡",
+    "离": "離",
+    "独": "獨",
+    "团": "團",
+    "岁": "歲",
+    "炉": "爐",
+}
+
 
 def detect_conflicts(
     spelling_rules: list[dict[str, Any]],
@@ -467,11 +700,16 @@ def detect_conflicts(
     18. Negative/positive clue substring overlap (suppression bug)
     19. Exception validity (exception must contain from as substring)
     20. Contradictory positional clues (before + not_before on same term)
+    21. Space-only duplicate rules (handled by dedup_sort, reported via
+        its return value and appended to conflicts in main)
+    23. SC char in non-variant rules (pure SC→TC and mixed SC in from)
+    24. Stock IT clues on non-technical domains (copy-paste smell)
 
-    Advisories (checks 14-16, informational only):
+    Advisories (checks 14-16, 22, 24, informational only):
     14. context_clues / negative_context_clues length convention (<=6 chars)
     15. Missing english field on cross_strait / confusable / typo rules
     16. Missing context field on cross_strait / confusable / typo / political_coloring rules
+    22. Context parroting (context repeats from/to with no added information)
     """
     warnings: list[str] = []
 
@@ -1012,6 +1250,92 @@ def detect_conflicts(
                 f'missing-context: "{rule["from"]}" ({rtype}) has no context field'
             )
 
+    # 22. Redundant context parroting: context field that merely repeats
+    #     the from/to mapping already expressed by the rule's own fields.
+    #     Pattern: 'cn 用「<from>」；tw 用「<to>」' adds no information.
+    parrot_re = re.compile(r"cn\s*用「([^」]*)」[；;]\s*tw\s*用「([^」]*)」")
+    for rule in from_set.values():
+        frm = rule["from"]
+        ctx = rule.get("context", "")
+        m = parrot_re.search(ctx)
+        if m:
+            cn_val, tw_val = m.group(1), m.group(2)
+            targets = rule.get("to", [])
+            if cn_val == frm and targets and tw_val == targets[0]:
+                advisories.append(
+                    f'context-parrot: "{frm}" context repeats from/to '
+                    f"— strip redundant cn/tw text"
+                )
+
+    # 24. Stock IT clues on non-technical domains: this exact clue set is
+    #     commonly copied onto unrelated rules by mistake.
+    for rule in from_set.values():
+        if rule.get("context_clues") != STOCK_IT_CONTEXT_CLUES:
+            continue
+        ctx = rule.get("context", "")
+        m = re.match(r"@domain\s+([^。\s]+)", ctx)
+        domain = m.group(1) if m else ""
+        if domain not in TECHNICAL_DOMAINS_WITH_STOCK_IT_CLUES:
+            advisories.append(
+                f'stock-it-clues: "{rule["from"]}" uses stock IT clues '
+                f'outside technical domains ({domain or "no @domain"})'
+            )
+
+    # 23. Simplified Chinese in non-variant rules: the 'from' field of
+    #     cross_strait rules should use Traditional Chinese (the S2T
+    #     converter handles SC→TC character conversion separately).
+    #     Also detects rules that are purely SC→TC char substitution
+    #     (from and to differ only by SC→TC character mapping).
+    #
+    #     Pure SC→TC rules are errors; mixed SC in 'from' is advisory
+    #     (some cross_strait rules intentionally use SC to catch text
+    #     after incomplete S2T conversion).
+    _tc_variants = {
+        r["from"]
+        for r in spelling_rules
+        if r.get("type") == "variant" and len(r["from"]) == 1
+    }
+    _sc2tc = {k: v for k, v in COMMON_SC2TC.items() if k not in _tc_variants}
+
+    for rule in from_set.values():
+        frm = rule["from"]
+        rtype = rule.get("type", "")
+        if rtype in ("variant", "ai_filler"):
+            continue
+        to = rule.get("to", [])
+        to0 = to[0] if to else ""
+
+        sc_chars = [ch for ch in frm if ch in _sc2tc]
+        if not sc_chars:
+            continue
+
+        # Pure SC→TC char-level rule: same length, every diff is SC→TC.
+        if len(frm) == len(to0) and frm != to0:
+            all_sc2tc = all(
+                _sc2tc.get(frm[i]) == to0[i]
+                for i in range(len(frm))
+                if frm[i] != to0[i]
+            )
+            if all_sc2tc:
+                warnings.append(
+                    f'sc-char-only: "{frm}" → "{to0}" is purely '
+                    f"SC→TC character conversion (use S2T converter, "
+                    f"not spelling_rules)"
+                )
+                continue
+
+        # Mixed SC in 'from': error.  The S2T converter normalises SC
+        # to TC before spelling rules run, so SC 'from' values never
+        # match.  Use the Traditional Chinese form instead.
+        warnings.append(
+            f'sc-in-from: "{frm}" contains simplified character(s) '
+            f'{"".join(sc_chars)} — use Traditional Chinese in from'
+        )
+
+    # 21. Space-only duplicates: handled by dedup_sort() before
+    #     detect_conflicts() is called.  Warnings are reported via
+    #     dedup_sort()'s return value and appended to conflicts in main().
+
     # 17. ai_filler trailing punctuation: the scanner extends deletion
     #     spans (is_deletion_rule: to == [""]) to consume trailing ，/：
     #     automatically.  Separate rules for phrase+punctuation variants
@@ -1085,15 +1409,21 @@ def main() -> int:
     orig_spelling = len(data["spelling_rules"])
     orig_case = len(data["case_rules"])
 
-    data["spelling_rules"] = dedup_sort(data["spelling_rules"], "from")
-    data["case_rules"] = dedup_sort(data["case_rules"], "term")
+    data["spelling_rules"], space_warnings_sp = dedup_sort(
+        data["spelling_rules"], "from"
+    )
+    data["case_rules"], space_warnings_cr = dedup_sort(data["case_rules"], "term")
 
     new_spelling = len(data["spelling_rules"])
     new_case = len(data["case_rules"])
     removed = (orig_spelling - new_spelling) + (orig_case - new_case)
 
+    # Space-dup warnings from dedup_sort are treated as conflicts (errors).
+    space_warnings = space_warnings_sp + space_warnings_cr
+
     # Detect semantic conflicts in spelling rules.
     conflicts, advisories = detect_conflicts(data["spelling_rules"])
+    conflicts.extend(space_warnings)
     if conflicts:
         print(f"conflicts ({len(conflicts)}):", file=sys.stderr)
         for w in conflicts:

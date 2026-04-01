@@ -39,18 +39,25 @@
       "context_clues": ["檢查", "醫院", "胎兒", "診斷"]
     },
     {
-      "from": "CPU 核心",
+      "from": "CPU核心",
       "to": ["CPU 核"],
       "type": "cross_strait",
       "context": "@domain 硬體。區分 core (核) 和 kernel (核心)；processor core 譯為「核」",
       "english": "CPU core"
     },
     {
-      "from": "CPU核心",
-      "to": ["CPU 核"],
+      "from": "GSM移動",
+      "to": ["GSM行動"],
       "type": "cross_strait",
-      "context": "@domain 硬體。區分 core (核) 和 kernel (核心)；processor core 譯為「核」",
-      "english": "CPU core"
+      "context": "@domain IT",
+      "english": "GSM mobile"
+    },
+    {
+      "from": "Google工具條",
+      "to": ["Google工具列"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Google Toolbar"
     },
     {
       "from": "PN結",
@@ -72,6 +79,13 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "SQL injection attack"
+    },
+    {
+      "from": "Sun微系統",
+      "to": ["昇陽電腦"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Sun Microsystems"
     },
     {
       "from": "U盤",
@@ -117,6 +131,27 @@
       "english": "one-click"
     },
     {
+      "from": "一陣風",
+      "to": ["三分鐘熱度"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "passing fad"
+    },
+    {
+      "from": "一風吹",
+      "to": ["一筆勾銷"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "nullify all at once"
+    },
+    {
+      "from": "丁克夫妻",
+      "to": ["頂克族"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "DINK couple"
+    },
+    {
       "from": "七天無理由",
       "to": ["七天鑑賞期"],
       "type": "cross_strait",
@@ -125,11 +160,34 @@
       "context_clues": ["退貨", "退款", "購物", "消費"]
     },
     {
+      "from": "三叉樹",
+      "to": ["三元樹"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "ternary tree",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "三文魚",
+      "to": ["鮭魚"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "salmon"
+    },
+    {
       "from": "三極管",
       "to": ["三極體"],
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "triode"
+    },
+    {
+      "from": "上網本",
+      "to": ["小筆電"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "netbook",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "下劃線",
@@ -244,7 +302,7 @@
       "from": "中微子",
       "to": ["微中子"],
       "type": "cross_strait",
-      "context": "@domain 科學。cn 中微子 = tw 微中子 (neutrino)",
+      "context": "@domain 科學",
       "english": "neutrino",
       "context_clues": ["粒子", "物理", "衰變", "質量", "振盪", "費米", "弱交互作用", "輻射"]
     },
@@ -320,6 +378,13 @@
       "english": "enterprise (typo)"
     },
     {
+      "from": "也是醉了",
+      "to": ["沒救了", "無言"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "speechless / absurd"
+    },
+    {
       "from": "也門",
       "to": ["葉門"],
       "type": "cross_strait",
@@ -371,6 +436,13 @@
       "english": "diode"
     },
     {
+      "from": "二流子",
+      "to": ["流氓"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "loafer / hoodlum"
+    },
+    {
       "from": "二維碼",
       "to": ["二維條碼"],
       "type": "cross_strait",
@@ -390,6 +462,13 @@
       "type": "cross_strait",
       "context": "@domain 網路",
       "english": "Internet"
+    },
+    {
+      "from": "互通式立交",
+      "to": ["交流道"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "grade-separated interchange"
     },
     {
       "from": "亞像素",
@@ -423,11 +502,46 @@
       "context_clues": ["網路", "路由", "封包", "VLAN"]
     },
     {
+      "from": "亭式車站",
+      "to": ["候車亭"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "shelter-style station"
+    },
+    {
+      "from": "人字拖",
+      "to": ["夾腳拖"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "flip-flops"
+    },
+    {
       "from": "人工智能",
       "to": ["人工智慧"],
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "artificial intelligence (AI)"
+    },
+    {
+      "from": "人工神經",
+      "to": ["類神經"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "artificial neural (network)"
+    },
+    {
+      "from": "人臉識別",
+      "to": ["臉部辨識"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "face recognition"
+    },
+    {
+      "from": "人行橫道",
+      "to": ["斑馬線"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "pedestrian crossing"
     },
     {
       "from": "仙童半導體",
@@ -530,6 +644,13 @@
       "english": "simulation/emulation"
     },
     {
+      "from": "企業移動管理",
+      "to": ["企業行動管理"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "enterprise mobility management"
+    },
+    {
       "from": "伊斯坦布爾",
       "to": ["伊斯坦堡"],
       "type": "cross_strait",
@@ -554,7 +675,7 @@
       "from": "佈局",
       "to": ["版面配置"],
       "type": "cross_strait",
-      "context": "@domain IT。cn「佈局」(UI)；tw 用「版面配置」(layout)",
+      "context": "@domain IT。layout",
       "english": "layout",
       "context_clues": ["CSS", "UI", "介面", "排版", "設計"]
     },
@@ -602,6 +723,14 @@
       "context": "@domain 程式設計",
       "english": "bitwise operation/bit-wise operation",
       "context_clues": ["位元", "mask", "shift", "程式碼"]
+    },
+    {
+      "from": "位模式",
+      "to": ["位元型樣"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "bit pattern",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "低級",
@@ -666,7 +795,7 @@
       "from": "依賴",
       "to": ["相依性"],
       "type": "cross_strait",
-      "context": "@domain IT。cn「依賴」(軟體)；tw 用「相依性」(dependency)",
+      "context": "@domain IT。dependency",
       "english": "dependency",
       "context_clues": ["套件", "模組", "npm", "pip", "安裝", "版本"]
     },
@@ -679,11 +808,26 @@
       "context_clues": ["安裝", "套件", "版本", "管理"]
     },
     {
+      "from": "便利店",
+      "to": ["便利商店"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "convenience store"
+    },
+    {
       "from": "便攜式",
       "to": ["行動式", "攜帶型"],
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "portable"
+    },
+    {
+      "from": "便攜版",
+      "to": ["可攜式版本"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "portable edition",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "保修",
@@ -708,11 +852,32 @@
       "english": "save"
     },
     {
+      "from": "保暖杯",
+      "to": ["保溫杯"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "insulated cup"
+    },
+    {
+      "from": "保職停薪",
+      "to": ["留職停薪"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "leave without pay"
+    },
+    {
       "from": "保育員",
       "to": ["保姆"],
       "type": "cross_strait",
-      "context": "@domain 日常。cn 保育員 = tw 保姆 (childcare worker)",
+      "context": "@domain 日常",
       "english": "nanny/babysitter"
+    },
+    {
+      "from": "保育院",
+      "to": ["育幼院"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "orphanage / child care"
     },
     {
       "from": "保質期",
@@ -803,6 +968,14 @@
       "context_clues": ["git", "Git", "GitHub", "clone", "commit", "push", "pull", "版本", "分支", "branch"]
     },
     {
+      "from": "個人網",
+      "to": ["個人區域網路"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "personal area network",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "個性化",
       "to": ["個人化"],
       "type": "cross_strait",
@@ -813,9 +986,30 @@
       "from": "個核心",
       "to": ["個處理器核"],
       "type": "cross_strait",
-      "context": "量詞＋核心 在 CPU 語境指 processor core，非 kernel (@seealso CPU 核心, 多核心)。exceptions 排除「核心」作形容詞(essential)的用法",
+      "context": "量詞＋核心 在 CPU 語境指 processor core，非 kernel (@seealso CPU核心, 多核心)。exceptions 排除「核心」作形容詞(essential)的用法",
       "english": "processor core (quantified)",
       "exceptions": ["個核心功能", "個核心概念", "個核心問題", "個核心思想", "個核心價值", "個核心原則", "個核心利益", "個核心優勢", "個核心能力", "個核心理念", "個核心目標", "個核心需求", "個核心特性", "個核心邏輯", "個核心策略", "個核心技術", "個核心模組"]
+    },
+    {
+      "from": "倒排索引",
+      "to": ["反向索引"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "inverted index"
+    },
+    {
+      "from": "倒排記錄",
+      "to": ["反向紀錄"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "inverted record"
+    },
+    {
+      "from": "倒讀秒",
+      "to": ["倒數計時"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "countdown"
     },
     {
       "from": "候選函數",
@@ -866,11 +1060,25 @@
       "english": "robustness"
     },
     {
+      "from": "健美褲",
+      "to": ["韻律褲"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "leggings / fitness pants"
+    },
+    {
       "from": "偽代碼",
       "to": ["虛擬碼"],
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "pseudocode"
+    },
+    {
+      "from": "偽相關回饋",
+      "to": ["準相關回饋"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "pseudo-relevance feedback"
     },
     {
       "from": "偽碼",
@@ -908,6 +1116,13 @@
       "english": "sensor"
     },
     {
+      "from": "傳統風味",
+      "to": ["古早味"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "traditional flavor"
+    },
+    {
       "from": "像素",
       "to": ["畫素"],
       "type": "cross_strait",
@@ -918,7 +1133,15 @@
       "from": "僞",
       "to": ["偽"],
       "type": "variant",
-      "context": "MoE 標準字體 (假、不真實的意思)"
+      "context": "MoE 標準字體 (假、不真實的意思)",
+      "english": "false / pseudo (char variant)"
+    },
+    {
+      "from": "價格策略",
+      "to": ["定價策略"],
+      "type": "cross_strait",
+      "context": "@domain 商業",
+      "english": "pricing strategy"
     },
     {
       "from": "儀表盤",
@@ -969,6 +1192,14 @@
       "english": "priority inheritance"
     },
     {
+      "from": "優勢比",
+      "to": ["勝算比"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "odds ratio",
+      "context_clues": ["統計", "病例", "風險", "研究"]
+    },
+    {
       "from": "優化",
       "to": ["最佳化"],
       "type": "cross_strait",
@@ -1012,6 +1243,13 @@
       "english": "metadata"
     },
     {
+      "from": "元旦倒計時",
+      "to": ["跨年倒數"],
+      "type": "cross_strait",
+      "context": "@domain 日常。cn 「倒計時」；tw 用「倒數」",
+      "english": "New Year countdown"
+    },
+    {
       "from": "元編程",
       "to": ["超程式設計"],
       "type": "cross_strait",
@@ -1040,6 +1278,13 @@
       "english": "sibling node"
     },
     {
+      "from": "兄弟院校",
+      "to": ["姊妹校"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "partner school"
+    },
+    {
       "from": "充值",
       "to": ["加值", "儲值"],
       "type": "cross_strait",
@@ -1054,6 +1299,13 @@
       "english": "power bank"
     },
     {
+      "from": "先驗機率",
+      "to": ["事前機率"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "prior probability"
+    },
+    {
       "from": "光伏",
       "to": ["太陽能板"],
       "type": "cross_strait",
@@ -1066,6 +1318,13 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "lithography machine"
+    },
+    {
+      "from": "光榮榜",
+      "to": ["榮譽榜"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "honor roll"
     },
     {
       "from": "光標",
@@ -1116,6 +1375,20 @@
       "context": "@domain 金融",
       "english": "deductible",
       "context_clues": ["保險", "理賠", "保單", "醫療"]
+    },
+    {
+      "from": "兒童文化宮",
+      "to": ["兒童活動中心"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "children's activity center"
+    },
+    {
+      "from": "入站行銷",
+      "to": ["集客式行銷"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "inbound marketing"
     },
     {
       "from": "內地",
@@ -1227,6 +1500,14 @@
       "english": "inline expansion"
     },
     {
+      "from": "內部網",
+      "to": ["內部網路"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "intranet",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "全局",
       "to": ["全域"],
       "type": "cross_strait",
@@ -1271,6 +1552,13 @@
       "english": "full-stack"
     },
     {
+      "from": "全線飄紅",
+      "to": ["長紅"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "broad market rally"
+    },
+    {
       "from": "全角",
       "to": ["全形"],
       "type": "cross_strait",
@@ -1278,10 +1566,25 @@
       "english": "full-width"
     },
     {
+      "from": "全面屏手機",
+      "to": ["全螢幕手機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "full-screen smartphone"
+    },
+    {
+      "from": "八叉樹",
+      "to": ["八元樹"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "octree",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "八核心",
       "to": ["八核"],
       "type": "cross_strait",
-      "context": "compound:octa-core = 八核 (@seealso CPU 核心, 多核心)",
+      "context": "compound:octa-core = 八核 (@seealso CPU核心, 多核心)",
       "english": "octa-core"
     },
     {
@@ -1297,6 +1600,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "public bus"
+    },
+    {
+      "from": "公共陸基移動網",
+      "to": ["公用陸上行動網路"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "public land mobile network"
     },
     {
       "from": "共享庫",
@@ -1346,6 +1656,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "taxi"
+    },
+    {
+      "from": "出站行銷",
+      "to": ["推廣式行銷"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "outbound marketing"
     },
     {
       "from": "函子",
@@ -1466,11 +1783,41 @@
       "english": "partition"
     },
     {
+      "from": "分卷壓縮",
+      "to": ["分割壓縮"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "split archive compression"
+    },
+    {
+      "from": "分布式",
+      "to": ["分散式"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "distributed",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "分形",
       "to": ["碎形"],
       "type": "cross_strait",
       "context": "@domain 數學",
       "english": "fractal"
+    },
+    {
+      "from": "分數線",
+      "to": ["最低錄取標準"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "cutoff score"
+    },
+    {
+      "from": "分析器",
+      "to": ["剖析器"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "analyzer",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "分派",
@@ -1479,6 +1826,20 @@
       "context": "@domain 程式設計",
       "english": "dispatch",
       "context_clues": ["函式", "方法", "呼叫", "多型", "事件"]
+    },
+    {
+      "from": "分組交換",
+      "to": ["封包交換"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "packet switching"
+    },
+    {
+      "from": "分組密碼",
+      "to": ["區塊加密法"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "block cipher"
     },
     {
       "from": "分組框",
@@ -1532,6 +1893,13 @@
       "context_clues": ["資料結構", "數組", "陣列", "鏈結", "鏈表", "遍歷", "走訪"]
     },
     {
+      "from": "列車員",
+      "to": ["車掌"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "train conductor"
+    },
+    {
       "from": "列集",
       "to": ["編列"],
       "type": "cross_strait",
@@ -1559,6 +1927,13 @@
       "context": "@domain 金融",
       "english": "income statement / P&L",
       "context_clues": ["財報", "會計", "營收", "損益"]
+    },
+    {
+      "from": "刷手機",
+      "to": ["滑手機"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "scroll on phone"
     },
     {
       "from": "刷新",
@@ -1602,6 +1977,20 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "prostate"
+    },
+    {
+      "from": "前向糾錯",
+      "to": ["正向錯誤校正"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "forward error correction"
+    },
+    {
+      "from": "前方高能",
+      "to": ["注意", "小心"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "warning / high-energy ahead"
     },
     {
       "from": "前沿",
@@ -1667,6 +2056,13 @@
       "english": "power amplifier"
     },
     {
+      "from": "功能手機",
+      "to": ["功能型手機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "feature phone"
+    },
+    {
       "from": "加息",
       "to": ["升息"],
       "type": "cross_strait",
@@ -1696,6 +2092,14 @@
       "english": "load"
     },
     {
+      "from": "助記符",
+      "to": ["輔助記憶碼"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mnemonic",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "動態分配",
       "to": ["動態配置"],
       "type": "cross_strait",
@@ -1717,6 +2121,20 @@
       "english": "dynamic binding"
     },
     {
+      "from": "勞動保險",
+      "to": ["勞工保險"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "labor insurance"
+    },
+    {
+      "from": "勞逸結合",
+      "to": ["適時休息"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "balance work and rest"
+    },
+    {
       "from": "包管理器",
       "to": ["套件管理員"],
       "type": "cross_strait",
@@ -1735,7 +2153,7 @@
       "from": "包間",
       "to": ["包廂"],
       "type": "cross_strait",
-      "context": "@domain 日常。cn 包間 = tw 包廂 (private room in restaurant/KTV)",
+      "context": "@domain 日常",
       "english": "private room/booth"
     },
     {
@@ -1775,11 +2193,32 @@
       "english": "kilometer"
     },
     {
+      "from": "半包價式旅遊",
+      "to": ["半自助式旅遊"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "semi-guided tour"
+    },
+    {
+      "from": "半截美",
+      "to": ["發財車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "small pickup truck"
+    },
+    {
       "from": "半角",
       "to": ["半形"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "half-width"
+    },
+    {
+      "from": "半邊家庭",
+      "to": ["單親家庭"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "single-parent family"
     },
     {
       "from": "協議",
@@ -1796,6 +2235,20 @@
       "english": "blogger"
     },
     {
+      "from": "博取眼球",
+      "to": ["引人注目", "吸睛"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "grab attention"
+    },
+    {
+      "from": "博士研究生",
+      "to": ["博士班"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "doctoral student"
+    },
+    {
       "from": "博客",
       "to": ["部落格", "網誌"],
       "type": "cross_strait",
@@ -1809,6 +2262,14 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Botswana"
+    },
+    {
+      "from": "占位符",
+      "to": ["預留位置"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "placeholder",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "卡內基梅隆大學",
@@ -1830,6 +2291,13 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Guatemala"
+    },
+    {
+      "from": "即插即用",
+      "to": ["隨插即用"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "plug and play"
     },
     {
       "from": "即時",
@@ -1891,6 +2359,20 @@
       "english": "atomic operation"
     },
     {
+      "from": "原珠筆",
+      "to": ["原子筆"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "ballpoint pen"
+    },
+    {
+      "from": "原音帶",
+      "to": ["原聲帶"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "soundtrack"
+    },
+    {
       "from": "參數",
       "to": ["引數"],
       "type": "cross_strait",
@@ -1927,6 +2409,13 @@
       "english": "ones' complement"
     },
     {
+      "from": "反規範化",
+      "to": ["解除規格化"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "denormalization"
+    },
+    {
       "from": "反饋",
       "to": ["回饋"],
       "type": "cross_strait",
@@ -1947,6 +2436,13 @@
       "context": "@domain 程式設計",
       "english": "address-of operator",
       "context_clues": ["運算", "表達式", "運算子", "C++", "編譯", "程式", "語法"]
+    },
+    {
+      "from": "受獎產品",
+      "to": ["得獎產品"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "award-winning product"
     },
     {
       "from": "句柄",
@@ -1978,6 +2474,14 @@
       "context_clues": ["系統", "程式", "功能", "架構", "方法"]
     },
     {
+      "from": "可移動",
+      "to": ["抽取式"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "removable",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "可行函數",
       "to": ["可行函式"],
       "type": "cross_strait",
@@ -1995,25 +2499,37 @@
       "from": "台中",
       "to": ["臺中"],
       "type": "variant",
-      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)"
+      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)",
+      "english": "Taichung"
     },
     {
       "from": "台北",
       "to": ["臺北"],
       "type": "variant",
-      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)"
+      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)",
+      "english": "Taipei"
     },
     {
       "from": "台南",
       "to": ["臺南"],
       "type": "variant",
-      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)"
+      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)",
+      "english": "Tainan"
     },
     {
       "from": "台大",
       "to": ["臺大"],
       "type": "variant",
-      "context": "MoE 標準用字 (地名用「臺」，國立臺灣大學簡稱)"
+      "context": "MoE 標準用字 (地名用「臺」，國立臺灣大學簡稱)",
+      "english": "National Taiwan University"
+    },
+    {
+      "from": "台式機",
+      "to": ["桌上型電腦"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "desktop computer",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "台式電腦",
@@ -2026,13 +2542,15 @@
       "from": "台東",
       "to": ["臺東"],
       "type": "variant",
-      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)"
+      "context": "地名 (@in tw) MoE 標準用字 (地名用「臺」)",
+      "english": "Taitung"
     },
     {
       "from": "台灣",
       "to": ["臺灣"],
       "type": "variant",
-      "context": "MoE 標準用字 (地名用「臺」)"
+      "context": "MoE 標準用字 (地名用「臺」)",
+      "english": "Taiwan"
     },
     {
       "from": "台球",
@@ -2069,6 +2587,27 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "backward compatible"
+    },
+    {
+      "from": "含金量",
+      "to": ["知識含量", "潛在價值", "內涵"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "value / substance"
+    },
+    {
+      "from": "吸引眼球",
+      "to": ["引人矚目", "目不轉睛"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "eye-catching"
+    },
+    {
+      "from": "吹喇叭",
+      "to": ["拍馬屁"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "flatter / butter up"
     },
     {
       "from": "呼出",
@@ -2141,6 +2680,13 @@
       "english": "Costa Rica"
     },
     {
+      "from": "哥特式藝術",
+      "to": ["哥德式藝術"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Gothic art"
+    },
+    {
       "from": "哮喘",
       "to": ["氣喘"],
       "type": "cross_strait",
@@ -2152,21 +2698,89 @@
       "from": "唧筒",
       "to": ["幫浦"],
       "type": "cross_strait",
-      "context": "@domain 日常。cn 唧筒 = tw 幫浦 (pump)",
+      "context": "@domain 日常",
       "english": "pump",
       "context_clues": ["水", "液體", "壓力", "抽", "管路", "流量"]
+    },
+    {
+      "from": "商業模型",
+      "to": ["商業模式"],
+      "type": "cross_strait",
+      "context": "@domain 商業",
+      "english": "business model"
+    },
+    {
+      "from": "商業秘密",
+      "to": ["商業機密"],
+      "type": "cross_strait",
+      "context": "@domain 商業",
+      "english": "trade secret"
+    },
+    {
+      "from": "商標菜",
+      "to": ["招牌菜"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "signature dish"
     },
     {
       "from": "啓",
       "to": ["啟"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 開啟、啟發)"
+      "context": "MoE 標準字體 (@example 開啟、啟發)",
+      "english": "open / start (char variant)"
+    },
+    {
+      "from": "啟動欄",
+      "to": ["啟動列"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "launch bar",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "啟動盤",
+      "to": ["啟動磁碟"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "boot disk",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "啟動轉換",
+      "to": ["啟動切換"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "boot switching"
+    },
+    {
+      "from": "喇叭筒",
+      "to": ["擴音器"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "megaphone"
     },
     {
       "from": "喫",
       "to": ["吃"],
       "type": "variant",
-      "context": "MoE 標準字體 (古體「喫」為文言用法)"
+      "context": "MoE 標準字體 (古體「喫」為文言用法)",
+      "english": "eat (char variant)"
+    },
+    {
+      "from": "喬布斯",
+      "to": ["賈伯斯"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Steve Jobs"
+    },
+    {
+      "from": "單元格",
+      "to": ["儲存格"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "cell",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "單參函數",
@@ -2176,6 +2790,13 @@
       "english": "unary function"
     },
     {
+      "from": "單反相機",
+      "to": ["單眼相機"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "SLR camera"
+    },
+    {
       "from": "單擊",
       "to": ["點選", "按一下"],
       "type": "cross_strait",
@@ -2183,10 +2804,17 @@
       "english": "click"
     },
     {
+      "from": "單本劇",
+      "to": ["單元劇"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "single-episode drama"
+    },
+    {
       "from": "單核心",
       "to": ["單核"],
       "type": "cross_strait",
-      "context": "compound:single-core = 單核；processor core 用「核」(@seealso CPU 核心, 多核心)",
+      "context": "compound:single-core = 單核；processor core 用「核」(@seealso CPU核心, 多核心)",
       "english": "single-core"
     },
     {
@@ -2220,10 +2848,18 @@
       "context_clues": ["安裝", "設定", "配置", "視窗", "窗口", "步驟", "下一步"]
     },
     {
+      "from": "四叉樹",
+      "to": ["四元樹"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "quadtree",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "四核心",
       "to": ["四核"],
       "type": "cross_strait",
-      "context": "compound:quad-core = 四核 (@seealso CPU 核心, 多核心)",
+      "context": "compound:quad-core = 四核 (@seealso CPU核心, 多核心)",
       "english": "quad-core"
     },
     {
@@ -2240,6 +2876,13 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "playback"
+    },
+    {
+      "from": "回歸分析",
+      "to": ["迴歸分析"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "regression analysis"
     },
     {
       "from": "回滾",
@@ -2276,11 +2919,26 @@
       "context": "AI filler phrase; simplify to 因此"
     },
     {
+      "from": "因特網",
+      "to": ["網際網路"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Internet",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "固件",
       "to": ["韌體"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "firmware"
+    },
+    {
+      "from": "固實壓縮",
+      "to": ["結實壓縮"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "solid compression"
     },
     {
       "from": "固態硬盤",
@@ -2318,6 +2976,13 @@
       "english": "ballpoint pen"
     },
     {
+      "from": "圓白菜",
+      "to": ["高麗菜"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "cabbage"
+    },
+    {
       "from": "圖像",
       "to": ["影像", "圖片"],
       "type": "cross_strait",
@@ -2339,11 +3004,26 @@
       "english": "photo gallery"
     },
     {
+      "from": "圖形學",
+      "to": ["圖學"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "computer graphics",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "圖形界面",
       "to": ["圖形介面"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "GUI"
+    },
+    {
+      "from": "圖形計算器",
+      "to": ["繪圖計算機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "graphing calculator"
     },
     {
       "from": "圖標",
@@ -2365,6 +3045,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "image"
+    },
+    {
+      "from": "土地爺",
+      "to": ["土地公"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Earth God"
     },
     {
       "from": "土庫曼斯坦",
@@ -2441,6 +3128,13 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Tanzania"
+    },
+    {
+      "from": "垃圾箱",
+      "to": ["垃圾桶"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "trash can / recycle bin"
     },
     {
       "from": "埃塞俄比亞",
@@ -2623,6 +3317,20 @@
       "context_clues": ["運算", "表達式", "運算子", "C++", "編譯", "程式", "語法"]
     },
     {
+      "from": "增強現實",
+      "to": ["擴增實境"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "augmented reality"
+    },
+    {
+      "from": "墨魚",
+      "to": ["花枝"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "cuttlefish / squid"
+    },
+    {
       "from": "墻紙",
       "to": ["桌布"],
       "type": "cross_strait",
@@ -2635,6 +3343,14 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "wallpaper"
+    },
+    {
+      "from": "壓縮包",
+      "to": ["壓縮檔"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "compressed archive",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "外圍類",
@@ -2666,11 +3382,32 @@
       "english": "foreign key"
     },
     {
+      "from": "多主體系統",
+      "to": ["多代理系統"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "multi-agent system"
+    },
+    {
       "from": "多任務",
       "to": ["多工"],
       "type": "cross_strait",
       "context": "@domain 作業系統",
       "english": "multitasking/multi-tasking"
+    },
+    {
+      "from": "多國家公司",
+      "to": ["跨國公司"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "multinational company"
+    },
+    {
+      "from": "多宿主",
+      "to": ["多重主機"],
+      "type": "cross_strait",
+      "context": "@domain 網路。multihomed host",
+      "english": "multihomed"
     },
     {
       "from": "多態",
@@ -2708,6 +3445,21 @@
       "english": "thread safe"
     },
     {
+      "from": "大型機",
+      "to": ["大型電腦"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mainframe",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "大實話",
+      "to": ["真心話", "實話", "真話", "人話"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "blunt truth"
+    },
+    {
       "from": "大文件",
       "to": ["大檔案"],
       "type": "cross_strait",
@@ -2715,10 +3467,31 @@
       "english": "large file"
     },
     {
+      "from": "大秀一波",
+      "to": ["大顯身手", "大展身手", "展現", "發揮"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "show off"
+    },
+    {
+      "from": "大醬",
+      "to": ["味噌"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "soybean paste / miso"
+    },
+    {
       "from": "大陸同胞",
       "to": ["中國民眾"],
       "type": "political_coloring",
       "english": "mainland compatriots"
+    },
+    {
+      "from": "大面積",
+      "to": ["大範圍"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "large area / large scale"
     },
     {
       "from": "奔馳",
@@ -2735,6 +3508,13 @@
       "english": "socket"
     },
     {
+      "from": "奧巴馬",
+      "to": ["歐巴馬"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Obama"
+    },
+    {
       "from": "奶酪",
       "to": ["乳酪"],
       "type": "cross_strait",
@@ -2749,16 +3529,25 @@
       "english": "delegate"
     },
     {
+      "from": "婚外戀",
+      "to": ["婚外情"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "extramarital affair"
+    },
+    {
       "from": "嫺",
       "to": ["嫻"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 嫻雅、嫻熟)"
+      "context": "MoE 標準字體 (@example 嫻雅、嫻熟)",
+      "english": "refined / elegant (char variant)"
     },
     {
       "from": "嬀",
       "to": ["媯"],
       "type": "variant",
-      "context": "MoE 標準字體 (姓氏)"
+      "context": "MoE 標準字體 (姓氏)",
+      "english": "Gui (river name, char variant)"
     },
     {
       "from": "子域名",
@@ -3011,11 +3800,39 @@
       "english": "monolithic kernel"
     },
     {
+      "from": "定性研究",
+      "to": ["質性研究"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "qualitative research"
+    },
+    {
+      "from": "定期存款",
+      "to": ["定存"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "time deposit"
+    },
+    {
+      "from": "定量研究",
+      "to": ["量化研究"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "quantitative research"
+    },
+    {
       "from": "客戶/服務器",
       "to": ["主從架構"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "client-server"
+    },
+    {
+      "from": "客戶滿意",
+      "to": ["顧客滿意"],
+      "type": "cross_strait",
+      "context": "@domain 商業",
+      "english": "customer satisfaction"
     },
     {
       "from": "客戶端",
@@ -3062,6 +3879,13 @@
       "english": "argument"
     },
     {
+      "from": "實打實",
+      "to": ["穩紮穩打", "實實在在"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "solid / genuine"
+    },
+    {
       "from": "實時",
       "to": ["即時"],
       "type": "cross_strait",
@@ -3088,7 +3912,7 @@
       "from": "實體核心",
       "to": ["實體核"],
       "type": "cross_strait",
-      "context": "compound:physical core = 實體核；processor core 用「核」(@seealso CPU 核心, 物理核心)",
+      "context": "compound:physical core = 實體核；processor core 用「核」(@seealso CPU核心, 物理核心)",
       "english": "physical core"
     },
     {
@@ -3118,6 +3942,13 @@
       "type": "cross_strait",
       "context": "@domain 網路。tw 用語採取「頻」而非「帶」",
       "english": "broadband"
+    },
+    {
+      "from": "寬心丸",
+      "to": ["定心丸"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "reassurance"
     },
     {
       "from": "封禁",
@@ -3180,6 +4011,13 @@
       "context_clues": ["論文", "研究", "碩士", "博士", "指導"]
     },
     {
+      "from": "導火索",
+      "to": ["導火線"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "fuse"
+    },
+    {
       "from": "導航",
       "to": ["導覽"],
       "type": "cross_strait",
@@ -3193,6 +4031,27 @@
       "context": "@domain UI",
       "english": "navigation bar",
       "context_clues": ["網頁", "瀏覽器", "選單", "UI", "介面", "導覽"]
+    },
+    {
+      "from": "小型單放機",
+      "to": ["隨身聽"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "portable cassette player"
+    },
+    {
+      "from": "小金庫",
+      "to": ["私房錢"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "private stash / slush fund"
+    },
+    {
+      "from": "小電驢",
+      "to": ["電動自行車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "e-scooter"
     },
     {
       "from": "就緒進程",
@@ -3214,6 +4073,13 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Niger"
+    },
+    {
+      "from": "尾氣測量",
+      "to": ["排氣測量"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "exhaust measurement"
     },
     {
       "from": "局域網",
@@ -3259,6 +4125,13 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "local variable"
+    },
+    {
+      "from": "居民身分證",
+      "to": ["國民身分證"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "resident identity card"
     },
     {
       "from": "屏保",
@@ -3313,7 +4186,8 @@
       "from": "峯",
       "to": ["峰"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 山峰、高峰)"
+      "context": "MoE 標準字體 (@example 山峰、高峰)",
+      "english": "peak (char variant)"
     },
     {
       "from": "嵌套",
@@ -3328,6 +4202,14 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "nested class"
+    },
+    {
+      "from": "工作組",
+      "to": ["工作群組"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "workgroup",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "工具欄",
@@ -3345,6 +4227,13 @@
       "english": "project",
       "context_clues": ["專案", "項目", "管理", "IDE", "開發"],
       "exceptions": ["工程師", "軟體工程", "軟件工程", "逆向工程", "工程學"]
+    },
+    {
+      "from": "巨好吃",
+      "to": ["超好吃"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "super delicious"
     },
     {
       "from": "巨集核心",
@@ -3373,6 +4262,27 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Papua New Guinea"
+    },
+    {
+      "from": "巴羅克藝術",
+      "to": ["巴洛克藝術"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Baroque art"
+    },
+    {
+      "from": "市場細分",
+      "to": ["市場區隔"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "market segmentation"
+    },
+    {
+      "from": "市場調研",
+      "to": ["市場調查"],
+      "type": "cross_strait",
+      "context": "@domain 商業",
+      "english": "market research"
     },
     {
       "from": "市淨率",
@@ -3419,6 +4329,13 @@
       "english": "Burundi"
     },
     {
+      "from": "希拉里",
+      "to": ["希拉蕊"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Hillary"
+    },
+    {
       "from": "帕勞",
       "to": ["帛琉"],
       "type": "cross_strait",
@@ -3448,11 +4365,26 @@
       "english": "bandwidth"
     },
     {
+      "from": "帶節奏",
+      "to": ["帶風向"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "steer the narrative"
+    },
+    {
       "from": "常量",
       "to": ["常數"],
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "constant"
+    },
+    {
+      "from": "幀同步",
+      "to": ["影格同步化"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "frame synchronization",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "幀率",
@@ -3462,10 +4394,32 @@
       "english": "frame rate"
     },
     {
+      "from": "平板電腦",
+      "to": ["平板"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "tablet computer"
+    },
+    {
       "from": "幺",
       "to": ["么"],
       "type": "variant",
-      "context": "MoE 標準字體 (「幺」為異體)"
+      "context": "MoE 標準字體 (「幺」為異體)",
+      "english": "one / tiny (char variant)"
+    },
+    {
+      "from": "幻燈片",
+      "to": ["投影片"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "slide"
+    },
+    {
+      "from": "幾個意思",
+      "to": ["什麼意思"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "what do you mean"
     },
     {
       "from": "幾內亞比紹",
@@ -3482,6 +4436,20 @@
       "english": "probability"
     },
     {
+      "from": "床上戲",
+      "to": ["床戲"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "bed scene"
+    },
+    {
+      "from": "底板價",
+      "to": ["基價，底價"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "base price / reserve price"
+    },
+    {
       "from": "庫函式",
       "to": ["程式庫函式"],
       "type": "cross_strait",
@@ -3495,6 +4463,28 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。cn 語序「庫函數」= library function；tw 語序「程式庫函式」避免「函式庫函式」的詞彙重複",
       "english": "library function"
+    },
+    {
+      "from": "廠校掛鉤",
+      "to": ["建教合作"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "school-enterprise linkage"
+    },
+    {
+      "from": "廣告位",
+      "to": ["廣告區"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "ad slot",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "廣告電影",
+      "to": ["廣告片"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "commercial film"
     },
     {
       "from": "廣域網",
@@ -3518,6 +4508,13 @@
       "type": "cross_strait",
       "context": "@domain 作業系統",
       "english": "bootloader"
+    },
+    {
+      "from": "引廠進店",
+      "to": ["專櫃"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "bring manufacturers into stores"
     },
     {
       "from": "彈窗",
@@ -3556,6 +4553,36 @@
       "english": "lottery ticket"
     },
     {
+      "from": "彩電牆",
+      "to": ["電視牆"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "video wall"
+    },
+    {
+      "from": "影片流",
+      "to": ["影片串流"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "video stream",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "影音流",
+      "to": ["影音串流"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "audiovisual stream",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "後台流量",
+      "to": ["背景流量"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "background traffic"
+    },
+    {
       "from": "後台進程",
       "to": ["背景程式", "背景行程"],
       "type": "cross_strait",
@@ -3568,6 +4595,13 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "suffix"
+    },
+    {
+      "from": "後驗機率",
+      "to": ["事後機率"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "posterior probability"
     },
     {
       "from": "從某種角度來看",
@@ -3584,6 +4618,20 @@
       "context_clues": ["主節點", "叢集", "複製"]
     },
     {
+      "from": "從而減少",
+      "to": ["進而減少"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "thereby reduce"
+    },
+    {
+      "from": "復映片",
+      "to": ["二輪片"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "second-run film"
+    },
+    {
       "from": "循環",
       "to": ["迴圈"],
       "type": "confusable",
@@ -3597,6 +4645,21 @@
       "type": "cross_strait",
       "context": "@domain 資料",
       "english": "microtransaction"
+    },
+    {
+      "from": "微平均",
+      "to": ["微觀平均"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "micro-average",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "志願者",
+      "to": ["志工", "義工"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "volunteer"
     },
     {
       "from": "忙等待",
@@ -3664,6 +4727,13 @@
       "context_clues": ["系統", "備份", "預設", "設定", "出廠", "資料"]
     },
     {
+      "from": "恢覆記錄",
+      "to": ["恢復記錄"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "recovery record"
+    },
+    {
       "from": "悉尼",
       "to": ["雪梨"],
       "type": "cross_strait",
@@ -3678,11 +4748,53 @@
       "english": "Sydney Opera House"
     },
     {
+      "from": "情感發現",
+      "to": ["情感偵測"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "emotion detection"
+    },
+    {
+      "from": "情景模式",
+      "to": ["情境模式"],
+      "type": "cross_strait",
+      "context": "@domain IT。cn 「情景」；tw 用「情境」",
+      "english": "scene mode / profile mode"
+    },
+    {
       "from": "意大利",
       "to": ["義大利"],
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Italy"
+    },
+    {
+      "from": "愛侶動物",
+      "to": ["寵物"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "companion animal / pet"
+    },
+    {
+      "from": "慈悲殺人",
+      "to": ["安樂死"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "mercy killing / euthanasia"
+    },
+    {
+      "from": "慌得一批",
+      "to": ["十分慌張"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "panic badly"
+    },
+    {
+      "from": "慢運動",
+      "to": ["慢動作"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "slow motion"
     },
     {
       "from": "應用程序",
@@ -3752,7 +4864,7 @@
       "from": "戰略",
       "to": ["策略"],
       "type": "cross_strait",
-      "context": "@domain 商業。cn「戰略」(商業)；tw 用「策略」(strategy)",
+      "context": "@domain 商業。strategy",
       "english": "strategy",
       "context_clues": ["企業", "商業", "規劃", "佈局", "長期"]
     },
@@ -3807,6 +4919,20 @@
       "english": "printer"
     },
     {
+      "from": "打橫泡",
+      "to": ["攪局"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "disrupt / sabotage"
+    },
+    {
+      "from": "打醬油",
+      "to": ["湊熱鬧", "偶然路過"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "just passing by / not involved"
+    },
+    {
       "from": "打開",
       "to": ["開啟"],
       "type": "cross_strait",
@@ -3840,6 +4966,20 @@
       "type": "cross_strait",
       "context": "@domain 醫學",
       "english": "depression"
+    },
+    {
+      "from": "抓娃娃機",
+      "to": ["夾娃娃機"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "claw machine"
+    },
+    {
+      "from": "抓空字",
+      "to": ["抽空"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "grab spare time"
     },
     {
       "from": "投影儀",
@@ -3994,12 +5134,41 @@
       "english": "sampling rate"
     },
     {
+      "from": "探親假",
+      "to": ["省親假"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "family-visit leave"
+    },
+    {
+      "from": "接入覆用器",
+      "to": ["接取多工器"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "access multiplexer"
+    },
+    {
+      "from": "接入點",
+      "to": ["存取點"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "access point",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "接口",
       "to": ["介面"],
       "type": "cross_strait",
       "context": "@domain 程式設計。硬體 connector/port = 接頭/連接埠",
       "english": "interface",
       "context_clues": ["API", "函數", "函式", "類別", "定義", "實現", "實作", "調用", "呼叫", "軟件", "軟體"]
+    },
+    {
+      "from": "接地氣",
+      "to": ["親民"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "down-to-earth"
     },
     {
       "from": "控件",
@@ -4068,6 +5237,13 @@
       "context_clues": ["輸入", "查詢", "搜尋", "UI", "介面"]
     },
     {
+      "from": "摩托車",
+      "to": ["機車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "motorcycle"
+    },
+    {
       "from": "摳圖",
       "to": ["去背"],
       "type": "cross_strait",
@@ -4114,7 +5290,8 @@
       "from": "擡",
       "to": ["抬"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 抬頭、抬舉)"
+      "context": "MoE 標準字體 (@example 抬頭、抬舉)",
+      "english": "lift / raise (char variant)"
     },
     {
       "from": "擴展",
@@ -4138,11 +5315,33 @@
       "english": "docking station"
     },
     {
+      "from": "攝像機",
+      "to": ["攝錄影機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "video camera",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "攝像頭",
       "to": ["攝影機"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "camera"
+    },
+    {
+      "from": "攤床",
+      "to": ["攤位"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "stall"
+    },
+    {
+      "from": "攤檔",
+      "to": ["攤位"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "stall"
     },
     {
       "from": "支持",
@@ -4151,6 +5350,41 @@
       "context": "@domain IT。「支持」偏指「贊成/背書」(endorse)；技術語境中 support = 支援 (如「瀏覽器支援此功能」)。政治/日常語境的「支持」為正確 tw 用法",
       "english": "support",
       "context_clues": ["軟體", "軟件", "瀏覽器", "裝置", "設備", "協定", "協議", "格式", "驅動", "硬體", "硬件", "函式", "函數", "API"]
+    },
+    {
+      "from": "收轉臺",
+      "to": ["轉播站"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "relay station"
+    },
+    {
+      "from": "放飛自我",
+      "to": ["隨心所欲", "不受拘束", "我行我素"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "let oneself go"
+    },
+    {
+      "from": "政治避難",
+      "to": ["政治庇護"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "political asylum"
+    },
+    {
+      "from": "故事片",
+      "to": ["劇情片"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "feature film"
+    },
+    {
+      "from": "救生盒",
+      "to": ["急救箱"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "first-aid kit"
     },
     {
       "from": "教程",
@@ -4201,6 +5435,13 @@
       "type": "cross_strait",
       "context": "@domain 電子",
       "english": "digital printing"
+    },
+    {
+      "from": "數字唱片",
+      "to": ["數位唱片"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "digital disc"
     },
     {
       "from": "數字簽名",
@@ -4388,6 +5629,13 @@
       "context_clues": ["磁碟", "掛載", "分割區", "inode", "目錄"]
     },
     {
+      "from": "文娛活動",
+      "to": ["康樂活動"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "recreational activities"
+    },
+    {
       "from": "文字處理",
       "to": ["文書處理"],
       "type": "cross_strait",
@@ -4424,6 +5672,13 @@
       "english": "document"
     },
     {
+      "from": "文獻綜述",
+      "to": ["文獻探討"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "literature review"
+    },
+    {
       "from": "文萊",
       "to": ["汶萊"],
       "type": "cross_strait",
@@ -4436,6 +5691,13 @@
       "type": "cross_strait",
       "context": "@geo university (大學)",
       "english": "Stanford"
+    },
+    {
+      "from": "斯大林",
+      "to": ["史達林"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Stalin"
     },
     {
       "from": "斯威士蘭",
@@ -4457,6 +5719,13 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Sri Lanka"
+    },
+    {
+      "from": "斯諾登",
+      "to": ["史諾登"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Snowden"
     },
     {
       "from": "新建",
@@ -4488,6 +5757,13 @@
       "english": "instant noodles"
     },
     {
+      "from": "方便麵",
+      "to": ["泡麵"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "instant noodles"
+    },
+    {
       "from": "方括弧",
       "to": ["中括弧", "中括號"],
       "type": "cross_strait",
@@ -4502,12 +5778,55 @@
       "english": "bracket (square bracket)"
     },
     {
+      "from": "旅遊局",
+      "to": ["觀光局"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "tourism bureau"
+    },
+    {
+      "from": "旅遊車",
+      "to": ["遊覽車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "tour bus"
+    },
+    {
+      "from": "旅遊農業",
+      "to": ["觀光農業"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "agritourism"
+    },
+    {
       "from": "日誌",
       "to": ["記錄檔", "紀錄"],
       "type": "confusable",
       "context": "限 IT 語境。旅行/個人日誌為正確 tw 用法",
       "english": "log",
       "context_clues": ["伺服器", "服務器", "系統", "錯誤", "除錯", "偵錯", "調試", "輸出"]
+    },
+    {
+      "from": "早上好",
+      "to": ["早安"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "good morning"
+    },
+    {
+      "from": "易失性",
+      "to": ["揮發性"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "volatility",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "易拉罐",
+      "to": ["易開罐"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "pull-tab can"
     },
     {
       "from": "映射",
@@ -4546,6 +5865,20 @@
       "exceptions": ["時間片段"]
     },
     {
+      "from": "晚上好",
+      "to": ["晚安"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "good evening"
+    },
+    {
+      "from": "普利策獎",
+      "to": ["普利茲獎"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Pulitzer Prize"
+    },
+    {
       "from": "晶閘管",
       "to": ["閘流體"],
       "type": "cross_strait",
@@ -4558,6 +5891,20 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "transistor"
+    },
+    {
+      "from": "智力玩具",
+      "to": ["益智玩具"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "educational toy / puzzle"
+    },
+    {
+      "from": "智殘人",
+      "to": ["智能障礙人士"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "mentally disabled person"
     },
     {
       "from": "智能",
@@ -4603,6 +5950,27 @@
       "english": "end user"
     },
     {
+      "from": "會話劫持",
+      "to": ["連線劫持"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "session hijacking"
+    },
+    {
+      "from": "會話標識",
+      "to": ["交談識別碼"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "session identifier"
+    },
+    {
+      "from": "有一說一",
+      "to": ["平心而論", "實話實說", "就事論事", "說真的", "老實說"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "to be fair / honestly"
+    },
+    {
       "from": "有損壓縮",
       "to": ["有失真壓縮"],
       "type": "cross_strait",
@@ -4610,11 +5978,46 @@
       "english": "lossy compression"
     },
     {
+      "from": "有機流量",
+      "to": ["自然搜尋流量"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "organic traffic"
+    },
+    {
+      "from": "有監督的學習",
+      "to": ["監督式學習"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "supervised learning"
+    },
+    {
+      "from": "有窮自動機",
+      "to": ["有限自動機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "finite automaton"
+    },
+    {
+      "from": "服務員",
+      "to": ["服務生"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "waiter / attendant"
+    },
+    {
       "from": "服務器",
       "to": ["伺服器"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "server"
+    },
+    {
+      "from": "服務框架",
+      "to": ["服務架構"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "service framework"
     },
     {
       "from": "服務程序",
@@ -4634,7 +6037,7 @@
       "from": "木馬",
       "to": ["木馬程式"],
       "type": "cross_strait",
-      "context": "@domain 資安。cn「木馬」(資安)；tw 用「木馬程式」(trojan)",
+      "context": "@domain 資安。trojan",
       "english": "trojan",
       "context_clues": ["病毒", "惡意", "安全", "感染"]
     },
@@ -4690,6 +6093,14 @@
       "english": "enumeration"
     },
     {
+      "from": "果凍豆",
+      "to": ["雷根糖"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Jelly Bean",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "查找",
       "to": ["尋找", "搜尋"],
       "type": "cross_strait",
@@ -4704,11 +6115,12 @@
       "english": "view/inspect"
     },
     {
-      "from": "标准 C 库",
-      "to": ["標準 C 語言函式庫"],
+      "from": "校園網",
+      "to": ["校園網路"],
       "type": "cross_strait",
-      "context": "@domain 程式設計",
-      "english": "C standard library"
+      "context": "@domain IT",
+      "english": "campus network",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "校驗和",
@@ -4804,6 +6216,20 @@
       "english": "desktop"
     },
     {
+      "from": "桑拿浴",
+      "to": ["三溫暖"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "sauna"
+    },
+    {
+      "from": "條形碼",
+      "to": ["條碼"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "barcode"
+    },
+    {
       "from": "條指令",
       "to": ["道指令"],
       "type": "cross_strait",
@@ -4828,7 +6254,15 @@
       "from": "棱",
       "to": ["稜"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 稜角、稜線)"
+      "context": "MoE 標準字體 (@example 稜角、稜線)",
+      "english": "edge / ridge (char variant)"
+    },
+    {
+      "from": "業餘活動",
+      "to": ["休閒活動"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "leisure activity"
     },
     {
       "from": "極客",
@@ -4859,6 +6293,13 @@
       "english": "constructor"
     },
     {
+      "from": "樂子人",
+      "to": ["唯恐天下不亂", "愉悅犯"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "chaos-lover / drama-seeker"
+    },
+    {
       "from": "標清",
       "to": ["標準畫質"],
       "type": "cross_strait",
@@ -4878,6 +6319,14 @@
       "type": "cross_strait",
       "context": "@domain 程式設計。cn 用「庫」作 library 後綴；tw 用「函式庫」或「程式庫」",
       "english": "standard library"
+    },
+    {
+      "from": "標簽頁",
+      "to": ["分頁"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "tab",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "標籤頁",
@@ -4909,11 +6358,26 @@
       "english": "header file"
     },
     {
+      "from": "標題欄",
+      "to": ["標題列"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "title bar",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "模塊",
       "to": ["模組"],
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "module"
+    },
+    {
+      "from": "模式識別",
+      "to": ["型態辨識"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "pattern recognition"
     },
     {
       "from": "模態框",
@@ -4960,11 +6424,25 @@
       "english": "template argument deduction"
     },
     {
+      "from": "樸素貝氏",
+      "to": ["簡單貝氏"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "naive Bayes"
+    },
+    {
       "from": "橙汁",
       "to": ["柳橙汁"],
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "orange juice"
+    },
+    {
+      "from": "機場快線",
+      "to": ["機場捷運"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "airport express"
     },
     {
       "from": "機械硬盤",
@@ -4975,10 +6453,19 @@
       "context_clues": ["硬碟", "SSD", "儲存", "硬體"]
     },
     {
+      "from": "機頂盒",
+      "to": ["機上盒"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "set-top box",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "檐",
       "to": ["簷"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 屋簷)"
+      "context": "MoE 標準字體 (@example 屋簷)",
+      "english": "eave (char variant)"
     },
     {
       "from": "檔次",
@@ -4993,6 +6480,21 @@
       "type": "cross_strait",
       "context": "@domain IT。「檢測」偏指 inspect/test，語意不同",
       "english": "detect"
+    },
+    {
+      "from": "檢驗位",
+      "to": ["核對位元"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "check bit",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "檢驗和",
+      "to": ["校驗碼"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "checksum"
     },
     {
       "from": "檯式機",
@@ -5016,6 +6518,49 @@
       "english": "regular expression (regex)"
     },
     {
+      "from": "正則語言",
+      "to": ["正規語言"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "regular language"
+    },
+    {
+      "from": "正則運算式",
+      "to": ["正規表示式"],
+      "type": "cross_strait",
+      "context": "@domain 程式設計",
+      "english": "regular expression"
+    },
+    {
+      "from": "正態分布",
+      "to": ["常態分布"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "normal distribution"
+    },
+    {
+      "from": "步行街",
+      "to": ["行人徒步區"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "pedestrian street"
+    },
+    {
+      "from": "步談機",
+      "to": ["對講機"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "walkie-talkie"
+    },
+    {
+      "from": "歸一化",
+      "to": ["正規化"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "normalization",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "歸併排序",
       "to": ["合併排序"],
       "type": "cross_strait",
@@ -5035,6 +6580,13 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "deadlock"
+    },
+    {
+      "from": "殘次品",
+      "to": ["瑕疵品"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "defective product"
     },
     {
       "from": "殭屍程序",
@@ -5079,6 +6631,27 @@
       "english": "bitrate"
     },
     {
+      "from": "毛玻璃",
+      "to": ["磨砂玻璃", "霧面玻璃"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "frosted glass"
+    },
+    {
+      "from": "毛腳女婿",
+      "to": ["準女婿"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "future son-in-law"
+    },
+    {
+      "from": "毛腳媳婦",
+      "to": ["準媳婦"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "fiancee / bride-to-be"
+    },
+    {
       "from": "毛裡塔尼亞",
       "to": ["茅利塔尼亞"],
       "type": "cross_strait",
@@ -5107,6 +6680,20 @@
       "english": "Mauritius"
     },
     {
+      "from": "民政局",
+      "to": ["戶政事務所"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "civil affairs bureau"
+    },
+    {
+      "from": "民族志",
+      "to": ["民族誌"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "ethnography"
+    },
+    {
       "from": "氨基酸",
       "to": ["胺基酸"],
       "type": "cross_strait",
@@ -5114,10 +6701,32 @@
       "english": "amino acid"
     },
     {
+      "from": "水門汀",
+      "to": ["水泥"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "cement"
+    },
+    {
       "from": "污",
       "to": ["汙"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 汙染、汙水)"
+      "context": "MoE 標準字體 (@example 汙染、汙水)",
+      "english": "pollute (char variant)"
+    },
+    {
+      "from": "沒可能",
+      "to": ["不可能"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "impossible / no way"
+    },
+    {
+      "from": "沒誰了",
+      "to": ["無人能敵", "沒人能超越", "敗給你", "天兵"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "nobody can top that"
     },
     {
       "from": "沙特",
@@ -5142,10 +6751,18 @@
       "context_clues": ["隔離", "安全", "環境", "測試"]
     },
     {
+      "from": "沸點新聞",
+      "to": ["焦點新聞"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "hotspot news"
+    },
+    {
       "from": "泄",
       "to": ["洩"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 洩漏、洩氣)"
+      "context": "MoE 標準字體 (@example 洩漏、洩氣)",
+      "english": "leak (char variant)"
     },
     {
       "from": "泛型算法",
@@ -5158,7 +6775,7 @@
       "from": "泡沫塑料",
       "to": ["保麗龍"],
       "type": "cross_strait",
-      "context": "@domain 日常。cn 泡沫塑料 = tw 保麗龍 (styrofoam)",
+      "context": "@domain 日常",
       "english": "styrofoam/expanded polystyrene"
     },
     {
@@ -5181,6 +6798,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "mudslide/debris flow"
+    },
+    {
+      "from": "洋蒲桃",
+      "to": ["蓮霧"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "wax apple"
     },
     {
       "from": "洗甲水",
@@ -5218,6 +6842,13 @@
       "english": "Honduras"
     },
     {
+      "from": "活動板房",
+      "to": ["鐵皮屋"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "prefab site cabin"
+    },
+    {
       "from": "派生類",
       "to": ["衍生類別"],
       "type": "cross_strait",
@@ -5233,11 +6864,33 @@
       "exceptions": ["串流媒體"]
     },
     {
+      "from": "流密碼",
+      "to": ["串流加密法"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "stream cipher",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "流水席",
+      "to": ["辦桌"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "banquet with multiple seatings"
+    },
+    {
       "from": "流水線",
       "to": ["生產線", "管線"],
       "type": "cross_strait",
       "context": "@domain 程式設計。工廠語境 vs CPU/軟體語境",
       "english": "production line/pipeline"
+    },
+    {
+      "from": "流程重構",
+      "to": ["流程再造"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "business process reengineering"
     },
     {
       "from": "流處理",
@@ -5246,6 +6899,13 @@
       "context": "@domain IT",
       "english": "stream processing",
       "context_clues": ["即時", "Kafka", "資料", "管線"]
+    },
+    {
+      "from": "海蠣煎",
+      "to": ["蚵仔煎"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "oyster omelet"
     },
     {
       "from": "消息",
@@ -5281,6 +6941,20 @@
       "to": [],
       "type": "ai_filler",
       "context": "AI pattern indicator (深刻影響); flag but do not auto-fix — 深刻 encodes intensity that 影響 alone drops"
+    },
+    {
+      "from": "混合現實",
+      "to": ["混合實境"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mixed reality"
+    },
+    {
+      "from": "混血車",
+      "to": ["拼裝車"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "assembled / hybrid car"
     },
     {
       "from": "添加",
@@ -5361,11 +7035,27 @@
       "english": "slider"
     },
     {
+      "from": "滾動框",
+      "to": ["捲動方塊"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "scroll box",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "滾動條",
       "to": ["捲軸"],
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "scroll bar"
+    },
+    {
+      "from": "滾動欄",
+      "to": ["捲軸"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "scroll bar",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "滾回",
@@ -5396,16 +7086,32 @@
       "english": "presentation"
     },
     {
+      "from": "漢姆雷特",
+      "to": ["哈姆雷特"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Hamlet"
+    },
+    {
+      "from": "潑髒水",
+      "to": ["造謠"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "smear / sling mud"
+    },
+    {
       "from": "潙",
       "to": ["溈"],
       "type": "variant",
-      "context": "MoE 標準字體 (水名)"
+      "context": "MoE 標準字體 (水名)",
+      "english": "Wei (river name, char variant)"
     },
     {
       "from": "潨",
       "to": ["潀"],
       "type": "variant",
-      "context": "MoE 標準字體 (水流匯聚)"
+      "context": "MoE 標準字體 (水流匯聚)",
+      "english": "Cong (water name, char variant)"
     },
     {
       "from": "激光",
@@ -5429,6 +7135,27 @@
       "english": "activation code"
     },
     {
+      "from": "灰色影片",
+      "to": ["大爛片"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "shady / low-grade film"
+    },
+    {
+      "from": "炊事員",
+      "to": ["廚師"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "cook / kitchen worker"
+    },
+    {
+      "from": "炸雞排",
+      "to": ["雞排"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "fried chicken cutlet"
+    },
+    {
       "from": "烏茲別克斯坦",
       "to": ["烏茲別克"],
       "type": "cross_strait",
@@ -5436,11 +7163,40 @@
       "english": "Uzbekistan"
     },
     {
+      "from": "無塵粉筆",
+      "to": ["無灰粉筆"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "dustless chalk"
+    },
+    {
       "from": "無損壓縮",
       "to": ["無失真壓縮"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "lossless compression"
+    },
+    {
+      "from": "無監督",
+      "to": ["非監督式"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "unsupervised",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "無節操",
+      "to": ["不道德", "不堪入目"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "shameless"
+    },
+    {
+      "from": "無繩電話",
+      "to": ["無線電話"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "cordless phone"
     },
     {
       "from": "無限循環",
@@ -5482,7 +7238,8 @@
       "from": "爲",
       "to": ["為"],
       "type": "variant",
-      "context": "MoE 標準字體 (古體「爲」為異體)"
+      "context": "MoE 標準字體 (古體「爲」為異體)",
+      "english": "be / do (char variant)"
     },
     {
       "from": "父子常式",
@@ -5546,7 +7303,8 @@
       "from": "牀",
       "to": ["床"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 床鋪、病床)"
+      "context": "MoE 標準字體 (@example 床鋪、病床)",
+      "english": "bed (char variant)"
     },
     {
       "from": "版本號",
@@ -5555,6 +7313,13 @@
       "context": "@domain 作業系統",
       "english": "version number",
       "exceptions": ["版本號碼"]
+    },
+    {
+      "from": "牛鼻子",
+      "to": ["要害"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "key point / crux"
     },
     {
       "from": "物理位址",
@@ -5590,7 +7355,7 @@
       "from": "物理核心",
       "to": ["實體核"],
       "type": "cross_strait",
-      "context": "compound:physical core = 實體核；「核心」保留給 kernel，processor core 用「核」(@seealso CPU 核心)",
+      "context": "compound:physical core = 實體核；「核心」保留給 kernel，processor core 用「核」(@seealso CPU核心)",
       "english": "physical core"
     },
     {
@@ -5645,11 +7410,26 @@
       "english": "Trinidad and Tobago"
     },
     {
+      "from": "特麗瓏",
+      "to": ["特麗霓虹"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Trinitron",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "狀態欄",
       "to": ["狀態列"],
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "status bar"
+    },
+    {
+      "from": "獲得者",
+      "to": ["得主"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "winner / recipient"
     },
     {
       "from": "獼猴桃",
@@ -5659,12 +7439,33 @@
       "english": "kiwi fruit"
     },
     {
+      "from": "玩家國度",
+      "to": ["玩家共和國"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Republic of Gamers"
+    },
+    {
+      "from": "玩脫了",
+      "to": ["玩過頭", "過火了"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "took it too far"
+    },
+    {
       "from": "班主任",
       "to": ["導師"],
       "type": "cross_strait",
       "context": "@domain 教育",
       "english": "homeroom teacher",
       "context_clues": ["班級", "學生", "學校", "老師"]
+    },
+    {
+      "from": "現實很骨感",
+      "to": ["現實很殘酷"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "reality is harsh"
     },
     {
       "from": "瑙魯",
@@ -5695,6 +7496,20 @@
       "context": "@domain 程式設計",
       "english": "scope resolution operator",
       "context_clues": ["運算", "表達式", "運算子", "C++", "編譯", "程式", "語法"]
+    },
+    {
+      "from": "生物標誌物",
+      "to": ["生物標誌"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "biomarker"
+    },
+    {
+      "from": "生物食品",
+      "to": ["天然食品"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "organic food"
     },
     {
       "from": "用戶",
@@ -5745,6 +7560,20 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "interface"
+    },
+    {
+      "from": "畢加索",
+      "to": ["畢卡索"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Picasso"
+    },
+    {
+      "from": "番石榴",
+      "to": ["芭樂"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "guava"
     },
     {
       "from": "異常",
@@ -5816,16 +7645,25 @@
       "english": "iterator"
     },
     {
+      "from": "疑難解答",
+      "to": ["疑難排解"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "troubleshooting"
+    },
+    {
       "from": "痹",
       "to": ["痺"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 麻痺)"
+      "context": "MoE 標準字體 (@example 麻痺)",
+      "english": "numbness (char variant)"
     },
     {
       "from": "癡",
       "to": ["痴"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 痴迷、痴情)"
+      "context": "MoE 標準字體 (@example 痴迷、痴情)",
+      "english": "infatuated (char variant)"
     },
     {
       "from": "登錄",
@@ -5863,6 +7701,13 @@
       "english": "send"
     },
     {
+      "from": "發郵件",
+      "to": ["寄信"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "send email"
+    },
+    {
       "from": "白帽",
       "to": ["白帽駭客"],
       "type": "cross_strait",
@@ -5874,7 +7719,8 @@
       "from": "皁",
       "to": ["皂"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 肥皂)"
+      "context": "MoE 標準字體 (@example 肥皂)",
+      "english": "soap (char variant)"
     },
     {
       "from": "的士",
@@ -5889,6 +7735,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "lunchbox/bento"
+    },
+    {
+      "from": "監督電話",
+      "to": ["投訴電話"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "supervision hotline"
     },
     {
       "from": "盤片",
@@ -5933,6 +7786,13 @@
       "english": "object file"
     },
     {
+      "from": "盲人學校",
+      "to": ["啟明學校"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "school for the blind"
+    },
+    {
       "from": "直接下層派生類",
       "to": ["直接下層衍生類"],
       "type": "cross_strait",
@@ -5954,16 +7814,26 @@
       "english": "photo album"
     },
     {
+      "from": "真陰性",
+      "to": ["正確負例"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "true negative",
+      "context_clues": ["檢驗", "篩檢", "診斷", "測試"]
+    },
+    {
       "from": "着",
       "to": ["著"],
       "type": "variant",
-      "context": "MoE 標準字體 (助詞用法統一為「著」)"
+      "context": "MoE 標準字體 (助詞用法統一為「著」)",
+      "english": "particle (char variant)"
     },
     {
       "from": "睾",
       "to": ["睪"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 睪丸)"
+      "context": "MoE 標準字體 (@example 睪丸)",
+      "english": "testicle (char variant)"
     },
     {
       "from": "矢量",
@@ -5971,6 +7841,13 @@
       "type": "cross_strait",
       "context": "@domain 數學",
       "english": "vector"
+    },
+    {
+      "from": "知識密集",
+      "to": ["技術密集"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "knowledge-intensive"
     },
     {
       "from": "知識產權",
@@ -5985,6 +7862,20 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "SMS"
+    },
+    {
+      "from": "研究生院",
+      "to": ["研究所"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "graduate school"
+    },
+    {
+      "from": "破壁機",
+      "to": ["果汁機", "豆漿機"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "high-speed blender"
     },
     {
       "from": "硅",
@@ -6006,6 +7897,14 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "hard disk"
+    },
+    {
+      "from": "硬編碼",
+      "to": ["寫死"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "hard-code",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "硬編碼的",
@@ -6068,7 +7967,8 @@
       "from": "祕",
       "to": ["秘"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 秘密、神秘)"
+      "context": "MoE 標準字體 (@example 秘密、神秘)",
+      "english": "secret (char variant)"
     },
     {
       "from": "祖國",
@@ -6076,6 +7976,13 @@
       "type": "political_coloring",
       "context": "當書寫者的國籍認同為 cn 時成立，否則保留原詞",
       "english": "motherland"
+    },
+    {
+      "from": "票販子",
+      "to": ["黃牛"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "ticket scalper"
     },
     {
       "from": "禁用",
@@ -6105,6 +8012,85 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Ivory Coast (Cote d'Ivoire)"
+    },
+    {
+      "from": "移動代理",
+      "to": ["行動代理"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile agent"
+    },
+    {
+      "from": "移動內容管理",
+      "to": ["行動內容管理"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile content management"
+    },
+    {
+      "from": "移動平台",
+      "to": ["行動平台"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile platform"
+    },
+    {
+      "from": "移動廣播",
+      "to": ["行動廣播"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile broadcasting"
+    },
+    {
+      "from": "移動性",
+      "to": ["行動性"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobility",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "移動應用",
+      "to": ["行動應用"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile application"
+    },
+    {
+      "from": "移動應用管理",
+      "to": ["行動應用管理"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile application management"
+    },
+    {
+      "from": "移動支付",
+      "to": ["行動支付"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile payment"
+    },
+    {
+      "from": "移動瀏覽器",
+      "to": ["行動瀏覽器"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile browser"
+    },
+    {
+      "from": "移動版",
+      "to": ["行動版"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile version",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "移動產品",
+      "to": ["行動產品"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile product"
     },
     {
       "from": "移動硬盤",
@@ -6148,6 +8134,27 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "mobile communication"
+    },
+    {
+      "from": "移動電信",
+      "to": ["行動電信"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile telecommunications"
+    },
+    {
+      "from": "移動電源",
+      "to": ["行動電源"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "power bank"
+    },
+    {
+      "from": "移動電視",
+      "to": ["行動電視"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "mobile TV"
     },
     {
       "from": "移動電話",
@@ -6262,6 +8269,13 @@
       "context_clues": ["會員", "紅利", "兌換", "獎勵", "消費", "回饋"]
     },
     {
+      "from": "空中客車",
+      "to": ["空中巴士"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Airbus"
+    },
+    {
       "from": "空分多址",
       "to": ["分空間多重進接"],
       "type": "cross_strait",
@@ -6354,7 +8368,22 @@
       "from": "竈",
       "to": ["灶"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 灶台、灶神)"
+      "context": "MoE 標準字體 (@example 灶台、灶神)",
+      "english": "stove (char variant)"
+    },
+    {
+      "from": "站著說話不腰疼",
+      "to": ["風涼話", "高談闊論"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "talking from the sidelines"
+    },
+    {
+      "from": "站點標識按鈕",
+      "to": ["網站識別鈕"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "site identification button"
     },
     {
       "from": "端到端測試",
@@ -6387,6 +8416,34 @@
       "context_clues": ["執行緒", "並行", "同步", "鎖", "race"]
     },
     {
+      "from": "第三次浪潮",
+      "to": ["第三波"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "the Third Wave"
+    },
+    {
+      "from": "第三產業",
+      "to": ["服務業"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "tertiary industry"
+    },
+    {
+      "from": "第二職業",
+      "to": ["副業"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "side job"
+    },
+    {
+      "from": "第二課堂",
+      "to": ["課外活動"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "extracurricular classroom"
+    },
+    {
       "from": "筆記本電腦",
       "to": ["筆記型電腦"],
       "type": "cross_strait",
@@ -6412,7 +8469,7 @@
       "from": "等離子電視",
       "to": ["電漿電視"],
       "type": "cross_strait",
-      "context": "@domain IT。cn 等離子電視 = tw 電漿電視 (plasma TV)",
+      "context": "@domain IT",
       "english": "plasma TV"
     },
     {
@@ -6464,7 +8521,15 @@
       "from": "糉",
       "to": ["粽"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 粽子)"
+      "context": "MoE 標準字體 (@example 粽子)",
+      "english": "zongzi / rice dumpling (char variant)"
+    },
+    {
+      "from": "系列企業",
+      "to": ["關係企業"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "affiliated companies"
     },
     {
       "from": "系統托盤",
@@ -6472,6 +8537,21 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "system tray"
+    },
+    {
+      "from": "系統盤",
+      "to": ["系統磁碟"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "system disk",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "系統資料",
+      "to": ["資源管理"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "system data"
     },
     {
       "from": "約翰內斯堡",
@@ -6509,6 +8589,13 @@
       "english": "prime"
     },
     {
+      "from": "索尼移動",
+      "to": ["索尼行動"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Sony Mobile"
+    },
+    {
       "from": "索馬裡",
       "to": ["索馬利亞"],
       "type": "cross_strait",
@@ -6538,6 +8625,14 @@
       "english": "end user"
     },
     {
+      "from": "終結器",
+      "to": ["終端子"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "terminator",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "組件",
       "to": ["元件"],
       "type": "cross_strait",
@@ -6550,6 +8645,21 @@
       "type": "cross_strait",
       "context": "@domain UI",
       "english": "combo box"
+    },
+    {
+      "from": "組提示",
+      "to": ["群組提示"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "group hint",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "統一意見",
+      "to": ["共識"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "consensus"
     },
     {
       "from": "綁定",
@@ -6574,6 +8684,13 @@
       "english": "syndrome"
     },
     {
+      "from": "綠色食品",
+      "to": ["健康食品"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "green / organic food"
+    },
+    {
       "from": "網上鄰居",
       "to": ["網路芳鄰"],
       "type": "cross_strait",
@@ -6593,6 +8710,14 @@
       "type": "cross_strait",
       "context": "@domain 網路",
       "english": "internet cafe"
+    },
+    {
+      "from": "網格線",
+      "to": ["格線"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "gridline",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "網民",
@@ -6635,6 +8760,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "gateway"
+    },
+    {
+      "from": "網頁快照",
+      "to": ["頁庫存檔"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "webpage snapshot"
     },
     {
       "from": "線程",
@@ -6701,6 +8833,13 @@
       "english": "thumbnail"
     },
     {
+      "from": "縮略網址",
+      "to": ["縮網址"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "short URL"
+    },
+    {
       "from": "縮進",
       "to": ["縮排"],
       "type": "cross_strait",
@@ -6728,16 +8867,25 @@
       "context_clues": ["系統", "程式", "功能", "架構", "方法"]
     },
     {
+      "from": "繃不住",
+      "to": ["忍不住"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "can't hold it in"
+    },
+    {
       "from": "繮",
       "to": ["韁"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 韁繩)"
+      "context": "MoE 標準字體 (@example 韁繩)",
+      "english": "rein (char variant)"
     },
     {
       "from": "纔",
       "to": ["才"],
       "type": "variant",
-      "context": "MoE 標準字體 (「纔」為古體)"
+      "context": "MoE 標準字體 (「纔」為古體)",
+      "english": "just / only then (char variant)"
     },
     {
       "from": "缺省",
@@ -6761,6 +8909,21 @@
       "english": "page fault"
     },
     {
+      "from": "置信度",
+      "to": ["可信度"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "confidence",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "置標語言",
+      "to": ["標示語言"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "markup language"
+    },
+    {
       "from": "美聯儲",
       "to": ["美國聯準會"],
       "type": "cross_strait",
@@ -6771,7 +8934,8 @@
       "from": "羣",
       "to": ["群"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 群組、群眾)"
+      "context": "MoE 標準字體 (@example 群組、群眾)",
+      "english": "group (char variant)"
     },
     {
       "from": "群聊",
@@ -6794,6 +8958,13 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Laos"
+    },
+    {
+      "from": "老視眼",
+      "to": ["老花眼"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "presbyopia"
     },
     {
       "from": "聖地亞哥",
@@ -6831,6 +9002,28 @@
       "english": "San Marino"
     },
     {
+      "from": "聯機交易處理",
+      "to": ["線上異動處理"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "online transaction processing"
+    },
+    {
+      "from": "聯機分析處理",
+      "to": ["線上分析處理"],
+      "type": "cross_strait",
+      "context": "@domain 資料庫。OLAP",
+      "english": "online analytical processing"
+    },
+    {
+      "from": "聯系人",
+      "to": ["聯絡人"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "contact person",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "聯繫",
       "to": ["聯絡"],
       "type": "cross_strait",
@@ -6860,6 +9053,20 @@
       "context_clues": ["變數", "變量", "函式", "函數", "型別", "類別", "類型", "屬性", "方法", "介面", "接口", "模組"]
     },
     {
+      "from": "聽證會",
+      "to": ["公聽會"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "hearing"
+    },
+    {
+      "from": "肉食鴿",
+      "to": ["食用鴿"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "meat pigeon"
+    },
+    {
       "from": "肯尼亞",
       "to": ["肯亞"],
       "type": "cross_strait",
@@ -6877,7 +9084,8 @@
       "from": "脣",
       "to": ["唇"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 嘴唇)"
+      "context": "MoE 標準字體 (@example 嘴唇)",
+      "english": "lip (char variant)"
     },
     {
       "from": "脫機",
@@ -6885,6 +9093,20 @@
       "type": "cross_strait",
       "context": "@domain 作業系統",
       "english": "offline"
+    },
+    {
+      "from": "腦洞大開",
+      "to": ["異想天開", "出其不意"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "wild imagination"
+    },
+    {
+      "from": "腦流失",
+      "to": ["人才外流"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "brain drain"
     },
     {
       "from": "腳手架",
@@ -6908,6 +9130,13 @@
       "english": "temporary object"
     },
     {
+      "from": "臨時戶口",
+      "to": ["流動戶口"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "temporary household registration"
+    },
+    {
       "from": "自動檔",
       "to": ["自排"],
       "type": "cross_strait",
@@ -6929,6 +9158,13 @@
       "english": "customize"
     },
     {
+      "from": "自底向上",
+      "to": ["由下而上"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "bottom-up"
+    },
+    {
       "from": "自行車",
       "to": ["腳踏車"],
       "type": "cross_strait",
@@ -6941,6 +9177,20 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "adaptive"
+    },
+    {
+      "from": "自選市場",
+      "to": ["超級市場"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "self-service market"
+    },
+    {
+      "from": "自頂向下",
+      "to": ["由上而下"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "top-down"
     },
     {
       "from": "臺式機",
@@ -7012,6 +9262,20 @@
       "english": "Commonwealth of Nations"
     },
     {
+      "from": "草泥馬",
+      "to": ["羊駝"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "alpaca"
+    },
+    {
+      "from": "莫差特",
+      "to": ["莫札特"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Mozart"
+    },
+    {
       "from": "莫桑比克",
       "to": ["莫三比克"],
       "type": "cross_strait",
@@ -7037,9 +9301,16 @@
       "from": "菠蘿",
       "to": ["鳳梨"],
       "type": "cross_strait",
-      "context": "@domain 日常。cn 菠蘿 = tw 鳳梨 (pineapple)",
+      "context": "@domain 日常",
       "english": "pineapple",
       "negative_context_clues": ["麵包", "包"]
+    },
+    {
+      "from": "華夫餅",
+      "to": ["鬆餅"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "waffle"
     },
     {
       "from": "萊索托",
@@ -7054,6 +9325,13 @@
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Lesotho"
+    },
+    {
+      "from": "萌萌噠",
+      "to": ["很可愛"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "adorably cute"
     },
     {
       "from": "萬億",
@@ -7087,13 +9365,15 @@
       "from": "蔘",
       "to": ["參"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 人參)。「參」另有參加、參考之義"
+      "context": "MoE 標準字體 (@example 人參)。「參」另有參加、參考之義",
+      "english": "ginseng (char variant)"
     },
     {
       "from": "蔿",
       "to": ["蒍"],
       "type": "variant",
-      "context": "MoE 標準字體 (植物名)"
+      "context": "MoE 標準字體 (植物名)",
+      "english": "Wei (plant name, char variant)"
     },
     {
       "from": "藍屏",
@@ -7145,6 +9425,13 @@
       "english": "virtual memory"
     },
     {
+      "from": "虛擬專用網",
+      "to": ["虛擬私人網路"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "virtual private network"
+    },
+    {
       "from": "虛擬文件樹",
       "to": ["虛擬檔案樹"],
       "type": "cross_strait",
@@ -7160,10 +9447,32 @@
       "exceptions": ["虛擬機器"]
     },
     {
+      "from": "蜘蛛紙牌",
+      "to": ["連環新接龍"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Spider Solitaire"
+    },
+    {
+      "from": "螢幕廣告",
+      "to": ["電視廣告"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "screen advertisement"
+    },
+    {
+      "from": "螺絲批",
+      "to": ["螺絲起子"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "screwdriver"
+    },
+    {
       "from": "衆",
       "to": ["眾"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 眾人、大眾)"
+      "context": "MoE 標準字體 (@example 眾人、大眾)",
+      "english": "multitude (char variant)"
     },
     {
       "from": "行業",
@@ -7173,11 +9482,26 @@
       "english": "industry"
     },
     {
+      "from": "行業病",
+      "to": ["職業病"],
+      "type": "cross_strait",
+      "context": "@domain 醫學",
+      "english": "occupational disease",
+      "context_clues": ["醫療", "門診", "病患", "藥物", "診所"]
+    },
+    {
       "from": "衛生巾",
       "to": ["衛生棉"],
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "sanitary pad"
+    },
+    {
+      "from": "衛生筷",
+      "to": ["免洗筷"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "disposable chopsticks"
     },
     {
       "from": "表情包",
@@ -7202,6 +9526,13 @@
       "english": "tea bag"
     },
     {
+      "from": "被動吸菸",
+      "to": ["抽二手菸"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "passive smoking"
+    },
+    {
       "from": "被重載的操作符",
       "to": ["多載化運算子"],
       "type": "cross_strait",
@@ -7220,7 +9551,8 @@
       "from": "裏",
       "to": ["裡"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 裡面、心裡)"
+      "context": "MoE 標準字體 (@example 裡面、心裡)",
+      "english": "inside (char variant)"
     },
     {
       "from": "補丁",
@@ -7235,6 +9567,13 @@
       "type": "cross_strait",
       "context": "@domain 數學",
       "english": "two's complement"
+    },
+    {
+      "from": "裝系統",
+      "to": ["安裝系統"],
+      "type": "cross_strait",
+      "context": "@domain IT。安裝作業系統",
+      "english": "install an operating system"
     },
     {
       "from": "裝置號",
@@ -7288,6 +9627,13 @@
       "english": "shirt"
     },
     {
+      "from": "西紅柿",
+      "to": ["番茄"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "tomato"
+    },
+    {
       "from": "西蘭花",
       "to": ["青花菜"],
       "type": "cross_strait",
@@ -7295,10 +9641,42 @@
       "english": "broccoli"
     },
     {
+      "from": "覆選按鈕",
+      "to": ["核取按鈕"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "check button"
+    },
+    {
+      "from": "覆選框",
+      "to": ["核取方塊"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "checkbox",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "覆銅板",
+      "to": ["銅箔基板"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "copper-clad laminate",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "覈",
       "to": ["核"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 審核、核實)"
+      "context": "MoE 標準字體 (@example 審核、核實)",
+      "english": "verify / check (char variant)"
+    },
+    {
+      "from": "規範化",
+      "to": ["規格化"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "normalization",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "視圖",
@@ -7344,12 +9722,35 @@
       "context_clues": ["檔案", "壓縮", "zip", "rar"]
     },
     {
+      "from": "解引用",
+      "to": ["解除參照", "取值"],
+      "type": "cross_strait",
+      "context": "@domain IT。在 C 或 C++ 程式語言一類風格的程式語言，用「取值」簡單且明確",
+      "english": "dereference",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "解釋器",
       "to": ["直譯器", "解譯器"],
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "interpreter",
       "context_clues": ["腳本", "Python", "執行", "程式碼", "直譯", "代碼"]
+    },
+    {
+      "from": "解釋型語言",
+      "to": ["直譯語言"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "interpreted language"
+    },
+    {
+      "from": "觸控屏",
+      "to": ["觸控螢幕"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "touchscreen",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "觸摸",
@@ -7364,6 +9765,14 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "touch screen"
+    },
+    {
+      "from": "訂製化",
+      "to": ["客製化"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "customization",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "計劃",
@@ -7405,7 +9814,7 @@
       "from": "託盤",
       "to": ["系統匣"],
       "type": "cross_strait",
-      "context": "@domain 硬體。cn「託盤」(系統)；tw 用「系統匣」(system tray)",
+      "context": "@domain 硬體。system tray",
       "english": "system tray",
       "context_clues": ["通知", "圖示", "工作列", "系統"]
     },
@@ -7493,7 +9902,7 @@
       "from": "許可證",
       "to": ["授權條款"],
       "type": "cross_strait",
-      "context": "@domain 軟體授權。cn「許可證」(軟體)；tw 用「授權條款」(license)",
+      "context": "@domain 軟體授權。限 IT 語境。軟體授權 (software license) 應譯「授權條款」，法律語境可用「許可證」",
       "english": "license",
       "context_clues": ["MIT", "GPL", "Apache", "開源", "授權"]
     },
@@ -7520,6 +9929,13 @@
       "english": "logout/sign out"
     },
     {
+      "from": "評測系統",
+      "to": ["解題系統"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "evaluation system / online judge"
+    },
+    {
       "from": "詞組",
       "to": ["片語"],
       "type": "cross_strait",
@@ -7540,6 +9956,29 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "block"
+    },
+    {
+      "from": "語義網",
+      "to": ["語意網"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "semantic web",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "語言包",
+      "to": ["語言套件"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "language pack",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "課時工資",
+      "to": ["鐘點費"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "hourly pay"
     },
     {
       "from": "調制解調器",
@@ -7622,6 +10061,20 @@
       "english": "debugger"
     },
     {
+      "from": "請勿追蹤",
+      "to": ["停止追蹤"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Do Not Track"
+    },
+    {
+      "from": "謎語人",
+      "to": ["拐彎抹角", "含糊不清"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "one who speaks cryptically"
+    },
+    {
       "from": "證書",
       "to": ["憑證"],
       "type": "confusable",
@@ -7635,6 +10088,14 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "warning message"
+    },
+    {
+      "from": "讀卡器",
+      "to": ["讀卡機"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "card reader",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "讀取文件",
@@ -7659,19 +10120,19 @@
       "english": "variable"
     },
     {
-      "from": "许可证",
-      "to": ["授權條款"],
-      "type": "cross_strait",
-      "context": "@domain 軟體授權。限 IT 語境。軟體授權 (software license) 應譯「授權條款」，法律語境可用「許可證」",
-      "english": "license",
-      "context_clues": ["軟體", "開源", "授權", "GPL", "MIT"]
-    },
-    {
       "from": "貝寧",
       "to": ["貝南"],
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Benin"
+    },
+    {
+      "from": "貝葉斯",
+      "to": ["貝氏"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Bayes",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "負一屏",
@@ -7694,6 +10155,14 @@
       "context": "@domain IT",
       "english": "load balancing",
       "context_clues": ["伺服器", "流量", "叢集", "分散"]
+    },
+    {
+      "from": "貪心法",
+      "to": ["貪婪法"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "greedy algorithm",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "資料綁定",
@@ -7719,6 +10188,20 @@
       "context_clues": ["視窗", "微軟", "系統", "檔案", "資料夾"]
     },
     {
+      "from": "賣大戶",
+      "to": ["量販"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "bulk retail"
+    },
+    {
+      "from": "賣大號",
+      "to": ["量販"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "wholesale size"
+    },
+    {
       "from": "賦值",
       "to": ["指派"],
       "type": "cross_strait",
@@ -7742,6 +10225,13 @@
       "context_clues": ["保證", "管理", "控制", "提升", "改善", "軟件", "軟體", "產品", "服務", "測試"]
     },
     {
+      "from": "質量管理",
+      "to": ["品質管制"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "quality management"
+    },
+    {
       "from": "賬單",
       "to": ["帳單"],
       "type": "cross_strait",
@@ -7763,11 +10253,33 @@
       "english": "account"
     },
     {
+      "from": "購物籃",
+      "to": ["購物車"],
+      "type": "cross_strait",
+      "context": "@domain 電商",
+      "english": "shopping basket",
+      "context_clues": ["購物", "商品", "結帳", "訂單"]
+    },
+    {
       "from": "贊比亞",
       "to": ["尚比亞"],
       "type": "cross_strait",
       "context": "@geo country (國名)",
       "english": "Zambia"
+    },
+    {
+      "from": "走讀生",
+      "to": ["通學生"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "day student"
+    },
+    {
+      "from": "超常兒童",
+      "to": ["天才兒童"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "gifted child"
     },
     {
       "from": "超時",
@@ -7792,11 +10304,25 @@
       "english": "ultrasound"
     },
     {
+      "from": "跟蹤服務",
+      "to": ["售後服務"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "follow-up service"
+    },
+    {
       "from": "跟隨",
       "to": ["追蹤"],
       "type": "cross_strait",
       "context": "@domain 社群",
       "english": "follow"
+    },
+    {
+      "from": "跳樓機",
+      "to": ["大怒神", "自由落體"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "drop tower ride"
     },
     {
       "from": "跳閘",
@@ -7809,7 +10335,22 @@
       "from": "踊",
       "to": ["踴"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 踴躍)"
+      "context": "MoE 標準字體 (@example 踴躍)",
+      "english": "leap / eager (char variant)"
+    },
+    {
+      "from": "踩一捧一",
+      "to": ["自抬身價"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "put one down to praise another"
+    },
+    {
+      "from": "踩屎感拖鞋",
+      "to": ["發泡拖鞋"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "ultra-soft cushioned slippers"
     },
     {
       "from": "蹦極",
@@ -7817,6 +10358,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "bungee jumping"
+    },
+    {
+      "from": "蹭熱度",
+      "to": ["跟風", "跟隨潮流"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "ride the hype"
     },
     {
       "from": "身份證",
@@ -7840,6 +10388,13 @@
       "english": "software package"
     },
     {
+      "from": "軟包裝",
+      "to": ["鋁箔包"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "soft packaging"
+    },
+    {
       "from": "軟盤",
       "to": ["軟碟"],
       "type": "cross_strait",
@@ -7854,6 +10409,13 @@
       "english": "floppy drive"
     },
     {
+      "from": "輔導班",
+      "to": ["補習班"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "cram school / tutoring class"
+    },
+    {
       "from": "輔音",
       "to": ["子音"],
       "type": "cross_strait",
@@ -7866,6 +10428,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "repost"
+    },
+    {
+      "from": "轉折點",
+      "to": ["轉捩點"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "turning point"
     },
     {
       "from": "轉發",
@@ -7887,6 +10456,13 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "escape character"
+    },
+    {
+      "from": "辣眼睛",
+      "to": ["慘不忍睹"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "eyesore"
     },
     {
       "from": "返回",
@@ -7932,11 +10508,25 @@
       "english": "rear-end collision"
     },
     {
+      "from": "退出登錄",
+      "to": ["登出"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "log out"
+    },
+    {
       "from": "通信",
       "to": ["通訊"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "communication"
+    },
+    {
+      "from": "通宵電影",
+      "to": ["午夜場"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "midnight movie"
     },
     {
       "from": "通用算法",
@@ -7987,6 +10577,13 @@
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "connector"
+    },
+    {
+      "from": "連續互通",
+      "to": ["接續互通"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Continuity"
     },
     {
       "from": "進制",
@@ -8074,6 +10671,14 @@
       "english": "roller coaster"
     },
     {
+      "from": "過擬合",
+      "to": ["過度擬合"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "overfitting",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "過濾器",
       "to": ["篩選器"],
       "type": "cross_strait",
@@ -8081,11 +10686,48 @@
       "english": "filter"
     },
     {
+      "from": "過程化",
+      "to": ["程序化"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "proceduralization",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "過程式",
+      "to": ["程序式"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "procedural",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
       "from": "過程式編程",
       "to": ["程序式程式設計"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "procedural programming"
+    },
+    {
+      "from": "過街橋",
+      "to": ["天橋"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "pedestrian overpass"
+    },
+    {
+      "from": "道․瓊斯指數",
+      "to": ["道瓊指數"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "Dow Jones Index"
+    },
+    {
+      "from": "達芬奇",
+      "to": ["達文西"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "da Vinci"
     },
     {
       "from": "遞歸",
@@ -8100,6 +10742,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "remote"
+    },
+    {
+      "from": "遥控器",
+      "to": ["遙控器"],
+      "type": "variant",
+      "context": "簡→繁字形。遥控器 → 遙控器",
+      "english": "remote control"
     },
     {
       "from": "適配",
@@ -8137,10 +10786,38 @@
       "english": "tab"
     },
     {
+      "from": "避孕套",
+      "to": ["保險套"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "condom"
+    },
+    {
+      "from": "邊緣統計量",
+      "to": ["邊際統計量"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "marginal statistic"
+    },
+    {
+      "from": "邏輯卷管理",
+      "to": ["邏輯磁碟區管理"],
+      "type": "cross_strait",
+      "context": "@domain 作業系統。LVM",
+      "english": "logical volume management"
+    },
+    {
+      "from": "邏輯器件",
+      "to": ["邏輯裝置"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "logic device"
+    },
+    {
       "from": "邏輯核心",
       "to": ["邏輯核"],
       "type": "cross_strait",
-      "context": "compound:logical core = 邏輯核；與實體核對應 (@seealso CPU 核心)",
+      "context": "compound:logical core = 邏輯核；與實體核對應 (@seealso CPU核心)",
       "english": "logical core"
     },
     {
@@ -8156,6 +10833,13 @@
       "type": "cross_strait",
       "context": "@domain 網路。「郵箱」指實體郵筒，與電子信箱語意不同",
       "english": "email/mailbox"
+    },
+    {
+      "from": "郵遞員",
+      "to": ["郵差"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "mail carrier"
     },
     {
       "from": "配置",
@@ -8187,6 +10871,21 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "yogurt"
+    },
+    {
+      "from": "酸牛奶",
+      "to": ["優酪乳"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "yogurt"
+    },
+    {
+      "from": "采樣率",
+      "to": ["取樣率"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "sampling rate",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
       "from": "重命名",
@@ -8264,7 +10963,8 @@
       "from": "鉢",
       "to": ["缽"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 衣缽)"
+      "context": "MoE 標準字體 (@example 衣缽)",
+      "english": "alms bowl (char variant)"
     },
     {
       "from": "鉤子",
@@ -8277,7 +10977,8 @@
       "from": "銷燬",
       "to": ["銷毀"],
       "type": "variant",
-      "context": "MoE 標準字體：「毀」為正體，「燬」為異體字"
+      "context": "MoE 標準字體：「毀」為正體，「燬」為異體字",
+      "english": "destroy (char variant)"
     },
     {
       "from": "鋼化玻璃",
@@ -8301,10 +11002,18 @@
       "english": "error message"
     },
     {
+      "from": "鍵盤布局",
+      "to": ["鍵盤配置"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "keyboard layout"
+    },
+    {
       "from": "鍼",
       "to": ["針"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 針灸、指南針)"
+      "context": "MoE 標準字體 (@example 針灸、指南針)",
+      "english": "needle (char variant)"
     },
     {
       "from": "鏈接",
@@ -8339,9 +11048,37 @@
       "from": "鏡像",
       "to": ["映像檔"],
       "type": "cross_strait",
-      "context": "@domain 硬體。cn「鏡像」(軟體)；tw 用「映像檔」(image file)",
+      "context": "@domain 硬體。image file",
       "english": "image",
       "context_clues": ["ISO", "Docker", "安裝", "燒錄", "容器"]
+    },
+    {
+      "from": "鐵哥們",
+      "to": ["哥兒們"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "close buddy"
+    },
+    {
+      "from": "鑰匙扣",
+      "to": ["鑰匙圈"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "keychain"
+    },
+    {
+      "from": "長知識",
+      "to": ["學到了", "受教了"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "learn something new"
+    },
+    {
+      "from": "門戶系統",
+      "to": ["入口網站"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "portal system"
     },
     {
       "from": "門戶網站",
@@ -8373,6 +11110,13 @@
       "context_clues": ["視窗", "桌面", "工作列", "程式"]
     },
     {
+      "from": "開放移動聯盟",
+      "to": ["開放行動聯盟"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Open Mobile Alliance"
+    },
+    {
       "from": "開源",
       "to": ["開放原始碼"],
       "type": "confusable",
@@ -8380,6 +11124,13 @@
       "english": "open source",
       "context_clues": ["軟體", "軟件", "程式", "程式碼", "社群", "專案", "GitHub", "Linux", "硬體", "授權"],
       "exceptions": ["開源節流"]
+    },
+    {
+      "from": "開門紅",
+      "to": ["好采頭"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "auspicious start"
     },
     {
       "from": "閒置程序",
@@ -8462,6 +11213,20 @@
       "english": "qualifier"
     },
     {
+      "from": "除塵器",
+      "to": ["吸塵器"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "vacuum cleaner / dust collector"
+    },
+    {
+      "from": "陰陽怪氣",
+      "to": ["怪裡怪氣", "假鬼假怪"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "sarcastic / passive-aggressive"
+    },
+    {
       "from": "隊列",
       "to": ["佇列"],
       "type": "cross_strait",
@@ -8474,6 +11239,28 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "RAM"
+    },
+    {
+      "from": "隨機數",
+      "to": ["亂數"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "random number",
+      "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
+    },
+    {
+      "from": "隱式語義索引",
+      "to": ["隱含語意索引"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "latent semantic indexing"
+    },
+    {
+      "from": "隱身模式",
+      "to": ["無痕模式"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "incognito mode"
     },
     {
       "from": "隻",
@@ -8535,6 +11322,20 @@
       "context_clues": ["伺服器", "節點", "分散", "部署", "K8s"]
     },
     {
+      "from": "集裝箱",
+      "to": ["貨櫃"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "shipping container"
+    },
+    {
+      "from": "集貿市場",
+      "to": ["菜市場"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "bazaar / rural market"
+    },
+    {
       "from": "雙參函數",
       "to": ["二元函式"],
       "type": "cross_strait",
@@ -8545,7 +11346,7 @@
       "from": "雙核心",
       "to": ["雙核"],
       "type": "cross_strait",
-      "context": "compound:dual-core = 雙核 (@seealso CPU 核心, 多核心)",
+      "context": "compound:dual-core = 雙核 (@seealso CPU核心, 多核心)",
       "english": "dual-core"
     },
     {
@@ -8570,6 +11371,13 @@
       "english": "cloud computing"
     },
     {
+      "from": "零幀起手",
+      "to": ["出其不意", "毫無預警", "猝不及防"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "start instantly"
+    },
+    {
       "from": "零部件",
       "to": ["零組件"],
       "type": "cross_strait",
@@ -8584,6 +11392,34 @@
       "english": "hair dryer"
     },
     {
+      "from": "電子信函",
+      "to": ["電子郵件"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "email"
+    },
+    {
+      "from": "電子表格",
+      "to": ["電子試算表"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "spreadsheet"
+    },
+    {
+      "from": "電子陽痿",
+      "to": ["失去興趣", "提不起勁", "沒有熱情"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "digital burnout"
+    },
+    {
+      "from": "電源保護",
+      "to": ["不斷電系統"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "power protection / UPS"
+    },
+    {
       "from": "電源適配器",
       "to": ["電源供應器"],
       "type": "cross_strait",
@@ -8591,11 +11427,39 @@
       "english": "power adapter"
     },
     {
+      "from": "電熱毯",
+      "to": ["電毯"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "electric blanket"
+    },
+    {
+      "from": "電腦紅娘",
+      "to": ["電腦擇友"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "computer matchmaker"
+    },
+    {
       "from": "電芯",
       "to": ["電池芯"],
       "type": "cross_strait",
       "context": "@domain 硬體",
       "english": "battery cell"
+    },
+    {
+      "from": "電視大學",
+      "to": ["空中大學"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "television university"
+    },
+    {
+      "from": "電視系列片",
+      "to": ["電視影集"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "TV series"
     },
     {
       "from": "電飯煲",
@@ -8616,6 +11480,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "flexibility"
+    },
+    {
+      "from": "青年宮",
+      "to": ["青年活動中心"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "youth center"
     },
     {
       "from": "靜態分配",
@@ -8694,6 +11565,13 @@
       "type": "cross_strait",
       "context": "compound:「頁面」語境自動觸發「分配→配置」(@seealso 記憶體分配)",
       "english": "page allocation"
+    },
+    {
+      "from": "頂不住",
+      "to": ["撐不住", "受不了"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "can't take it"
     },
     {
       "from": "項目",
@@ -8889,6 +11767,27 @@
       "english": "video memory (VRAM)"
     },
     {
+      "from": "風景微縮區",
+      "to": ["小人國"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "miniature park"
+    },
+    {
+      "from": "飛兆半導體",
+      "to": ["快捷半導體"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "Fairchild Semiconductor"
+    },
+    {
+      "from": "飛機乘務員",
+      "to": ["空服員"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "flight attendant"
+    },
+    {
       "from": "飛行模式",
       "to": ["飛航模式"],
       "type": "cross_strait",
@@ -9028,11 +11927,25 @@
       "english": "pressure cooker"
     },
     {
+      "from": "高大上",
+      "to": ["高貴", "高雅", "有氣質"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "high-end and classy"
+    },
+    {
       "from": "高性能計算",
       "to": ["高效能運算"],
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "high-performance computing (HPC)"
+    },
+    {
+      "from": "高標準內銷房",
+      "to": ["高級住宅"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "high-standard domestic housing"
     },
     {
       "from": "高檔",
@@ -9054,6 +11967,13 @@
       "type": "cross_strait",
       "context": "@domain IT。產品定位 vs 技術層級/難度",
       "english": "high-end"
+    },
+    {
+      "from": "高等院校",
+      "to": ["大專院校"],
+      "type": "cross_strait",
+      "context": "@domain 教育",
+      "english": "institutions of higher education"
     },
     {
       "from": "高級",
@@ -9084,10 +12004,18 @@
       "english": "magic number"
     },
     {
+      "from": "魚塘局",
+      "to": ["新手場"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "novice lobby / easy match"
+    },
+    {
       "from": "鮎",
       "to": ["鯰"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 鯰魚)"
+      "context": "MoE 標準字體 (@example 鯰魚)",
+      "english": "catfish (char variant)"
     },
     {
       "from": "鱷梨",
@@ -9100,7 +12028,8 @@
       "from": "麪",
       "to": ["麵"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 麵條、麵粉)"
+      "context": "MoE 標準字體 (@example 麵條、麵粉)",
+      "english": "noodle / flour (char variant)"
     },
     {
       "from": "黏貼",
@@ -9123,6 +12052,13 @@
       "context": "@domain 資安",
       "english": "black hat",
       "context_clues": ["駭客", "攻擊", "安全", "漏洞"]
+    },
+    {
+      "from": "黑盒測試",
+      "to": ["黑箱測試"],
+      "type": "cross_strait",
+      "context": "@domain IT",
+      "english": "black-box testing"
     },
     {
       "from": "默認",
@@ -9163,7 +12099,15 @@
       "from": "齶",
       "to": ["顎"],
       "type": "variant",
-      "context": "MoE 標準字體 (@example 上顎、下顎)"
+      "context": "MoE 標準字體 (@example 上顎、下顎)",
+      "english": "palate / jaw (char variant)"
+    },
+    {
+      "from": "龍傲天",
+      "to": ["開掛仔"],
+      "type": "cross_strait",
+      "context": "@domain 日常",
+      "english": "overpowered protagonist"
     }
   ],
   "case_rules": [
