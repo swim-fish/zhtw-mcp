@@ -572,4 +572,58 @@ mod tests {
             full as f64 / total as f64 * 100.0,
         );
     }
+
+    #[test]
+    fn hong_macro_fires_with_explicit_clue() {
+        // 宏 rule needs an explicit macro clue (e.g. #define, macro, 展開).
+        let scanner = make_scanner();
+        let issues = scanner.scan("這個宏是用 #define 展開的").issues;
+        assert!(
+            issues.iter().any(|i| i.found == "宏"),
+            "宏 must fire when #define clue is nearby"
+        );
+    }
+
+    #[test]
+    fn coverage_report_populated() {
+        let scanner = make_scanner();
+        let output = scanner.scan("這是正確的繁體中文");
+        let cov = output.coverage.expect("coverage must be present");
+        assert!(cov.rules_checked > 100, "should have many rules checked");
+        assert_eq!(cov.rules_matched, 0, "clean text should match 0 rules");
+
+        let output2 = scanner.scan("軟件工程");
+        let cov2 = output2.coverage.expect("coverage must be present");
+        assert!(
+            cov2.rules_matched > 0,
+            "text with issues should match >0 rules"
+        );
+    }
+
+    #[test]
+    fn oral_density_no_double_count() {
+        // "就是說" contains both the "就是" and "就是說" markers.
+        // The merged-span approach must not double-count the overlap.
+        let scanner = make_scanner();
+        let text = "就是說就是說就是說就是說就是說就是說就是說就是說就是說就是說";
+        let output = scanner.scan(text);
+        let density = output.oral_density.expect("should compute density");
+        assert!(
+            density <= 1.0,
+            "oral_density must not exceed 1.0, got {density}"
+        );
+    }
+
+    #[test]
+    fn quality_flag_asr_only_for_asr_confusables() {
+        // "函數" is a non-ASR confusable — should NOT set "asr_artifacts".
+        // "機體" near RAM clues is an ASR confusable — should set it.
+        let scanner = make_scanner();
+
+        let output1 = scanner.scan("函數在數學領域是 sin cos 的統稱");
+        assert!(
+            !output1.quality_flags.contains(&"asr_artifacts".to_string()),
+            "non-ASR confusable should not trigger asr_artifacts flag"
+        );
+    }
 }

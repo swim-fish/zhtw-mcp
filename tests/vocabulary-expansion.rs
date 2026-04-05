@@ -499,10 +499,21 @@ fn argument_yinshu_not_affected() {
 #[test]
 fn macro_hong_fires_standalone() {
     let scanner = full_scanner();
-    let issues = scanner.scan("這個宏定義了一個函式").issues;
+    // 宏 rule is clue-gated; needs a macro-related clue nearby.
+    let issues = scanner.scan("這個宏是用 #define 展開的").issues;
     assert!(
         issues.iter().any(|i| i.found == "宏"),
-        "standalone 宏 (macro) must be flagged"
+        "standalone 宏 (macro) must be flagged when macro clues present"
+    );
+}
+
+#[test]
+fn macro_hong_requires_macro_clue() {
+    let scanner = full_scanner();
+    let issues = scanner.scan("這個宏定義了一個函式").issues;
+    assert!(
+        issues.iter().all(|i| i.found != "宏"),
+        "宏 should stay suppressed without configured macro clues"
     );
 }
 

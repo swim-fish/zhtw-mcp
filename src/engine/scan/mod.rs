@@ -14,12 +14,14 @@
 //   7. Grammar checks (interlingual transfer, A-not-A + 嗎 clash) —
 //      run after overlap resolution to avoid suppressing narrower issues.
 
+mod acronym;
 mod case_rule;
 mod ellipsis;
 mod grammar;
 mod overlap;
 mod punctuation;
 mod quotes;
+mod repetition;
 pub(crate) mod rule_ir;
 mod spacing;
 mod spelling;
@@ -41,7 +43,7 @@ use serde::{Deserialize, Serialize};
 
 use super::zhtype::ChineseType;
 use crate::rules::ruleset::{
-    CaseRule, Issue, IssueType, Profile, ProfileConfig, Severity, SpellingRule,
+    CaseRule, Issue, IssueType, Profile, ProfileConfig, RuleType, Severity, SpellingRule,
 };
 
 use self::ellipsis::scan_ellipsis;
@@ -116,6 +118,36 @@ pub struct ScanOutput {
     /// requested (detect_ai flag or explicit ai_score).
     #[serde(default)]
     pub ai_signature: Option<crate::engine::ai_score::AiSignatureReport>,
+    /// Coverage statistics for this scan.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub coverage: Option<CoverageReport>,
+    /// Ratio of oral/filler markers to total CJK characters (0.0-1.0).
+    ///
+    /// High values (>0.05) suggest transcript or spoken-style text.  This is
+    /// a document-level metric, not a per-issue flag.  Omitted for texts
+    /// with fewer than 20 CJK characters.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub oral_density: Option<f32>,
+    /// Signal-based quality flags for downstream consumers.
+    ///
+    /// Examples: "asr_artifacts", "stutter_detected", "high_oral_density",
+    /// "spaced_acronyms".  Backward-compatible: existing consumers ignore
+    /// unknown fields.  Empty vec is omitted from JSON.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub quality_flags: Vec<String>,
+}
+
+/// How many rules were in scope and how many produced hits.
+///
+/// Lets callers distinguish 'no issues found' from 'nothing was checked'.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CoverageReport {
+    /// Spelling rules that were active for this profile (excludes case,
+    /// punctuation, and other procedural checks which lack discrete counts).
+    pub rules_checked: usize,
+    /// Distinct spelling rules that produced at least one surviving issue
+    /// (counted before inflate clears rule indices).
+    pub rules_matched: usize,
 }
 
 /// Content type for determining exclusion strategy.
@@ -976,11 +1008,42 @@ impl Scanner {
 
         scratch.clear();
 
+        // Compute rules_checked: count spelling rules active under this
+        // profile (case/punctuation are procedural, not discrete rules).
+        let rules_checked = if cfg.spelling {
+            let mut n = self.spelling_db.spelling_rules.len();
+            if !cfg.variant_normalization {
+                n -= self
+                    .spelling_db
+                    .spelling_rules
+                    .iter()
+                    .filter(|r| r.rule_type == RuleType::Variant)
+                    .count();
+            }
+            if !cfg.ai_filler_detection {
+                n -= self
+                    .spelling_db
+                    .spelling_rules
+                    .iter()
+                    .filter(|r| r.rule_type == RuleType::AiFiller)
+                    .count();
+            }
+            n
+        } else {
+            0
+        };
+
         if text.is_empty() {
             return ScanOutput {
                 issues: Vec::new(),
                 detected_script: ChineseType::Unknown,
                 ai_signature: None,
+                coverage: Some(CoverageReport {
+                    rules_checked,
+                    rules_matched: 0,
+                }),
+                oral_density: None,
+                quality_flags: Vec::new(),
             };
         }
 
@@ -1036,6 +1099,11 @@ impl Scanner {
             self.scan_cn_curly_quotes(text, excluded, issues);
             self.scan_spacing(text, excluded, issues);
         }
+        // Repetition detection (CJK duplicates + Latin duplicates).
+        repetition::scan_repetition(text, excluded, issues);
+        // Spaced-acronym rejoining (C P U → CPU).
+        acronym::scan_spaced_acronyms(text, excluded, issues);
+
         // All scanners (AC, punctuation, spacing, ellipsis, quotes) emit
         // issues in offset order.  Skip the O(n log n) sort when already sorted
         // (common case), falling back to sort only if the invariant breaks.
@@ -1060,6 +1128,18 @@ impl Scanner {
         // of overlap resolution get the full clone cost.  Must run before
         // fix_quote_pairing which overwrites suggestions on CN quote issues.
         // In offset_only mode, skip context/english/context_clues (not serialized).
+        // Count distinct spelling rules before inflate (which clears
+        // spelling_rule_idx via take()).
+        let rules_matched = {
+            let mut seen = std::collections::HashSet::new();
+            for issue in issues.iter() {
+                if let Some(idx) = issue.spelling_rule_idx {
+                    seen.insert(idx);
+                }
+            }
+            seen.len()
+        };
+
         if cfg.offset_only {
             rule_ir::inflate_spelling_issues_compact(&self.spelling_db, text, issues);
         } else {
@@ -1120,12 +1200,24 @@ impl Scanner {
             None
         };
 
+        let oral_density = compute_oral_density(text);
+
         // Skip O(n) line index construction when no issues found (common case).
         if issues.is_empty() {
+            let mut quality_flags = Vec::new();
+            if oral_density.is_some_and(|d| d > 0.05) {
+                quality_flags.push("high_oral_density".into());
+            }
             return ScanOutput {
                 issues: std::mem::take(issues),
                 detected_script: zh_type,
                 ai_signature,
+                coverage: Some(CoverageReport {
+                    rules_checked,
+                    rules_matched: 0,
+                }),
+                oral_density,
+                quality_flags,
             };
         }
 
@@ -1146,12 +1238,151 @@ impl Scanner {
             line_index.fill_line_col_sorted(issues, ColumnEncoding::Utf16);
         }
 
+        // Derive quality flags from issue composition.
+        let mut quality_flags = build_quality_flags(issues);
+        if oral_density.is_some_and(|d| d > 0.05) {
+            quality_flags.push("high_oral_density".into());
+        }
+
         ScanOutput {
             issues: std::mem::take(issues),
             detected_script: zh_type,
             ai_signature,
+            coverage: Some(CoverageReport {
+                rules_checked,
+                rules_matched,
+            }),
+            oral_density,
+            quality_flags,
         }
     }
+}
+
+/// Oral marker characters and phrases common in spoken Chinese.
+const ORAL_MARKERS: &[&str] = &[
+    "嗯",
+    "啊",
+    "呢",
+    "吧",
+    "哦",
+    "喔",
+    "欸",
+    "哎",
+    "唉",
+    "嘛",
+    "齁",
+    "蛤",
+    "咧",
+    "啦",
+    "耶",
+    "哇",
+    "呀",
+    "喂",
+    "就是",
+    "其實",
+    "然後",
+    "所以說",
+    "基本上",
+    "對不對",
+    "就是說",
+    "怎麼說",
+    "那個",
+    "這個",
+];
+
+/// Compute oral density: ratio of oral/filler marker chars to total CJK chars.
+/// Returns None if fewer than 20 CJK characters (too short to be meaningful).
+fn compute_oral_density(text: &str) -> Option<f32> {
+    let mut cjk_count = 0u32;
+    for ch in text.chars() {
+        if ('\u{4e00}'..='\u{9fff}').contains(&ch) {
+            cjk_count += 1;
+        }
+    }
+    if cjk_count < 20 {
+        return None;
+    }
+    // Collect byte ranges of all marker hits, then union them to avoid
+    // double-counting overlaps (e.g. "就是" inside "就是說").
+    let mut spans: Vec<(usize, usize)> = Vec::new();
+    for marker in ORAL_MARKERS {
+        for (start, matched) in text.match_indices(marker) {
+            spans.push((start, start + matched.len()));
+        }
+    }
+    spans.sort_unstable();
+    // Merge overlapping spans and count CJK chars in merged ranges.
+    let mut marker_chars = 0u32;
+    let mut cur_end = 0usize;
+    for (s, e) in spans {
+        let s = s.max(cur_end); // clip to avoid double-count
+        if s < e {
+            for ch in text[s..e].chars() {
+                if ('\u{4e00}'..='\u{9fff}').contains(&ch) {
+                    marker_chars += 1;
+                }
+            }
+            cur_end = e;
+        }
+    }
+    Some(marker_chars as f32 / cjk_count as f32)
+}
+
+/// Derive quality signal flags from issue composition.
+///
+/// Signals are additive strings that downstream consumers can check.
+/// An empty vec means no notable quality signals were detected.
+fn build_quality_flags(issues: &[Issue]) -> Vec<String> {
+    let mut flags = Vec::new();
+    let mut has_confusable = false;
+    let mut has_repetition = false;
+    let mut has_spaced_acronym = false;
+
+    for issue in issues {
+        match issue.rule_type {
+            IssueType::Confusable => {
+                // Only flag as ASR artifact if rule context explicitly says so.
+                if issue.context.as_ref().is_some_and(|c| c.contains("ASR")) {
+                    has_confusable = true;
+                }
+            }
+            IssueType::Repetition => {
+                if is_spaced_acronym_issue(issue) {
+                    has_spaced_acronym = true;
+                } else {
+                    has_repetition = true;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if has_confusable {
+        flags.push("asr_artifacts".into());
+    }
+    if has_repetition {
+        flags.push("stutter_detected".into());
+    }
+    if has_spaced_acronym {
+        flags.push("spaced_acronyms".into());
+    }
+    flags
+}
+
+pub(crate) fn is_spaced_acronym_issue(issue: &Issue) -> bool {
+    if issue.rule_type != IssueType::Repetition || issue.suggestions.len() != 1 {
+        return false;
+    }
+    let joined = &issue.suggestions[0];
+    if !joined.bytes().all(|b| b.is_ascii_uppercase()) {
+        return false;
+    }
+    let parts: Vec<&str> = issue.found.split(' ').collect();
+    parts.len() >= 2
+        && parts
+            .iter()
+            .all(|part| part.len() == 1 && part.as_bytes()[0].is_ascii_uppercase())
+        && *joined == parts.concat()
 }
 
 // Tests
@@ -1344,6 +1575,33 @@ mod tests {
             assert_eq!(cw.found, bw.found, "found text must match");
             assert_eq!(cw.suggestions, bw.suggestions, "suggestions must match");
         }
+    }
+
+    #[test]
+    fn spaced_acronym_sets_quality_flag_without_stutter() {
+        let scanner = Scanner::new(vec![], vec![]);
+        let output = scanner.scan("使用 C P U 架構處理工作負載");
+        assert!(output.quality_flags.iter().any(|f| f == "spaced_acronyms"));
+        assert!(!output.quality_flags.iter().any(|f| f == "stutter_detected"));
+    }
+
+    #[test]
+    fn repetition_sets_stutter_flag() {
+        let scanner = Scanner::new(vec![], vec![]);
+        let output = scanner.scan("去去來來看看這個結果");
+        assert!(output.quality_flags.iter().any(|f| f == "stutter_detected"));
+    }
+
+    #[test]
+    fn clean_high_oral_density_text_keeps_document_flag() {
+        let scanner = Scanner::new(vec![], vec![]);
+        let output = scanner.scan("這個那個這個那個這個那個這個那個這個那個");
+        assert!(output.issues.is_empty());
+        assert_eq!(output.oral_density, Some(1.0));
+        assert!(output
+            .quality_flags
+            .iter()
+            .any(|f| f == "high_oral_density"));
     }
 
     #[test]

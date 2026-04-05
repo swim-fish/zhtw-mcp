@@ -625,6 +625,8 @@ pub enum IssueType {
     /// avoidance, passive voice overuse.  NOT eligible for orthographic-tier
     /// fixes — requires lexical_contextual or none.
     AiStyle,
+    /// Consecutive duplicate word or character (e.g. '去去', 'cache cache').
+    Repetition,
 }
 
 impl IssueType {
@@ -640,6 +642,7 @@ impl IssueType {
             IssueType::Variant => 6,
             IssueType::Grammar => 7,
             IssueType::AiStyle => 8,
+            IssueType::Repetition => 9,
         }
     }
 
@@ -655,6 +658,7 @@ impl IssueType {
             IssueType::Variant => "variant",
             IssueType::Grammar => "grammar",
             IssueType::AiStyle => "ai_style",
+            IssueType::Repetition => "repetition",
         }
     }
 }

@@ -23,7 +23,9 @@ use crate::audit::Trace;
 use crate::engine::disambig::{disambiguate_batch, DisambigConfig, DisambigStats};
 use crate::engine::excluded::ByteRange;
 use crate::engine::s2t::S2TConverter;
-use crate::engine::scan::{build_exclusions_for_content_type, ContentType, Scanner};
+use crate::engine::scan::{
+    build_exclusions_for_content_type, is_spaced_acronym_issue, ContentType, Scanner,
+};
 #[cfg(feature = "translate")]
 use crate::engine::translate::calibrate_issues;
 use crate::engine::zhtype::{detect_chinese_type, ChineseType};
@@ -464,6 +466,9 @@ impl Server {
                 } else {
                     output.detected_script.name()
                 };
+                let coverage = output.coverage.as_ref();
+                let oral_density = output.oral_density;
+                let quality_flags = &output.quality_flags;
                 let ai_signature = output.ai_signature;
                 let mut issues = output.issues;
                 let scanner_hit_count = issues.len();
@@ -544,6 +549,9 @@ impl Server {
                     fix_records: &[],
                     #[cfg(feature = "translate")]
                     calibrate_result,
+                    coverage,
+                    oral_density,
+                    quality_flags,
                     ai_signature: ai_signature.as_ref(),
                     tm_suppressed,
                     sampling_stats,
@@ -666,6 +674,9 @@ impl Server {
                     cfg,
                     content_type,
                 );
+                let coverage = rescan_out.coverage.as_ref();
+                let oral_density = rescan_out.oral_density;
+                let quality_flags = &rescan_out.quality_flags;
                 let ai_signature = rescan_out.ai_signature;
                 let mut remaining_issues = rescan_out.issues;
                 if let Some(st) = stance {
@@ -754,6 +765,9 @@ impl Server {
                     fix_records: &fix_result.applied_fixes,
                     #[cfg(feature = "translate")]
                     calibrate_result,
+                    coverage,
+                    oral_density,
+                    quality_flags,
                     ai_signature: ai_signature.as_ref(),
                     tm_suppressed,
                     sampling_stats,
@@ -1362,6 +1376,20 @@ fn build_explanation(issue: &Issue) -> Option<String> {
                 parts.push("Consider removing or rephrasing.".to_string());
             }
         }
+        IssueType::Repetition => {
+            if is_spaced_acronym_issue(issue) {
+                parts.push(format!(
+                    "'{}' should be written as '{}'; the spacing looks like a transcription artifact.",
+                    issue.found,
+                    issue.suggestions[0],
+                ));
+            } else {
+                parts.push(format!(
+                    "'{}' is a consecutive duplicate; remove the repetition.",
+                    issue.found,
+                ));
+            }
+        }
     }
 
     // Grammar and AiStyle issues already embed context in the main explanation;
@@ -1594,6 +1622,12 @@ struct FullOutput<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     verify: Option<VerifyStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    coverage: Option<&'a crate::engine::scan::CoverageReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    oral_density: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    quality_flags: Option<&'a [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
     #[serde(skip_serializing_if = "Option::is_none")]
     telemetry: Option<&'a TelemetryMetrics>,
@@ -1622,6 +1656,12 @@ struct CompactOutput<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     verify: Option<VerifyStats>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    coverage: Option<&'a crate::engine::scan::CoverageReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    oral_density: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    quality_flags: Option<&'a [String]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
     #[serde(skip_serializing_if = "Option::is_none")]
     telemetry: Option<&'a TelemetryMetrics>,
@@ -1637,6 +1677,12 @@ struct SummaryOutput<'a> {
     gate: GateInfo,
     profile: &'a str,
     detected_script: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    coverage: Option<&'a crate::engine::scan::CoverageReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    oral_density: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    quality_flags: Option<&'a [String]>,
     #[serde(skip_serializing_if = "Option::is_none")]
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1696,6 +1742,9 @@ struct CheckOutputParams<'a> {
     fix_records: &'a [crate::fixer::AppliedFix],
     #[cfg(feature = "translate")]
     calibrate_result: Option<crate::engine::translate::CalibrateResult>,
+    coverage: Option<&'a crate::engine::scan::CoverageReport>,
+    oral_density: Option<f32>,
+    quality_flags: &'a [String],
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
     /// Number of issues downgraded by translation memory.
     tm_suppressed: usize,
@@ -1815,6 +1864,7 @@ fn build_check_output(params: &CheckOutputParams<'_>) -> CallToolResult {
     } else {
         None
     };
+    let quality_flags = (!params.quality_flags.is_empty()).then_some(params.quality_flags);
 
     let serialize_result = match params.output_mode {
         OutputMode::Full => {
@@ -1834,6 +1884,9 @@ fn build_check_output(params: &CheckOutputParams<'_>) -> CallToolResult {
                 fix_output_mode: fix_mode_label,
                 #[cfg(feature = "translate")]
                 verify,
+                coverage: params.coverage,
+                oral_density: params.oral_density,
+                quality_flags,
                 ai_signature: params.ai_signature,
                 telemetry: params.telemetry.as_ref(),
                 summary_metrics: stats_metrics.as_ref(),
@@ -1859,6 +1912,9 @@ fn build_check_output(params: &CheckOutputParams<'_>) -> CallToolResult {
                 fix_output_mode: fix_mode_label,
                 #[cfg(feature = "translate")]
                 verify,
+                coverage: params.coverage,
+                oral_density: params.oral_density,
+                quality_flags,
                 ai_signature: params.ai_signature,
                 telemetry: params.telemetry.as_ref(),
                 summary_metrics: stats_metrics.as_ref(),
@@ -1885,6 +1941,9 @@ fn build_check_output(params: &CheckOutputParams<'_>) -> CallToolResult {
                 gate,
                 profile: params.profile.name(),
                 detected_script: params.detected_script,
+                coverage: params.coverage,
+                oral_density: params.oral_density,
+                quality_flags,
                 ai_signature: params.ai_signature,
                 telemetry: params.telemetry.as_ref(),
                 summary_metrics: stats_metrics.as_ref(),
@@ -2483,6 +2542,36 @@ mod tests {
     }
 
     #[test]
+    fn build_explanation_for_spaced_acronym_is_not_duplicate_text() {
+        let issue = Issue::new(
+            0,
+            5,
+            "C P U",
+            vec!["CPU".into()],
+            IssueType::Repetition,
+            Severity::Info,
+        );
+        let explanation = build_explanation(&issue).expect("explanation");
+        assert!(explanation.contains("CPU"));
+        assert!(explanation.contains("transcription artifact"));
+        assert!(!explanation.contains("consecutive duplicate"));
+    }
+
+    #[test]
+    fn build_explanation_for_repetition_keeps_duplicate_text() {
+        let issue = Issue::new(
+            0,
+            6,
+            "cache cache",
+            vec!["cache".into()],
+            IssueType::Repetition,
+            Severity::Info,
+        );
+        let explanation = build_explanation(&issue).expect("explanation");
+        assert!(explanation.contains("consecutive duplicate"));
+    }
+
+    #[test]
     fn resolution_tier_classify_deterministic() {
         let issue = Issue::new(0, 3, "foo", vec![], IssueType::Punctuation, Severity::Error);
         assert_eq!(
@@ -2617,6 +2706,9 @@ mod tests {
             },
             profile: "base",
             detected_script: "traditional",
+            coverage: None,
+            oral_density: None,
+            quality_flags: None,
             ai_signature: None,
             telemetry: None,
             summary_metrics: None,
@@ -3064,5 +3156,47 @@ mod tests {
         assert!(!issues
             .iter()
             .any(|i| i["rule_type"] == "political_coloring"));
+    }
+
+    #[test]
+    fn tools_call_full_output_includes_scan_metadata() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "使用 C P U 架構處理工作負載",
+                "output": "full"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        assert!(output["coverage"]["rules_checked"].as_u64().unwrap() > 0);
+        assert_eq!(output["coverage"]["rules_matched"], 0);
+        assert!(output["quality_flags"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v == "spaced_acronyms"));
+    }
+
+    #[test]
+    fn tools_call_summary_output_keeps_document_level_flags() {
+        let (mut server, _dir) = make_initialized_server();
+        let resp = call_zhtw(
+            &mut server,
+            serde_json::json!({
+                "text": "這個那個這個那個這個那個這個那個這個那個",
+                "output": "summary"
+            }),
+        );
+        let output = assert_tool_success(&resp);
+        assert_eq!(output["summary"]["errors"], 0);
+        assert_eq!(output["summary"]["warnings"], 0);
+        assert_eq!(output["summary"]["info"], 0);
+        assert_eq!(output["oral_density"], 1.0);
+        assert!(output["quality_flags"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|v| v == "high_oral_density"));
     }
 }

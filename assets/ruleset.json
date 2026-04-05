@@ -3078,7 +3078,8 @@
       "to": ["線上"],
       "type": "cross_strait",
       "context": "@domain 作業系統",
-      "english": "online"
+      "english": "online",
+      "negative_context_clues": ["線性", "線路", "線段"]
     },
     {
       "from": "在這個過程中",
@@ -3242,7 +3243,8 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "heap",
-      "exceptions": ["堆疊", "垃圾堆", "土堆", "障堆", "堆積", "一堆"]
+      "context_clues": ["記憶體", "memory", "malloc", "free", "heap", "配置", "分配", "釋放", "GC"],
+      "exceptions": ["堆疊", "垃圾堆", "土堆", "障堆", "堆積", "一堆", "一大堆", "這堆", "那堆"]
     },
     {
       "from": "堆棧",
@@ -3642,7 +3644,9 @@
       "to": ["位元組"],
       "type": "cross_strait",
       "context": "@domain IT",
-      "english": "byte"
+      "english": "byte",
+      "negative_context_clues": ["跳動", "TikTok", "抖音"],
+      "exceptions": ["字節跳動"]
     },
     {
       "from": "字處理器",
@@ -3783,7 +3787,8 @@
       "type": "cross_strait",
       "context": "@domain 程式設計",
       "english": "macro",
-      "exceptions": ["宏觀", "宏大", "宏偉", "宏亮", "宏願", "宏圖", "宏旨", "宏遠", "恢宏", "寬宏", "宏碁", "宏達電", "宏核心", "宏內核"]
+      "context_clues": ["macro", "define", "預處理", "展開", "巨集", "C語言", "編譯器", "標頭檔"],
+      "exceptions": ["宏觀", "宏大", "宏偉", "宏亮", "宏願", "宏圖", "宏旨", "宏遠", "恢宏", "寬宏", "宏碁", "宏達電", "宏核心", "宏內核", "李宏毅", "王力宏"]
     },
     {
       "from": "宏內核",
@@ -6461,6 +6466,14 @@
       "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
+      "from": "機體",
+      "to": ["記憶體"],
+      "type": "confusable",
+      "context": "ASR confusable: 機體 misrecognized for 記憶體 in CS context",
+      "english": "memory",
+      "context_clues": ["RAM", "DDR", "DRAM", "容量", "配置", "分配"]
+    },
+    {
       "from": "檐",
       "to": ["簷"],
       "type": "variant",
@@ -7559,7 +7572,9 @@
       "to": ["介面"],
       "type": "cross_strait",
       "context": "@domain 程式設計",
-      "english": "interface"
+      "english": "interface",
+      "context_clues": ["UI", "API", "GUI", "軟體", "硬體", "開發", "使用者", "圖形"],
+      "exceptions": ["業界面試", "學界面臨", "政界面臨", "商界面臨", "界面活性"]
     },
     {
       "from": "畢加索",
