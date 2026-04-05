@@ -18,7 +18,7 @@ Unified lint / fix / gate for zh-TW text.
 | `political_stance` | `"roc_centric"` / `"neutral"` / `"international"` | Political stance filter |
 | `ignore_terms` | array of strings | Terms to downgrade to Info for this call |
 | `explain` | boolean | Attach cultural/linguistic annotations |
-| `output` | `"full"` / `"compact"` / `"tabular"` | Output verbosity |
+| `output` | `"full"` / `"compact"` / `"tabular"` / `"summary"` | Output verbosity |
 | `include_telemetry` | boolean | Include estimated token, cache, and Tier 2 resolution metrics in JSON responses (`full`, `compact`, `summary`) |
 
 Lint only (default):
@@ -27,7 +27,13 @@ Lint only (default):
 {"text": "這個軟件使用了遞歸算法來遍歷鏈表"}
 ```
 
-Returns issues with line/column position, matched term, suggestions, rule type, severity, and English anchor. The above flags: 軟件 (software), 遞歸 (recursion), 算法 (algorithm), 遍歷 (traverse), 鏈表 (linked list).
+Returns issues with line/column position, matched term, suggestions, rule type, severity, and English anchor. Structured JSON responses also include document-level scan metadata when available:
+
+- `coverage`: active spelling rules checked and distinct rules matched
+- `oral_density`: spoken-style filler ratio across CJK text
+- `quality_flags`: coarse document signals such as `spaced_acronyms`, `stutter_detected`, `asr_artifacts`, `high_oral_density`
+
+The above flags: 軟件 (software), 遞歸 (recursion), 算法 (algorithm), 遍歷 (traverse), 鏈表 (linked list).
 
 Lint + fix + gate:
 
@@ -52,6 +58,14 @@ Telemetry-enabled call:
 ```
 
 When enabled, the response includes a `telemetry` object with estimated prompt/completion tokens, cache hit/miss counts, Tier 2 local resolutions, and raw counters for the call. `tabular` output does not support telemetry because it is plain text rather than structured JSON.
+
+Summary output:
+
+```json
+{"text": "這個那個這個那個這個那個這個那個這個那個", "output": "summary"}
+```
+
+Returns aggregate counts only, plus any available document-level metadata such as `coverage`, `oral_density`, `quality_flags`, and `ai_signature`.
 
 ## Resources
 

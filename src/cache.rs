@@ -375,6 +375,9 @@ mod tests {
             issues: vec![],
             detected_script: ChineseType::Traditional,
             ai_signature: None,
+            coverage: None,
+            oral_density: None,
+            quality_flags: Vec::new(),
         }
     }
 
