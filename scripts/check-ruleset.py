@@ -459,6 +459,9 @@ VALID_DOMAINS = {
 # Valid @geo sub-types.
 VALID_GEO_TYPES = {"country", "city", "landmark", "university"}
 
+# Valid @person sub-types.
+VALID_PERSON_TYPES = {"science", "tech", "politics"}
+
 # Country-name terms that should be expressed as "tw"/"cn" in context
 # fields per CLAUDE.md convention.  Only the bare region/country names
 # are listed; legitimate compound proper nouns (國立臺灣大學, 中華民國,
@@ -714,7 +717,7 @@ def detect_conflicts(
     9.  context_clues / negative_context_clues field validation
     9b. Negative clue self-suppression (neg clue == from term exactly)
     10. Self-referencing to (from value appears in its own to array)
-    11. Annotation validation (@domain/@geo tag format and coverage)
+    11. Annotation validation (@domain/@geo/@person tag format and coverage)
     12. Redundant domain constraint (限X語境 duplicates @domain X)
     13. Ungated domain constraint (限...語境 without context_clues/exceptions)
     17. ai_filler trailing punctuation (scanner handles it automatically)
@@ -1047,17 +1050,20 @@ def detect_conflicts(
                 f"(identity suggestion)"
             )
 
-    # 11. Annotation validation: @domain and @geo tags.
+    # 11. Annotation validation: @domain, @geo, and @person tags.
     #
     # Rules that use structured annotations:
     #   @geo TYPE (LABEL)        -- geographic entities
+    #   @person TYPE (LABEL)     -- person name transliterations
     #   @domain LABEL            -- domain-specific terms
     #   @domain LABEL。note      -- domain + disambiguation
     #
-    # cross_strait rules must have one of: @domain, @geo, (@seealso ...),
-    # or compound: prefix.  Bare prose without a structured tag is flagged.
+    # cross_strait rules must have one of: @domain, @geo, @person,
+    # (@seealso ...), or compound: prefix.  Bare prose without a
+    # structured tag is flagged.
     # Anchored: after the tag, only 。(note) or end-of-string is valid.
     geo_re = re.compile(r"^@geo\s+(\w+)\s*(?:\([^)]*\))?\s*(?:。|$)")
+    person_re = re.compile(r"^@person\s+(\w+)\s*(?:\([^)]*\))?\s*(?:。|$)")
     domain_re = re.compile(r"^@domain\s+([^。\s]+)\s*(?:。|$)")
 
     for rule in from_set.values():
@@ -1087,6 +1093,24 @@ def detect_conflicts(
             )
             continue
 
+        # Check @person format.
+        person_m = person_re.match(ctx)
+        if person_m:
+            person_type = person_m.group(1)
+            if person_type not in VALID_PERSON_TYPES:
+                warnings.append(
+                    f'person-type: "{frm}" has unknown @person type '
+                    f'"{person_type}" (valid: {", ".join(sorted(VALID_PERSON_TYPES))})'
+                )
+            continue  # has @person -- skip further annotation checks
+
+        # Detect malformed @person (starts with @person but regex didn't match).
+        if ctx.startswith("@person"):
+            warnings.append(
+                f'person-malformed: "{frm}" has malformed @person tag: ' f'"{ctx[:40]}"'
+            )
+            continue
+
         # Check @domain format.
         dom_m = domain_re.match(ctx)
         if dom_m:
@@ -1105,16 +1129,16 @@ def detect_conflicts(
             continue
 
         # Other structured annotations: (@seealso ...) and compound: are
-        # acceptable without a @domain/@geo prefix.  Match the actual
+        # acceptable without a @domain/@geo/@person prefix.  Match the
         # (@seealso REF) syntax, not a bare substring.
         if "(@seealso " in ctx or ctx.startswith("compound:"):
             continue
 
         # cross_strait rules must have a structured annotation tag.
-        # Bare prose context without @domain/@geo is flagged so new rules
-        # are required to declare their domain explicitly.
+        # Bare prose context without @domain/@geo/@person is flagged so new
+        # rules are required to declare their domain explicitly.
         warnings.append(
-            f'annotation-missing: "{frm}" has no @domain/@geo tag'
+            f'annotation-missing: "{frm}" has no @domain/@geo/@person tag'
             + (f' (context: "{ctx[:30]}...")' if ctx.strip() else "")
         )
 

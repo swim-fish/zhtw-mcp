@@ -1153,7 +1153,7 @@
       "from": "傅里葉",
       "to": ["傅立葉"],
       "type": "cross_strait",
-      "context": "@domain 數學",
+      "context": "@person science (數學/物理)",
       "english": "Fourier"
     },
     {
@@ -2922,10 +2922,17 @@
       "english": "eat (char variant)"
     },
     {
+      "from": "喬姆斯基",
+      "to": ["杭士基"],
+      "type": "cross_strait",
+      "context": "@person science (語言學/CS)",
+      "english": "Chomsky"
+    },
+    {
       "from": "喬布斯",
       "to": ["賈伯斯"],
       "type": "cross_strait",
-      "context": "@domain 日常",
+      "context": "@person tech (科技業)",
       "english": "Steve Jobs"
     },
     {
@@ -3692,7 +3699,7 @@
       "from": "奧巴馬",
       "to": ["歐巴馬"],
       "type": "cross_strait",
-      "context": "@domain 日常",
+      "context": "@person politics (政治人物)",
       "english": "Obama"
     },
     {
@@ -4271,6 +4278,14 @@
       "english": "e-scooter"
     },
     {
+      "from": "尤拉",
+      "to": ["歐拉"],
+      "type": "cross_strait",
+      "context": "@person science (數學/物理)",
+      "english": "Euler",
+      "context_clues": ["公式", "恆等式", "定理", "數學", "函數", "常數"]
+    },
+    {
       "from": "就緒進程",
       "to": ["就緒狀態的行程"],
       "type": "cross_strait",
@@ -4524,6 +4539,14 @@
       "context_clues": ["股票", "估值", "投資", "財報"]
     },
     {
+      "from": "布什",
+      "to": ["布希"],
+      "type": "cross_strait",
+      "context": "@person politics (政治人物)",
+      "english": "Bush",
+      "context_clues": ["總統", "美國", "白宮", "共和黨", "政治"]
+    },
+    {
       "from": "布基納法索",
       "to": ["布吉納法索"],
       "type": "cross_strait",
@@ -4555,8 +4578,8 @@
       "from": "希拉里",
       "to": ["希拉蕊"],
       "type": "cross_strait",
-      "context": "@domain 日常",
-      "english": "Hillary"
+      "context": "@person politics (政治人物)",
+      "english": "Hillary Clinton"
     },
     {
       "from": "希望這對你有幫助",
@@ -4763,6 +4786,13 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "bring manufacturers into stores"
+    },
+    {
+      "from": "弗洛伊德",
+      "to": ["佛洛伊德"],
+      "type": "cross_strait",
+      "context": "@person science (心理學)",
+      "english": "Freud"
     },
     {
       "from": "彈窗",
@@ -5555,6 +5585,13 @@
       "type": "cross_strait",
       "context": "@domain 圖形",
       "english": "background removal"
+    },
+    {
+      "from": "撒切爾",
+      "to": ["柴契爾"],
+      "type": "cross_strait",
+      "context": "@person politics (政治人物)",
+      "english": "Thatcher"
     },
     {
       "from": "撤銷",
@@ -6865,13 +6902,6 @@
       "english": "desktop computer"
     },
     {
-      "from": "歐拉",
-      "to": ["尤拉"],
-      "type": "cross_strait",
-      "context": "@domain IT",
-      "english": "Euler"
-    },
-    {
       "from": "正則表達式",
       "to": ["正規表示式"],
       "type": "cross_strait",
@@ -7272,6 +7302,13 @@
       "context": "@domain IT",
       "english": "stream processing",
       "context_clues": ["即時", "Kafka", "資料", "管線"]
+    },
+    {
+      "from": "海森伯",
+      "to": ["海森堡"],
+      "type": "cross_strait",
+      "context": "@person science (物理)",
+      "english": "Heisenberg"
     },
     {
       "from": "海蠣煎",
@@ -8447,6 +8484,13 @@
       "english": "disable"
     },
     {
+      "from": "福柯",
+      "to": ["傅柯"],
+      "type": "cross_strait",
+      "context": "@person science (哲學)",
+      "english": "Foucault"
+    },
+    {
       "from": "私信",
       "to": ["私訊"],
       "type": "cross_strait",
@@ -8871,6 +8915,13 @@
       "context_clues": ["執行緒", "並行", "同步", "鎖", "race"]
     },
     {
+      "from": "笛卡爾",
+      "to": ["笛卡兒"],
+      "type": "cross_strait",
+      "context": "@person science (數學/哲學)",
+      "english": "Descartes"
+    },
+    {
       "from": "第三次浪潮",
       "to": ["第三波"],
       "type": "cross_strait",
@@ -9021,6 +9072,14 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "Hearts (card game)"
+    },
+    {
+      "from": "納什",
+      "to": ["納許"],
+      "type": "cross_strait",
+      "context": "@person science (數學/經濟)",
+      "english": "Nash",
+      "context_clues": ["均衡", "賽局", "博弈", "諾貝爾", "數學"]
     },
     {
       "from": "納米",
@@ -9869,6 +9928,13 @@
       "english": "Montreal"
     },
     {
+      "from": "蓋茨",
+      "to": ["蓋茲"],
+      "type": "cross_strait",
+      "context": "@person tech (科技業)",
+      "english": "Bill Gates"
+    },
+    {
       "from": "蓬勃發展",
       "to": [],
       "type": "ai_filler",
@@ -9888,6 +9954,13 @@
       "type": "variant",
       "context": "MoE 標準字體 (植物名)",
       "english": "Wei (plant name, char variant)"
+    },
+    {
+      "from": "薛定諤",
+      "to": ["薛丁格"],
+      "type": "cross_strait",
+      "context": "@person science (物理)",
+      "english": "Schrödinger"
     },
     {
       "from": "藍屏",
@@ -11488,6 +11561,14 @@
       "context_clues": ["程式", "軟體", "系統", "電腦", "網路"]
     },
     {
+      "from": "里根",
+      "to": ["雷根"],
+      "type": "cross_strait",
+      "context": "@person politics (政治人物)",
+      "english": "Reagan",
+      "context_clues": ["總統", "美國", "白宮", "共和黨", "政治"]
+    },
+    {
       "from": "里程碑",
       "to": [],
       "type": "ai_filler",
@@ -12477,8 +12558,9 @@
       "from": "香農",
       "to": ["夏農"],
       "type": "cross_strait",
-      "context": "@domain IT",
-      "english": "Shannon"
+      "context": "@person science (資訊理論/CS)",
+      "english": "Shannon",
+      "context_clues": ["資訊", "熵", "通訊", "定理", "編碼"]
     },
     {
       "from": "馬爾代夫",
@@ -12697,6 +12779,13 @@
       "type": "cross_strait",
       "context": "@domain IT",
       "english": "black-box testing"
+    },
+    {
+      "from": "默克爾",
+      "to": ["梅克爾"],
+      "type": "cross_strait",
+      "context": "@person politics (政治人物)",
+      "english": "Merkel"
     },
     {
       "from": "默認",

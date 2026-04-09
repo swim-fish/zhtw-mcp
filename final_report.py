@@ -29,7 +29,13 @@ def check():
 
         # Missing annotations
         if rtype == 'cross_strait':
-            if '@geo' not in ctx and '@domain' not in ctx and '@seealso' not in ctx and '@compound' not in ctx:
+            if (
+                '@geo' not in ctx
+                and '@domain' not in ctx
+                and '@seealso' not in ctx
+                and '@compound' not in ctx
+                and '@person' not in ctx
+            ):
                 print(f"[WARN] {loc} missing annotation for cross_strait rule '{f_val}'")
 
         # Duplicate geography
