@@ -471,10 +471,13 @@ fn bench_cpu_attribution_100kb(c: &mut Criterion) {
         grammar_checks: false,
         ai_filler_detection: false,
         translationese_detection: false,
+        translationese_domain:
+            zhtw_mcp::engine::translationese_score::TranslationeseDomain::General,
         ai_semantic_safety: false,
         ai_density_detection: false,
         ai_structural_patterns: false,
         ai_threshold_multiplier: 1.0,
+        heading_severity_boost: false,
         political_stance: PoliticalStance::RocCentric,
         offset_only: false,
     };

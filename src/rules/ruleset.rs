@@ -55,6 +55,10 @@ pub struct ProfileConfig {
     /// from the dewesternise checklist.  Orthogonal to `ai_filler_detection`:
     /// a translated manual is 歐化 but not AI-generated.
     pub translationese_detection: bool,
+    /// Domain calibration for translationese scoring thresholds.
+    /// `General` uses balanced thresholds; `Technical`/`Literary`/`News`
+    /// shift the per-signal thresholds to match domain norms.
+    pub translationese_domain: crate::engine::translationese_score::TranslationeseDomain,
     /// Enable AI semantic safety word detection (意味著 disambiguation,
     /// copula avoidance, passive voice overuse).
     pub ai_semantic_safety: bool,
@@ -69,6 +73,10 @@ pub struct ProfileConfig {
     /// 1.0 = balanced (default), >1.0 = conservative (fewer false positives).
     /// Maps to ai_threshold levels: low=0.5, medium=1.0, high=1.5.
     pub ai_threshold_multiplier: f32,
+    /// When true (default for Markdown content), boost severity by one level
+    /// for issues whose span is fully contained inside a heading.  Headings
+    /// are higher-visibility than body prose and warrant stricter treatment.
+    pub heading_severity_boost: bool,
     /// Political stance sub-profile. Controls which PoliticalColoring rules fire.
     pub political_stance: PoliticalStance,
     /// When true, skip line/col computation (byte offsets only).
@@ -135,6 +143,9 @@ impl Profile {
                 ai_density_detection: false,
                 ai_structural_patterns: false,
                 ai_threshold_multiplier: 1.0,
+                translationese_domain:
+                    crate::engine::translationese_score::TranslationeseDomain::General,
+                heading_severity_boost: true,
                 political_stance: PoliticalStance::RocCentric,
                 offset_only: false,
             },
@@ -155,6 +166,9 @@ impl Profile {
                 ai_density_detection: false,
                 ai_structural_patterns: false,
                 ai_threshold_multiplier: 1.0,
+                translationese_domain:
+                    crate::engine::translationese_score::TranslationeseDomain::General,
+                heading_severity_boost: true,
                 political_stance: PoliticalStance::RocCentric,
                 offset_only: false,
             },
@@ -535,6 +549,19 @@ pub struct Issue {
     /// overlap resolution.
     #[serde(skip)]
     pub(crate) spelling_rule_idx: Option<usize>,
+    /// Markdown table cell coordinates `(row, column)` (0-based) when the
+    /// issue falls inside a Markdown table cell.  Useful for editor
+    /// integrations and SARIF region output.  `None` when not in a table.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub table_cell: Option<TableCell>,
+}
+
+/// Markdown table cell coordinates: `(row, column)` are 0-based, with row 0
+/// being the header row (or row 1 if the table has no separator).
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+pub struct TableCell {
+    pub row: usize,
+    pub col: usize,
 }
 
 impl Issue {
@@ -564,6 +591,7 @@ impl Issue {
             tier2_outcome: Tier2Outcome::NotEligible,
             llm_judged: false,
             spelling_rule_idx: None,
+            table_cell: None,
         }
     }
 
@@ -598,6 +626,7 @@ impl Issue {
             tier2_outcome: Tier2Outcome::NotEligible,
             llm_judged: false,
             spelling_rule_idx: Some(rule_idx),
+            table_cell: None,
         }
     }
 

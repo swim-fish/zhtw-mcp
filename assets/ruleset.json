@@ -5498,6 +5498,13 @@
       "english": "hang up"
     },
     {
+      "from": "掛起",
+      "to": ["凍結", "當機", "卡死", "暫停", "擱置"],
+      "type": "cross_strait",
+      "context": "@domain 作業系統。cn「掛起」兼指 hang（程式/系統凍結，譯為凍結/當機/卡死）與 suspend（任務/執行緒暫停，譯為暫停/擱置）；tw 依語境分別選用",
+      "english": "hang / suspend"
+    },
+    {
       "from": "採樣",
       "to": ["取樣"],
       "type": "cross_strait",
@@ -9751,13 +9758,6 @@
       "type": "cross_strait",
       "context": "@domain 日常",
       "english": "scaffolding"
-    },
-    {
-      "from": "腳本",
-      "to": ["指令碼"],
-      "type": "cross_strait",
-      "context": "@domain 作業系統",
-      "english": "script"
     },
     {
       "from": "臨時對象",

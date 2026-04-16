@@ -392,6 +392,10 @@ impl Server {
         // translationese_detection (53.x initiative).
         let detect_ai_opt = args.get("detect_ai").and_then(|v| v.as_bool());
         let detect_translationese_opt = args.get("detect_translationese").and_then(|v| v.as_bool());
+        let translationese_domain_opt = args
+            .get("translationese_domain")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
         let ai_threshold = optional_str_validated(args, "ai_threshold", &id)?;
 
         let relaxed = args
@@ -439,6 +443,21 @@ impl Server {
         if let Some(b) = detect_translationese_opt {
             cfg.translationese_detection = b;
         }
+        if let Some(domain_str) = &translationese_domain_opt {
+            match crate::engine::translationese_score::TranslationeseDomain::from_str_strict(
+                domain_str,
+            ) {
+                Some(d) => cfg.translationese_domain = d,
+                None => {
+                    return Err(param_error(
+                        &id,
+                        "translationese_domain",
+                        domain_str,
+                        &["general", "technical", "literary", "news"],
+                    ));
+                }
+            }
+        }
         // Resolve effective AI detection: explicit arg wins over profile default.
         // All four AI sub-flags move as a unit — enabling detection turns them
         // all on, disabling turns them all off.
@@ -479,6 +498,7 @@ impl Server {
                 let oral_density = output.oral_density;
                 let quality_flags = &output.quality_flags;
                 let ai_signature = output.ai_signature;
+                let translationese_signature = output.translationese_signature;
                 let mut issues = output.issues;
                 let scanner_hit_count = issues.len();
                 if let Some(st) = stance {
@@ -562,6 +582,7 @@ impl Server {
                     oral_density,
                     quality_flags,
                     ai_signature: ai_signature.as_ref(),
+                    translationese_signature: translationese_signature.as_ref(),
                     tm_suppressed,
                     sampling_stats,
                     disambig_stats,
@@ -687,6 +708,7 @@ impl Server {
                 let oral_density = rescan_out.oral_density;
                 let quality_flags = &rescan_out.quality_flags;
                 let ai_signature = rescan_out.ai_signature;
+                let translationese_signature = rescan_out.translationese_signature;
                 let mut remaining_issues = rescan_out.issues;
                 if let Some(st) = stance {
                     filter_by_stance(&mut remaining_issues, st);
@@ -778,6 +800,7 @@ impl Server {
                     oral_density,
                     quality_flags,
                     ai_signature: ai_signature.as_ref(),
+                    translationese_signature: translationese_signature.as_ref(),
                     tm_suppressed,
                     sampling_stats,
                     disambig_stats,
@@ -935,6 +958,7 @@ fn zhtw_known_params() -> &'static [&'static str] {
             "output",
             "detect_ai",
             "detect_translationese",
+            "translationese_domain",
             "ai_threshold",
             "include_telemetry",
             "include_stats",
@@ -957,6 +981,7 @@ fn zhtw_known_params() -> &'static [&'static str] {
             "output",
             "detect_ai",
             "detect_translationese",
+            "translationese_domain",
             "ai_threshold",
             "include_telemetry",
             "include_stats",
@@ -1659,6 +1684,8 @@ struct FullOutput<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    translationese_signature: Option<&'a crate::engine::translationese_score::TranslationeseReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     telemetry: Option<&'a TelemetryMetrics>,
     #[serde(skip_serializing_if = "Option::is_none")]
     summary_metrics: Option<&'a SummaryMetrics>,
@@ -1693,6 +1720,8 @@ struct CompactOutput<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    translationese_signature: Option<&'a crate::engine::translationese_score::TranslationeseReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     telemetry: Option<&'a TelemetryMetrics>,
     #[serde(skip_serializing_if = "Option::is_none")]
     summary_metrics: Option<&'a SummaryMetrics>,
@@ -1714,6 +1743,8 @@ struct SummaryOutput<'a> {
     quality_flags: Option<&'a [String]>,
     #[serde(skip_serializing_if = "Option::is_none")]
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    translationese_signature: Option<&'a crate::engine::translationese_score::TranslationeseReport>,
     #[serde(skip_serializing_if = "Option::is_none")]
     telemetry: Option<&'a TelemetryMetrics>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1775,6 +1806,7 @@ struct CheckOutputParams<'a> {
     oral_density: Option<f32>,
     quality_flags: &'a [String],
     ai_signature: Option<&'a crate::engine::ai_score::AiSignatureReport>,
+    translationese_signature: Option<&'a crate::engine::translationese_score::TranslationeseReport>,
     /// Number of issues downgraded by translation memory.
     tm_suppressed: usize,
     /// Sampling budget usage statistics.
@@ -1917,6 +1949,7 @@ fn build_check_output(params: &CheckOutputParams<'_>) -> CallToolResult {
                 oral_density: params.oral_density,
                 quality_flags,
                 ai_signature: params.ai_signature,
+                translationese_signature: params.translationese_signature,
                 telemetry: params.telemetry.as_ref(),
                 summary_metrics: stats_metrics.as_ref(),
             };
@@ -1945,6 +1978,7 @@ fn build_check_output(params: &CheckOutputParams<'_>) -> CallToolResult {
                 oral_density: params.oral_density,
                 quality_flags,
                 ai_signature: params.ai_signature,
+                translationese_signature: params.translationese_signature,
                 telemetry: params.telemetry.as_ref(),
                 summary_metrics: stats_metrics.as_ref(),
             };
@@ -1974,6 +2008,7 @@ fn build_check_output(params: &CheckOutputParams<'_>) -> CallToolResult {
                 oral_density: params.oral_density,
                 quality_flags,
                 ai_signature: params.ai_signature,
+                translationese_signature: params.translationese_signature,
                 telemetry: params.telemetry.as_ref(),
                 summary_metrics: stats_metrics.as_ref(),
             };
@@ -2476,6 +2511,11 @@ fn tool_definitions() -> Vec<ToolDef> {
                 "type": "boolean",
                 "description": "Enable translationese (翻譯腔 / 歐化) detection — Europeanized syntax and calques from the dewesternise checklist. Default: on. Orthogonal to detect_ai; reported separately."
             }));
+            props.insert("translationese_domain".into(), json!({
+                "type": "string",
+                "enum": ["general", "technical", "literary", "news"],
+                "description": "Per-domain calibration for translationese scoring thresholds. 'technical' tolerates more passive voice and weak-verb nominalization; 'literary' is the strictest; 'news' favors active voice. Default: 'general'."
+            }));
             props.insert("ai_threshold".into(), json!({
                 "type": "string",
                 "enum": ["low", "medium", "high"],
@@ -2766,6 +2806,7 @@ mod tests {
             oral_density: None,
             quality_flags: None,
             ai_signature: None,
+            translationese_signature: None,
             telemetry: None,
             summary_metrics: None,
         };
@@ -2883,6 +2924,39 @@ mod tests {
         assert_eq!(output["accepted"], true);
         assert_eq!(output["gate"]["enabled"], false);
         assert_eq!(output["text"], "");
+    }
+
+    #[test]
+    fn known_params_list_includes_all_documented_params() {
+        // Round-4 validation regression: every parameter that the schema
+        // documents must also be in zhtw_known_params(), or the strict
+        // validator rejects valid clients with -32602.
+        let known: std::collections::HashSet<&str> = zhtw_known_params().iter().copied().collect();
+        for p in [
+            "text",
+            "fix_mode",
+            "max_errors",
+            "max_warnings",
+            "profile",
+            "relaxed",
+            "content_type",
+            "political_stance",
+            "ignore_terms",
+            "explain",
+            "fix_output",
+            "output",
+            "detect_ai",
+            "detect_translationese",
+            "translationese_domain",
+            "ai_threshold",
+            "include_telemetry",
+            "include_stats",
+        ] {
+            assert!(
+                known.contains(p),
+                "documented parameter {p:?} missing from zhtw_known_params()",
+            );
+        }
     }
 
     #[test]

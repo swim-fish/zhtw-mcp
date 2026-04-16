@@ -33,6 +33,10 @@ fn blake3_hex(data: &[u8]) -> String {
     blake3::hash(data).to_hex().to_string()
 }
 
+fn default_translationese_domain() -> String {
+    "general".to_owned()
+}
+
 /// Filesystem metadata used for the fast-path cache check.
 /// Avoids reading the file and computing a content hash when mtime+size match.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -54,6 +58,9 @@ pub struct ScanParams {
     pub detect_ai: bool,
     // Whether translationese detection is active — changes scan results.
     pub detect_translationese: bool,
+    // Translationese domain calibration — changes thresholds and serialized reports.
+    #[serde(default = "default_translationese_domain")]
+    pub translationese_domain: String,
     // AI threshold level (formatted f32) — different multipliers produce different results.
     pub ai_threshold: String,
 }
@@ -327,6 +334,8 @@ fn fast_key(file_path: &str, params: &ScanParams) -> String {
         b""
     });
     hasher.update(b"\0");
+    hasher.update(params.translationese_domain.as_bytes());
+    hasher.update(b"\0");
     hasher.update(params.ai_threshold.as_bytes());
     hasher.finalize().to_hex()[..32].to_string()
 }
@@ -383,6 +392,7 @@ mod tests {
             issues: vec![],
             detected_script: ChineseType::Traditional,
             ai_signature: None,
+            translationese_signature: None,
             coverage: None,
             oral_density: None,
             quality_flags: Vec::new(),
@@ -397,6 +407,7 @@ mod tests {
             fix_mode: "none".into(),
             detect_ai: false,
             detect_translationese: false,
+            translationese_domain: "general".into(),
             ai_threshold: "1.0".into(),
         }
     }
@@ -409,6 +420,7 @@ mod tests {
             fix_mode: "none".into(),
             detect_ai: false,
             detect_translationese: false,
+            translationese_domain: "general".into(),
             ai_threshold: "1.0".into(),
         }
     }
@@ -510,6 +522,35 @@ mod tests {
         };
         assert!(matches!(
             cache.check_fast("a.md", 1000, 5, &p_high),
+            CacheResult::Miss
+        ));
+    }
+
+    #[test]
+    fn translationese_domain_changes_cache_key() {
+        let dir = TempDir::new().unwrap();
+        let mut cache = ScanCache::open(dir.path().join("c.bin"));
+        let p = ScanParams {
+            detect_translationese: true,
+            translationese_domain: "general".into(),
+            ..test_params()
+        };
+
+        cache.put("a.md", b"hello", 1000, 5, &p, empty_output(), false);
+
+        // Same domain: hit.
+        assert!(matches!(
+            cache.check_fast("a.md", 1000, 5, &p),
+            CacheResult::Hit(_)
+        ));
+
+        // Same file + mtime + size but different calibration domain: miss.
+        let p_technical = ScanParams {
+            translationese_domain: "technical".into(),
+            ..p.clone()
+        };
+        assert!(matches!(
+            cache.check_fast("a.md", 1000, 5, &p_technical),
             CacheResult::Miss
         ));
     }
