@@ -7,7 +7,9 @@ pub mod normalize;
 pub mod s2t;
 pub mod scan;
 pub mod segment;
+pub mod sentence;
 pub mod suppression;
 #[cfg(feature = "translate")]
 pub mod translate;
+pub mod translationese_score;
 pub mod zhtype;

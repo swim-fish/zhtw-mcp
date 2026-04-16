@@ -17,12 +17,11 @@ use super::excluded::{merge_ranges_pub, ByteRange};
 pub fn build_markdown_excluded_ranges(text: &str) -> Vec<ByteRange> {
     let mut ranges = Vec::new();
 
-    // Pre-pass: detect YAML frontmatter (leading --- fence).
+    // Pre-pass: detect YAML frontmatter (leading --- fence).  Exclude only
+    // the structural tokens (--- fences, key+colon spans), leaving value
+    // prose scannable so that linting catches issues in title/description.
     if let Some(fm_end) = detect_frontmatter(text) {
-        ranges.push(ByteRange {
-            start: 0,
-            end: fm_end,
-        });
+        collect_frontmatter_structural_ranges(text, fm_end, &mut ranges);
     }
 
     collect_container_fence_ranges(text, &mut ranges);
@@ -73,12 +72,9 @@ pub fn build_markdown_excluded_ranges(text: &str) -> Vec<ByteRange> {
 pub fn build_markdown_excluded_ranges_no_code(text: &str) -> Vec<ByteRange> {
     let mut ranges = Vec::new();
 
-    // Pre-pass: detect YAML frontmatter.
+    // Pre-pass: detect YAML frontmatter — exclude structural tokens only.
     if let Some(fm_end) = detect_frontmatter(text) {
-        ranges.push(ByteRange {
-            start: 0,
-            end: fm_end,
-        });
+        collect_frontmatter_structural_ranges(text, fm_end, &mut ranges);
     }
 
     collect_container_fence_ranges(text, &mut ranges);
@@ -184,6 +180,157 @@ fn yaml_key_colon_pos(line: &str) -> Option<usize> {
     None
 }
 
+/// A Markdown table cell span with `(row, column)` coordinates.
+#[derive(Debug, Clone, Copy)]
+pub struct TableCellSpan {
+    pub start: usize,
+    pub end: usize,
+    pub row: usize,
+    pub col: usize,
+}
+
+/// Extract byte ranges of all Markdown table cells with their (row, column).
+///
+/// Row 0 is the header row (or row 1 if no separator).  Column index is the
+/// 0-based position within the row.  Returns empty if the document has no
+/// tables.
+pub fn extract_table_cell_spans(text: &str) -> Vec<TableCellSpan> {
+    let opts = Options::ENABLE_TABLES | Options::ENABLE_STRIKETHROUGH;
+    let parser = Parser::new_ext(text, opts);
+    let mut spans = Vec::new();
+    let mut in_table = false;
+    let mut current_row = 0usize;
+    let mut current_col = 0usize;
+    let mut cell_active = false;
+    let mut cell_start = 0usize;
+
+    for (event, range) in parser.into_offset_iter() {
+        match event {
+            Event::Start(Tag::Table(_)) => {
+                in_table = true;
+                current_row = 0;
+            }
+            Event::End(TagEnd::Table) => {
+                in_table = false;
+            }
+            Event::Start(Tag::TableHead) | Event::Start(Tag::TableRow) => {
+                if in_table {
+                    current_col = 0;
+                }
+            }
+            Event::End(TagEnd::TableHead) | Event::End(TagEnd::TableRow) => {
+                if in_table {
+                    current_row += 1;
+                }
+            }
+            Event::Start(Tag::TableCell) => {
+                if in_table {
+                    cell_active = true;
+                    cell_start = range.start;
+                }
+            }
+            Event::End(TagEnd::TableCell) => {
+                if in_table && cell_active {
+                    spans.push(TableCellSpan {
+                        start: cell_start,
+                        end: range.end,
+                        row: current_row,
+                        col: current_col,
+                    });
+                    current_col += 1;
+                    cell_active = false;
+                }
+            }
+            _ => {}
+        }
+    }
+    spans
+}
+
+/// Extract byte ranges of heading text inline content in Markdown.
+///
+/// Returns ranges covering only the inline text inside heading containers
+/// (H1-H6), excluding the leading `#` markers and trailing whitespace.
+/// Used by the scan pipeline to apply severity boosting on heading text.
+///
+/// Issues outside the inline text (e.g. inside ATX `#` markers) are not
+/// boosted, since they are unlikely to represent real heading prose hits.
+///
+/// YAML frontmatter is excluded: pulldown-cmark would otherwise interpret
+/// the closing `---` as a setext H2 underline, falsely treating frontmatter
+/// values as heading text.
+pub fn extract_heading_ranges(text: &str) -> Vec<ByteRange> {
+    let frontmatter_end = detect_frontmatter(text).unwrap_or(0);
+
+    let opts = Options::ENABLE_TABLES | Options::ENABLE_STRIKETHROUGH;
+    let parser = Parser::new_ext(text, opts);
+    let mut ranges = Vec::new();
+    let mut in_heading = false;
+    let mut current_inline_start: Option<usize> = None;
+    let mut current_inline_end: Option<usize> = None;
+
+    for (event, range) in parser.into_offset_iter() {
+        match event {
+            Event::Start(Tag::Heading { .. }) => {
+                in_heading = true;
+                current_inline_start = None;
+                current_inline_end = None;
+            }
+            Event::End(TagEnd::Heading(_)) => {
+                if in_heading {
+                    if let (Some(start), Some(end)) = (current_inline_start, current_inline_end) {
+                        // Skip false-positive headings synthesised from
+                        // frontmatter content + closing `---`.
+                        if start >= frontmatter_end {
+                            ranges.push(ByteRange { start, end });
+                        }
+                    }
+                    in_heading = false;
+                }
+            }
+            Event::Text(_) | Event::Code(_) | Event::Html(_) | Event::InlineHtml(_)
+                if in_heading =>
+            {
+                if current_inline_start.is_none() {
+                    current_inline_start = Some(range.start);
+                }
+                current_inline_end = Some(range.end);
+            }
+            _ => {}
+        }
+    }
+    ranges
+}
+
+/// Collect YAML frontmatter structural ranges: opening `---` line, closing
+/// `---` line, and per-line key+colon spans.  Values remain scannable.
+fn collect_frontmatter_structural_ranges(text: &str, fm_end: usize, ranges: &mut Vec<ByteRange>) {
+    let fm = &text[..fm_end];
+    let mut pos = 0usize;
+
+    for raw_line in fm.split('\n') {
+        let line_len = raw_line.len();
+        let trimmed = raw_line.trim_end_matches('\r');
+
+        if trimmed == "---" {
+            // Exclude the entire fence line (and the trailing \n if present).
+            let end = (pos + line_len + 1).min(fm_end);
+            ranges.push(ByteRange { start: pos, end });
+        } else if let Some(colon_pos) = yaml_key_colon_pos(raw_line) {
+            // Exclude the key+colon prefix; value text remains scannable.
+            ranges.push(ByteRange {
+                start: pos,
+                end: pos + colon_pos + 1,
+            });
+        }
+
+        pos += line_len + 1; // +1 for the '\n'
+        if pos >= fm_end {
+            break;
+        }
+    }
+}
+
 /// Collect container-block fence lines (:::keyword / :::) as excluded ranges.
 /// Used by HackMD and Docusaurus for admonitions.  Only the fence lines
 /// themselves are excluded; the prose content between them is still scanned.
@@ -267,19 +414,50 @@ mod tests {
     }
 
     #[test]
-    fn yaml_frontmatter_excluded() {
+    fn yaml_frontmatter_keys_excluded_values_scannable() {
         let md = "---\ntitle: 測試\ndate: 2024-01-01\n---\n正文開始\n";
         let ranges = build_markdown_excluded_ranges(md);
         assert!(!ranges.is_empty());
-        // Frontmatter should be excluded.
-        let fm_range = &ranges[0];
-        let fm_text = &md[fm_range.start..fm_range.end];
-        assert!(fm_text.contains("title:"));
-        // Body should not be excluded.
+        // Key+colon is excluded.
+        let any_covers_title_key = ranges.iter().any(|r| md[r.start..r.end].contains("title:"));
+        assert!(any_covers_title_key, "title: key should be excluded");
+        // Value text is NOT excluded — it's prose to be scanned.
+        let value_excluded = ranges.iter().any(|r| md[r.start..r.end].contains("測試"));
+        assert!(
+            !value_excluded,
+            "frontmatter value 測試 should be scannable"
+        );
+        // Body is not excluded.
         let body_excluded = ranges
             .iter()
             .any(|r| md[r.start..r.end].contains("正文開始"));
         assert!(!body_excluded);
+        // Closing --- fence is excluded.
+        let close_excluded = ranges.iter().any(|r| md[r.start..r.end].trim() == "---");
+        assert!(close_excluded, "closing --- fence should be excluded");
+    }
+
+    #[test]
+    fn extract_heading_ranges_skips_frontmatter_setext() {
+        // pulldown-cmark synthesises a setext H2 from frontmatter content +
+        // closing `---`.  We must skip that false-positive heading so the
+        // severity boost does not apply to frontmatter values.
+        let md = "---\ntitle: 軟件測試指南\ndate: 2026\n---\n# 真標題\n正文。\n";
+        let ranges = extract_heading_ranges(md);
+        // Should contain the real heading "真標題" but NOT the synthesised
+        // frontmatter heading.
+        for r in &ranges {
+            let span = &md[r.start..r.end];
+            assert!(
+                !span.contains("title:"),
+                "frontmatter content leaked into heading ranges: {span:?}"
+            );
+        }
+        let real_heading_present = ranges.iter().any(|r| md[r.start..r.end].contains("真標題"));
+        assert!(
+            real_heading_present,
+            "real heading '真標題' should still be detected: {ranges:?}"
+        );
     }
 
     #[test]

@@ -1903,11 +1903,11 @@ pub(crate) fn scan_ai_dash_overuse(text: &str, excluded: &[ByteRange], issues: &
     let mut first_offset: Option<usize> = None;
 
     for para in &paragraphs {
-        let dash_count = para.matches('—').count();
+        let para_start = para.as_ptr() as usize - text.as_ptr() as usize;
+        let dash_count = count_non_excluded_matches(para, para_start, "—", excluded).0;
         if dash_count >= 3 {
             heavy_dash_count += 1;
             if first_offset.is_none() {
-                let para_start = para.as_ptr() as usize - text.as_ptr() as usize;
                 first_offset = Some(para_start);
             }
         }
@@ -2081,6 +2081,1015 @@ fn scan_ai_zero_width(text: &str, excluded: &[ByteRange], issues: &mut Vec<Issue
     }
 }
 
+// ========================================================================
+// Structural AI detectors (require BoundaryIndex)
+// ========================================================================
+
+// S1: tricolon detection — three 、-separated spans with identical char
+// length or identical sentence-final particles.
+fn scan_ai_tricolon(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        // Strip sentence-final punctuation so the trailing span's char count
+        // matches its peers (團結、奮鬥、創新。 should be three 2-char spans).
+        let stripped_end = s
+            .trim_end_matches(['。', '！', '？', '；', '.', '!', '?'])
+            .len();
+        let s = &s[..stripped_end];
+        // Build (byte_start, byte_end, char_count) for each 、-separated span.
+        // Tracking offsets explicitly avoids the s.find(span) hazard where
+        // repeated spans (e.g. 乙、甲、甲) collapse to the first occurrence.
+        let mut spans: Vec<(usize, usize, usize)> = Vec::new();
+        let mut span_start = 0usize;
+        for (idx_byte, _) in s.match_indices('、') {
+            let char_count = s[span_start..idx_byte].chars().count();
+            spans.push((span_start, idx_byte, char_count));
+            span_start = idx_byte + '、'.len_utf8();
+        }
+        // Final span after the last 、.
+        if span_start <= s.len() {
+            let char_count = s[span_start..].chars().count();
+            spans.push((span_start, s.len(), char_count));
+        }
+        if spans.len() < 3 {
+            continue;
+        }
+        // Check consecutive triples for identical char-count pattern.
+        for window in spans.windows(3) {
+            let (s0_start, _, len0) = window[0];
+            let (_, _, len1) = window[1];
+            let (_, s2_end, len2) = window[2];
+            if len0 == len1 && len1 == len2 && len0 > 0 && len0 <= 8 {
+                let abs_start = sent.byte_start + s0_start;
+                let abs_end = sent.byte_start + s2_end;
+                if !is_excluded(abs_start, abs_end, excluded) {
+                    issues.push(
+                        Issue::new(
+                            abs_start,
+                            abs_end - abs_start,
+                            &text[abs_start..abs_end],
+                            vec![],
+                            IssueType::AiStyle,
+                            Severity::Info,
+                        )
+                        .with_context("AI structural: 三連排比（tricolon）— 三個等長的、分隔片段，常見於 AI 生成文本"),
+                    );
+                }
+                break; // One tricolon per sentence is enough.
+            }
+        }
+    }
+}
+
+/// Slice up to `n` characters from a byte offset, char-boundary safe.
+/// Returns the byte range that covers up to n chars from start_byte.
+fn char_bounded_end(text: &str, start_byte: usize, n_chars: usize) -> usize {
+    text[start_byte..]
+        .char_indices()
+        .nth(n_chars)
+        .map(|(i, _)| start_byte + i)
+        .unwrap_or(text.len())
+}
+
+// S2: negative parallel — 不只是/不僅是 + 而是/更是 within ≤30 chars.
+fn scan_ai_negative_parallel(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const OPENERS: &[&str] = &["不只是", "不僅是", "不僅僅是"];
+    const CLOSERS: &[&str] = &["而是", "更是"];
+
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        for opener in OPENERS {
+            if let Some(pos) = s.find(opener) {
+                let after_opener = pos + opener.len();
+                // 30-char lookahead, char-boundary safe (not byte-truncated).
+                let search_end = char_bounded_end(s, after_opener, 30);
+                let window = &s[after_opener..search_end];
+                for closer in CLOSERS {
+                    if let Some(cpos) = window.find(closer) {
+                        let abs_start = sent.byte_start + pos;
+                        let abs_end = sent.byte_start + after_opener + cpos + closer.len();
+                        if !is_excluded(abs_start, abs_end, excluded) {
+                            issues.push(
+                                Issue::new(
+                                    abs_start,
+                                    abs_end - abs_start,
+                                    &text[abs_start..abs_end],
+                                    vec![],
+                                    IssueType::AiStyle,
+                                    Severity::Info,
+                                )
+                                .with_context(
+                                    "AI structural: 否定平行結構（不只是…而是/更是），AI 常用公式",
+                                ),
+                            );
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+// S3: formulaic section endings — last sentence of a paragraph matching
+// formulaic closing phrases.
+fn scan_ai_formulaic_section_endings(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const FORMULAIC_ENDINGS: &[&str] = &["展望未來", "拭目以待", "值得期待", "我們有理由相信"];
+    // Regex-like patterns: 隨著.*不斷發展 — handled with substring checks.
+    for para in &idx.paragraphs {
+        let sents = idx.sentences_in_paragraph(para);
+        if let Some(last) = sents.last() {
+            let s = &text[last.byte_start..last.byte_end];
+            for &phrase in FORMULAIC_ENDINGS {
+                if let Some(pos) = s.find(phrase) {
+                    let abs = last.byte_start + pos;
+                    if !is_excluded(abs, abs + phrase.len(), excluded) {
+                        issues.push(
+                            Issue::new(
+                                abs,
+                                phrase.len(),
+                                phrase,
+                                vec![],
+                                IssueType::AiStyle,
+                                Severity::Info,
+                            )
+                            .with_context("AI structural: 段落結尾公式化用語，常見於 AI 生成文本"),
+                        );
+                    }
+                }
+            }
+            // Pattern: 隨著...不斷發展 (gap ≤40 chars; gap can be zero)
+            if let Some(start) = s.find("隨著") {
+                if let Some(end_pos) = s.find("不斷發展") {
+                    let after_kw = start + "隨著".len();
+                    let gap_chars = if end_pos >= after_kw {
+                        s[after_kw..end_pos].chars().count()
+                    } else {
+                        usize::MAX // skip — pattern out of order
+                    };
+                    if gap_chars <= 40 {
+                        let abs = last.byte_start + start;
+                        let abs_end = last.byte_start + end_pos + "不斷發展".len();
+                        if !is_excluded(abs, abs_end, excluded) {
+                            issues.push(
+                                Issue::new(
+                                    abs,
+                                    abs_end - abs,
+                                    &text[abs..abs_end],
+                                    vec![],
+                                    IssueType::AiStyle,
+                                    Severity::Info,
+                                )
+                                .with_context("AI structural: 段落結尾公式化用語（隨著…不斷發展）"),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// S4: mechanical bullet lists — every item starts with **keyword**
+fn scan_ai_mechanical_bullets(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    _idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    // Scan for Markdown list items where every item starts with **bold**.
+    let mut list_start: Option<usize> = None;
+    let mut bold_count = 0;
+    let mut item_count = 0;
+    let mut first_item_offset = 0;
+
+    for (line_offset, line) in line_iter(text) {
+        let trimmed = line.trim_start();
+        // Numbered list items: one or more ASCII digits followed by '.' or ')'
+        // and whitespace.  Matches 1., 10., 123), etc.
+        let numbered_marker_len = numbered_list_marker_len(trimmed);
+        let is_list_item =
+            trimmed.starts_with("- ") || trimmed.starts_with("* ") || numbered_marker_len.is_some();
+
+        if is_list_item {
+            if list_start.is_none() {
+                list_start = Some(line_offset);
+                first_item_offset = line_offset;
+                bold_count = 0;
+                item_count = 0;
+            }
+            item_count += 1;
+            // Check for leading **bold**
+            let content = if trimmed.starts_with("- ") || trimmed.starts_with("* ") {
+                &trimmed[2..]
+            } else if let Some(marker_len) = numbered_marker_len {
+                trimmed[marker_len..].trim_start()
+            } else {
+                ""
+            };
+            if content.starts_with("**") {
+                bold_count += 1;
+            }
+        } else if list_start.is_some() {
+            // End of list.
+            if item_count >= 3
+                && bold_count == item_count
+                && !is_excluded(first_item_offset, first_item_offset + 1, excluded)
+            {
+                issues.push(
+                    Issue::new(
+                        first_item_offset,
+                        1,
+                        "-",
+                        vec![],
+                        IssueType::AiStyle,
+                        Severity::Info,
+                    )
+                    .with_context(format!(
+                        "AI structural: 機械式列表 — {item_count} 項全部以粗體關鍵字開頭"
+                    )),
+                );
+            }
+            list_start = None;
+        }
+    }
+    // Flush trailing list.
+    if list_start.is_some()
+        && item_count >= 3
+        && bold_count == item_count
+        && !is_excluded(first_item_offset, first_item_offset + 1, excluded)
+    {
+        issues.push(
+            Issue::new(
+                first_item_offset,
+                1,
+                "-",
+                vec![],
+                IssueType::AiStyle,
+                Severity::Info,
+            )
+            .with_context(format!(
+                "AI structural: 機械式列表 — {item_count} 項全部以粗體關鍵字開頭"
+            )),
+        );
+    }
+}
+
+// S5: excessive bold — ≥3 **...** runs per 200 chars in a paragraph.
+fn count_non_excluded_bold_runs(text: &str, base_offset: usize, excluded: &[ByteRange]) -> usize {
+    text.match_indices("**")
+        .filter(|(offset, marker)| {
+            let abs = base_offset + *offset;
+            !is_excluded(abs, abs + marker.len(), excluded)
+        })
+        .count()
+        / 2
+}
+
+fn scan_ai_excessive_bold(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    for para in &idx.paragraphs {
+        let p = &text[para.byte_start..para.byte_end];
+        let char_count = p.chars().count();
+        if char_count < 30 {
+            continue;
+        }
+        // Count **...** runs.
+        let bold_count = count_non_excluded_bold_runs(p, para.byte_start, excluded);
+        // Threshold: ≥3 per 200 chars.
+        let threshold = ((char_count as f32 / 200.0) * 3.0).ceil() as usize;
+        if bold_count >= 3
+            && bold_count >= threshold
+            && !is_excluded(para.byte_start, para.byte_start + 1, excluded)
+        {
+            // First 2 chars as preview, char-boundary safe.
+            let preview_end = char_bounded_end(p, 0, 2);
+            issues.push(
+                Issue::new(
+                    para.byte_start,
+                    preview_end,
+                    &p[..preview_end],
+                    vec![],
+                    IssueType::AiStyle,
+                    Severity::Info,
+                )
+                .with_context(format!(
+                    "AI structural: 段落粗體過多 — {bold_count} 處粗體標記（每 200 字 ≥3 處）"
+                )),
+            );
+        }
+    }
+}
+
+fn count_non_excluded_matches(
+    text: &str,
+    base_offset: usize,
+    needle: &str,
+    excluded: &[ByteRange],
+) -> (usize, Option<usize>) {
+    let mut count = 0;
+    let mut first_offset = None;
+    let mut search_from = 0;
+
+    while let Some(pos) = text[search_from..].find(needle) {
+        let rel = search_from + pos;
+        let abs = base_offset + rel;
+        if !is_excluded(abs, abs + needle.len(), excluded) {
+            count += 1;
+            first_offset.get_or_insert(abs);
+        }
+        search_from = rel + needle.len();
+    }
+
+    (count, first_offset)
+}
+
+// S6: em-dash overuse — ≥1 '——' per paragraph.
+fn scan_ai_emdash_overuse(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    for para in &idx.paragraphs {
+        let p = &text[para.byte_start..para.byte_end];
+        let (count, first_offset) = count_non_excluded_matches(p, para.byte_start, "——", excluded);
+        if count < 2 {
+            continue;
+        }
+        if let Some(abs) = first_offset {
+            issues.push(
+                Issue::new(
+                    abs,
+                    "——".len(),
+                    "——",
+                    vec![],
+                    IssueType::AiStyle,
+                    Severity::Info,
+                )
+                .with_context(format!(
+                    "AI structural: 破折號過度使用 — 段落內 {count} 處（AI 常見模式）"
+                )),
+            );
+        }
+    }
+}
+
+// S7: formulaic 'despite' — 儘管.*挑戰 + forward-looking verb within one sentence.
+fn scan_ai_formulaic_despite(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const FORWARD_VERBS: &[&str] = &["仍然", "持續", "蓬勃發展", "繼續"];
+
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        if let Some(start) = s.find("儘管") {
+            let after_despite_start = start + "儘管".len();
+            let after_despite = &s[after_despite_start..];
+            if let Some(challenge_rel) = after_despite.find("挑戰") {
+                let challenge = after_despite_start + challenge_rel;
+                // Char-counted gap (≤40 chars) — encoding-independent.
+                let gap_chars = s[after_despite_start..challenge].chars().count();
+                if gap_chars <= 40 {
+                    // Check for forward-looking verb in the rest of the sentence.
+                    let rest = &s[challenge + "挑戰".len()..];
+                    for verb in FORWARD_VERBS {
+                        if rest.contains(verb) {
+                            let abs = sent.byte_start + start;
+                            let abs_end = sent.byte_end;
+                            if !is_excluded(abs, abs_end, excluded) {
+                                issues.push(
+                                    Issue::new(
+                                        abs,
+                                        abs_end - abs,
+                                        &text[abs..abs_end],
+                                        vec![],
+                                        IssueType::AiStyle,
+                                        Severity::Info,
+                                    )
+                                    .with_context(
+                                        "AI structural: 公式化轉折（儘管…挑戰…仍然），AI 常見句型",
+                                    ),
+                                );
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// S8: false ranges — 從...到...再到 chains.
+fn scan_ai_false_ranges(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        if let Some(cong) = s.find("從") {
+            let after_cong = cong + "從".len();
+            if let Some(dao) = s[after_cong..].find("到") {
+                let after_dao = after_cong + dao + "到".len();
+                if let Some(zaidao) = s[after_dao..].find("再到") {
+                    let chain_end = after_dao + zaidao + "再到".len();
+                    let chain_chars = s[cong..chain_end].chars().count();
+                    if chain_chars >= 10 {
+                        // ≥10 chars chain
+                        let abs = sent.byte_start + cong;
+                        let abs_end = sent.byte_start + chain_end;
+                        if !is_excluded(abs, abs_end, excluded) {
+                            issues.push(
+                                Issue::new(
+                                    abs,
+                                    abs_end - abs,
+                                    &text[abs..abs_end],
+                                    vec![],
+                                    IssueType::AiStyle,
+                                    Severity::Info,
+                                )
+                                .with_context(
+                                    "AI structural: 假範圍鏈（從…到…再到），AI 常見列舉模式",
+                                ),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// V2: hedging density — promote Info to Warning when ≥3 hedging hits per 200 chars.
+fn scan_ai_hedging_density(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut [Issue],
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const HEDGING_PHRASES: &[&str] = &["在某種程度上", "從某個角度來看", "可以說是", "相對而言"];
+
+    for para in &idx.paragraphs {
+        let p = &text[para.byte_start..para.byte_end];
+        let char_count = p.chars().count();
+        if char_count < 50 {
+            continue;
+        }
+        let mut count = 0;
+        for phrase in HEDGING_PHRASES {
+            count += count_non_excluded_matches(p, para.byte_start, phrase, excluded).0;
+        }
+        // Threshold: ≥3 per 200 chars.
+        let threshold = ((char_count as f32 / 200.0) * 3.0).ceil() as usize;
+        if count >= 3 && count >= threshold {
+            // Promote existing hedging Info issues in this paragraph to Warning.
+            for issue in issues.iter_mut() {
+                if issue.offset >= para.byte_start
+                    && issue.offset < para.byte_end
+                    && issue.rule_type == IssueType::AiStyle
+                    && issue.severity == Severity::Info
+                {
+                    if let Some(ref ctx) = issue.context {
+                        if HEDGING_PHRASES
+                            .iter()
+                            .any(|h| ctx.contains(h) || issue.found.contains(h))
+                        {
+                            issue.severity = Severity::Warning;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// ========================================================================
+// Syntactic translationese detectors (require BoundaryIndex)
+// ========================================================================
+
+// G1: passive voice density — count 被 per paragraph, flag at >2 per 100 chars.
+fn scan_trans_passive_density(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    // Technical whitelist: these passive forms are standard in zh-TW technical prose.
+    const WHITELIST: &[&str] = &[
+        "被定義為",
+        "被廣泛採用",
+        "被置於",
+        "被稱作",
+        "被觀察到",
+        "被記錄為",
+    ];
+    // Note: per-occurrence flagging of specific calques (被廣泛認為, 被視為,
+    // 被稱為, etc.) is handled by the spelling ruleset, not duplicated here.
+    // This detector contributes only the density-based signal.
+
+    for para in &idx.paragraphs {
+        let p = &text[para.byte_start..para.byte_end];
+        let char_count = p.chars().count();
+        if char_count < 20 {
+            continue;
+        }
+
+        // Count 被 occurrences not in whitelist.
+        let mut bei_count = 0;
+        let mut search_from = 0;
+        while let Some(pos) = p[search_from..].find('被') {
+            let abs_pos = para.byte_start + search_from + pos;
+            let bei_start = search_from + pos;
+            // 10-char lookahead, char-boundary safe.
+            let context_end = char_bounded_end(p, bei_start, 10);
+            let context = &p[bei_start..context_end];
+
+            if !is_excluded(abs_pos, abs_pos + '被'.len_utf8(), excluded) {
+                let whitelisted = WHITELIST.iter().any(|w| context.starts_with(w));
+                if !whitelisted {
+                    bei_count += 1;
+                }
+            }
+            search_from += pos + '被'.len_utf8();
+        }
+
+        // Density check: >2 per 100 chars.
+        let density_threshold = ((char_count as f32 / 100.0) * 2.0).ceil() as usize;
+        if bei_count > density_threshold.max(2) {
+            // First 2 chars as preview, char-boundary safe.
+            let preview_end = char_bounded_end(p, 0, 2);
+            issues.push(
+                Issue::new(
+                    para.byte_start,
+                    preview_end,
+                    &p[..preview_end],
+                    vec![],
+                    IssueType::Translationese,
+                    Severity::Warning,
+                )
+                .with_context(format!(
+                    "翻譯腔 G1: 被動語態密度過高 — 段落內 {bei_count} 處 '被' 字句"
+                )),
+            );
+        }
+    }
+}
+
+// G2: abstract subject — noun phrase ending in 的(減少|增加|...) at sentence
+// head followed by 導致|標誌著|意味著.
+fn scan_trans_abstract_subject(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const ABSTRACT_NOUNS: &[&str] = &["的減少", "的增加", "的提高", "的下降", "的通過", "的實施"];
+    const ABSTRACT_VERBS: &[&str] = &["導致", "標誌著", "意味著"];
+
+    'sentences: for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        // Check sentence head (first 20 chars).
+        let head = &s[..char_bounded_end(s, 0, 20)];
+        for noun in ABSTRACT_NOUNS {
+            if head.contains(noun) {
+                for verb in ABSTRACT_VERBS {
+                    if s.contains(verb) {
+                        let abs = sent.byte_start;
+                        if !is_excluded(abs, abs + s.len().min(12), excluded) {
+                            issues.push(
+                                Issue::new(
+                                    abs,
+                                    s.len(),
+                                    s,
+                                    vec![],
+                                    IssueType::Translationese,
+                                    Severity::Info,
+                                )
+                                .with_context(
+                                    "翻譯腔 G2: 抽象主語（的+抽象名詞+導致/意味著），歐化句型",
+                                ),
+                            );
+                            continue 'sentences; // One per sentence.
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// G3/G4: displaced conditionals — 如果 after main clause.
+fn scan_trans_displaced_conditional(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const CONDITIONALS: &[&str] = &["如果", "假如", "若"];
+
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        let char_len = s.chars().count();
+        if char_len < 6 {
+            continue;
+        }
+        // A displaced conditional is one that appears after the halfway point.
+        let midpoint = char_bounded_end(s, 0, char_len / 2);
+
+        for &cond in CONDITIONALS {
+            // Search only after the halfway point; sentence-initial occurrences
+            // are correctly placed and naturally excluded by this slice.
+            if let Some(pos) = s[midpoint..].find(cond) {
+                let abs = sent.byte_start + midpoint + pos;
+                if !is_excluded(abs, abs + cond.len(), excluded) {
+                    // Check for 的話 after the conditional (extra calque signal).
+                    let after = &s[midpoint + pos + cond.len()..];
+                    let has_dehua = after.contains("的話");
+                    let ctx = if has_dehua {
+                        "翻譯腔 G3: 後置條件句（…如果…的話），建議將條件前置"
+                    } else {
+                        "翻譯腔 G4: 後置條件句，建議將條件前置"
+                    };
+                    issues.push(
+                        Issue::new(
+                            abs,
+                            cond.len(),
+                            cond,
+                            vec![],
+                            IssueType::Translationese,
+                            Severity::Info,
+                        )
+                        .with_context(ctx),
+                    );
+                }
+                break; // One per sentence.
+            }
+        }
+    }
+}
+
+// G8: pronoun overuse — ≥3 consecutive sentences starting with 他/她/它/他們.
+fn scan_trans_pronoun_overuse(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const PRONOUNS: &[&str] = &["他", "她", "它", "他們", "她們"];
+
+    for para in &idx.paragraphs {
+        let sents = idx.sentences_in_paragraph(para);
+        let mut consecutive = 0;
+        let mut first_offset = 0;
+
+        for sent in &sents {
+            let s = &text[sent.byte_start..sent.byte_end];
+            let starts_with_pronoun = PRONOUNS.iter().any(|p| s.starts_with(p));
+            if starts_with_pronoun {
+                if consecutive == 0 {
+                    first_offset = sent.byte_start;
+                }
+                consecutive += 1;
+            } else {
+                if consecutive >= 3 && !is_excluded(first_offset, first_offset + 3, excluded) {
+                    issues.push(
+                        Issue::new(
+                            first_offset,
+                            3,
+                            &text[first_offset..first_offset + 3],
+                            vec![],
+                            IssueType::Translationese,
+                            Severity::Info,
+                        )
+                        .with_context(format!(
+                            "翻譯腔 G8: 代詞過度使用 — 連續 {consecutive} 句以代詞開頭"
+                        )),
+                    );
+                }
+                consecutive = 0;
+            }
+        }
+        // Flush trailing run.
+        if consecutive >= 3 && !is_excluded(first_offset, first_offset + 3, excluded) {
+            issues.push(
+                Issue::new(
+                    first_offset,
+                    3,
+                    &text[first_offset..first_offset + 3],
+                    vec![],
+                    IssueType::Translationese,
+                    Severity::Info,
+                )
+                .with_context(format!(
+                    "翻譯腔 G8: 代詞過度使用 — 連續 {consecutive} 句以代詞開頭"
+                )),
+            );
+        }
+    }
+}
+
+// Y1: copula+classifier inflation — 他是一個/名/位...的...人
+fn scan_trans_copula_classifier(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const COPULA_PATTERNS: &[&str] = &["是一個", "是一名", "是一位"];
+
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        for &pattern in COPULA_PATTERNS {
+            if let Some(pos) = s.find(pattern) {
+                // Check if followed by 的...人 within the sentence.
+                let after = &s[pos + pattern.len()..];
+                if after.contains("的") {
+                    let abs = sent.byte_start + pos;
+                    if !is_excluded(abs, abs + pattern.len(), excluded) {
+                        issues.push(
+                            Issue::new(
+                                abs,
+                                pattern.len(),
+                                pattern,
+                                vec![format!("是")],
+                                IssueType::Translationese,
+                                Severity::Info,
+                            )
+                            .with_context(
+                                "翻譯腔 Y1: 繫詞+量詞膨脹（是一個/名/位…的…），建議刪除繫詞+量詞",
+                            ),
+                        );
+                    }
+                    break; // One per sentence.
+                }
+            }
+        }
+    }
+}
+
+// Y2: 的/地 confusion — adjective + 的 + verb where 地 is correct.
+fn scan_trans_adverbial_particle_mixup(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    _idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    // Finite list of common adj+的+verb confusions (should be 地).
+    const CONFUSIONS: &[(&str, &str)] = &[
+        ("仔細的看", "仔細地看"),
+        ("認真的聽", "認真地聽"),
+        ("慢慢的走", "慢慢地走"),
+        ("靜靜的坐", "靜靜地坐"),
+        ("快速的跑", "快速地跑"),
+        ("努力的工作", "努力地工作"),
+        ("安靜的離開", "安靜地離開"),
+        ("輕輕的放", "輕輕地放"),
+        ("默默的承受", "默默地承受"),
+        ("悄悄的走", "悄悄地走"),
+    ];
+
+    for &(wrong, correct) in CONFUSIONS {
+        let mut search_from = 0;
+        while let Some(pos) = text[search_from..].find(wrong) {
+            let abs = search_from + pos;
+            if !is_excluded(abs, abs + wrong.len(), excluded) {
+                issues.push(
+                    Issue::new(
+                        abs,
+                        wrong.len(),
+                        wrong,
+                        vec![correct.to_string()],
+                        IssueType::Translationese,
+                        Severity::Warning,
+                    )
+                    .with_context("翻譯腔 Y2: 的/地混淆 — 副詞修飾動詞應用「地」"),
+                );
+            }
+            search_from = abs + wrong.len();
+        }
+    }
+}
+
+// S3: 的的不休 (余光中) — ≥4 的 in one continuous span without comma.
+fn scan_trans_excessive_de_chain(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        // Walk clause boundaries with explicit byte offsets so repeated
+        // identical clauses do not collapse to the first occurrence.
+        let mut clause_start = 0usize;
+        for (sep_byte, sep_ch) in s.match_indices(['，', ',']) {
+            emit_excessive_de_chain(
+                text,
+                s,
+                sent.byte_start,
+                clause_start,
+                sep_byte,
+                excluded,
+                issues,
+            );
+            clause_start = sep_byte + sep_ch.len();
+        }
+        // Final clause after the last separator.
+        emit_excessive_de_chain(
+            text,
+            s,
+            sent.byte_start,
+            clause_start,
+            s.len(),
+            excluded,
+            issues,
+        );
+    }
+}
+
+fn emit_excessive_de_chain(
+    text: &str,
+    sent_text: &str,
+    sent_offset: usize,
+    clause_start: usize,
+    clause_end: usize,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+) {
+    if clause_start >= clause_end {
+        return;
+    }
+    let clause = &sent_text[clause_start..clause_end];
+    let de_count = clause.matches('的').count();
+    if de_count < 4 {
+        return;
+    }
+    let abs = sent_offset + clause_start;
+    let abs_end = sent_offset + clause_end;
+    if is_excluded(abs, abs_end, excluded) {
+        return;
+    }
+    issues.push(
+        Issue::new(
+            abs,
+            clause.len(),
+            &text[abs..abs_end],
+            vec![],
+            IssueType::Translationese,
+            Severity::Warning,
+        )
+        .with_context(format!(
+            "翻譯腔 S3: 的的不休 — 一個子句中出現 {de_count} 個「的」（余光中）"
+        )),
+    );
+}
+
+// V7: 地 overuse on disyllabic adverbs — 慢慢地、靜靜地、認真地.
+fn scan_trans_adverbial_particle_redundant(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    _idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    // Finite whitelist: these adverbs can drop 地 in natural Chinese.
+    const ADVERBS: &[(&str, &str)] = &[
+        ("慢慢地", "慢慢"),
+        ("靜靜地", "靜靜"),
+        ("認真地", "認真"),
+        ("安靜地", "安靜"),
+        ("輕輕地", "輕輕"),
+        ("默默地", "默默"),
+        ("悄悄地", "悄悄"),
+        ("漸漸地", "漸漸"),
+        ("緩緩地", "緩緩"),
+        ("偷偷地", "偷偷"),
+    ];
+
+    for &(with_di, without_di) in ADVERBS {
+        let mut search_from = 0;
+        while let Some(pos) = text[search_from..].find(with_di) {
+            let abs = search_from + pos;
+            if !is_excluded(abs, abs + with_di.len(), excluded) {
+                issues.push(
+                    Issue::new(
+                        abs,
+                        with_di.len(),
+                        with_di,
+                        vec![without_di.to_string()],
+                        IssueType::Translationese,
+                        Severity::Info,
+                    )
+                    .with_context("翻譯腔 V7: 雙音節副詞+「地」冗餘，可省略「地」"),
+                );
+            }
+            search_from = abs + with_di.len();
+        }
+    }
+}
+
+// V13: tense marker overuse — multiple 曾/已/過/了 in one sentence when
+// an explicit date is present.
+fn scan_trans_tense_marker(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    idx: &crate::engine::sentence::BoundaryIndex,
+) {
+    const TENSE_MARKERS: &[char] = &['曾', '已', '過', '了'];
+
+    for sent in &idx.sentences {
+        let s = &text[sent.byte_start..sent.byte_end];
+        // Check for explicit date marker (年/月/日 or digits).
+        let has_date = s.contains('年')
+            || s.contains('月')
+            || s.contains('日')
+            || s.chars().any(|c| c.is_ascii_digit());
+
+        if !has_date {
+            continue;
+        }
+
+        let marker_count: usize = TENSE_MARKERS.iter().map(|&m| s.matches(m).count()).sum();
+
+        if marker_count >= 3
+            && !is_excluded(sent.byte_start, sent.byte_start + s.len().min(6), excluded)
+        {
+            issues.push(
+                Issue::new(
+                    sent.byte_start,
+                    s.len(),
+                    s,
+                    vec![],
+                    IssueType::Translationese,
+                    Severity::Info,
+                )
+                .with_context(format!(
+                    "翻譯腔 V13: 時態標記冗餘 — 句中已有日期，{marker_count} 個時態詞多餘"
+                )),
+            );
+        }
+    }
+}
+
+/// Iterate over lines with their byte offsets.  Strips trailing \r so
+/// callers see consistent line content on both LF and CRLF inputs; the
+/// returned offset still points at the original line start.
+/// Return the byte length of an ordered-list marker (e.g. "1.", "10.", "123)")
+/// at the start of `s`, including the trailing `.` or `)`.  Returns `None` if
+/// `s` does not start with such a marker followed by whitespace.
+///
+/// Handles multi-digit numbers (10., 12)), not just single digits.
+fn numbered_list_marker_len(s: &str) -> Option<usize> {
+    let bytes = s.as_bytes();
+    let digits = bytes.iter().take_while(|b| b.is_ascii_digit()).count();
+    if digits == 0 {
+        return None;
+    }
+    match bytes.get(digits) {
+        Some(&b'.') | Some(&b')') => {}
+        _ => return None,
+    }
+    // Marker must be followed by whitespace or end-of-line.
+    match bytes.get(digits + 1) {
+        None | Some(&b' ') | Some(&b'\t') => Some(digits + 1),
+        _ => None,
+    }
+}
+
+fn line_iter(text: &str) -> impl Iterator<Item = (usize, &str)> {
+    let mut offset = 0;
+    text.split('\n').map(move |line| {
+        let start = offset;
+        offset += line.len() + 1; // +1 for the \n
+        (start, line.strip_suffix('\r').unwrap_or(line))
+    })
+}
+
 // Entry point: run all structural AI pattern checks.
 // Gated by ProfileConfig::ai_structural_patterns.
 pub(crate) fn scan_ai_structural(
@@ -2095,6 +3104,49 @@ pub(crate) fn scan_ai_structural(
     scan_ai_formulaic_headings(text, excluded, issues);
     scan_ai_list_density(text, excluded, issues, threshold_multiplier);
     scan_ai_zero_width(text, excluded, issues);
+}
+
+// Structural AI pattern detectors that require sentence/paragraph
+// boundary index.  S1 tricolon, S2 negative parallel, S3 formulaic
+// section endings, S4 mechanical bullets, S5 excessive bold, S6 em-dash
+// overuse, S7 formulaic despite, S8 false ranges, V2 hedging density.
+pub(crate) fn scan_ai_structural_phase2(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    boundary_index: &crate::engine::sentence::BoundaryIndex,
+) {
+    scan_ai_tricolon(text, excluded, issues, boundary_index);
+    scan_ai_negative_parallel(text, excluded, issues, boundary_index);
+    scan_ai_formulaic_section_endings(text, excluded, issues, boundary_index);
+    scan_ai_mechanical_bullets(text, excluded, issues, boundary_index);
+    scan_ai_excessive_bold(text, excluded, issues, boundary_index);
+    scan_ai_emdash_overuse(text, excluded, issues, boundary_index);
+    scan_ai_formulaic_despite(text, excluded, issues, boundary_index);
+    scan_ai_false_ranges(text, excluded, issues, boundary_index);
+    scan_ai_hedging_density(text, excluded, issues, boundary_index);
+}
+
+// Syntactic translationese detectors that require
+// sentence/paragraph boundary index.  G1 passive density,
+// G2 abstract subject, G3/G4 displaced conditionals, G8 pronoun overuse,
+// Y1 copula+classifier, Y2 的/地 confusion, S3 的的不休, V7 地 overuse,
+// V13 tense markers.
+pub(crate) fn scan_translationese_syntactic(
+    text: &str,
+    excluded: &[ByteRange],
+    issues: &mut Vec<Issue>,
+    boundary_index: &crate::engine::sentence::BoundaryIndex,
+) {
+    scan_trans_passive_density(text, excluded, issues, boundary_index);
+    scan_trans_abstract_subject(text, excluded, issues, boundary_index);
+    scan_trans_displaced_conditional(text, excluded, issues, boundary_index);
+    scan_trans_pronoun_overuse(text, excluded, issues, boundary_index);
+    scan_trans_copula_classifier(text, excluded, issues, boundary_index);
+    scan_trans_adverbial_particle_mixup(text, excluded, issues, boundary_index);
+    scan_trans_excessive_de_chain(text, excluded, issues, boundary_index);
+    scan_trans_adverbial_particle_redundant(text, excluded, issues, boundary_index);
+    scan_trans_tense_marker(text, excluded, issues, boundary_index);
 }
 
 // Entry point for AI writing detection grammar checks.
@@ -2165,11 +3217,137 @@ fn scan_grammar_legacy(text: &str, excluded: &[ByteRange], issues: &mut Vec<Issu
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::engine::sentence::BoundaryIndex;
 
     fn scan(text: &str) -> Vec<Issue> {
         let mut issues = Vec::new();
         scan_grammar(text, &[], &mut issues);
         issues
+    }
+
+    fn scan_phase2(text: &str) -> Vec<Issue> {
+        let idx = BoundaryIndex::build(text, &[]);
+        let mut issues = Vec::new();
+        scan_ai_structural_phase2(text, &[], &mut issues, &idx);
+        scan_translationese_syntactic(text, &[], &mut issues, &idx);
+        issues
+    }
+
+    // =======================================================================
+    // Phase 2 panic-safety regression tests (from Codex/Gemini review)
+    // =======================================================================
+
+    #[test]
+    fn tricolon_with_repeated_spans_does_not_panic() {
+        // Codex high #1: 乙、甲、甲、乙 used to confuse find()-based offset
+        // calculation when the same span repeats.  Should not panic and
+        // should detect the central tricolon (甲、甲).
+        let text = "乙、甲、甲、乙、丙。";
+        let _ = scan_phase2(text);
+    }
+
+    #[test]
+    fn negative_parallel_mixed_ascii_cjk_does_not_panic() {
+        // Codex high #2: byte-counted lookahead used to split UTF-8 chars.
+        let text = "不只是A，而是中文混合內容。";
+        let _ = scan_phase2(text);
+    }
+
+    #[test]
+    fn passive_density_short_paragraph_does_not_panic() {
+        // Codex high #3 + #5: short ASCII-leading paragraphs used to panic
+        // when slicing first-N bytes.
+        let text = "A被B。\n\n中文段落以「被」字開頭，被廣泛認為是好的。";
+        let _ = scan_phase2(text);
+    }
+
+    #[test]
+    fn excessive_bold_short_ascii_paragraph_does_not_panic() {
+        // Codex high #4: short ASCII-leading paragraph slicing.
+        let text = "**A** 中文 **B** 中文 **C** 中文 **D**";
+        let _ = scan_phase2(text);
+    }
+
+    #[test]
+    fn tricolon_detects_simple_pattern() {
+        // Three consecutive identical-length 2-char spans (團結、奮鬥、創新)
+        // form a tricolon when isolated as the entire sentence content.
+        let text = "團結、奮鬥、創新。";
+        let issues = scan_phase2(text);
+        let has_tricolon = issues
+            .iter()
+            .any(|i| i.context.as_ref().is_some_and(|c| c.contains("tricolon")));
+        assert!(
+            has_tricolon,
+            "Expected tricolon detection, got {:?}",
+            issues
+        );
+    }
+
+    #[test]
+    fn excessive_de_chain_reports_each_occurrence_with_correct_offset() {
+        // Codex round 2: repeated identical clauses must report distinct
+        // offsets, not collapse to the first one via s.find(clause).
+        let text = "我的他的她的它的東西，我的他的她的它的物品。";
+        let issues = scan_phase2(text);
+        let de_issues: Vec<_> = issues
+            .iter()
+            .filter(|i| i.context.as_ref().is_some_and(|c| c.contains("的的不休")))
+            .collect();
+        assert_eq!(
+            de_issues.len(),
+            2,
+            "Expected 2 distinct clauses, got {de_issues:?}"
+        );
+        // The two issues must have different offsets.
+        assert_ne!(de_issues[0].offset, de_issues[1].offset);
+    }
+
+    #[test]
+    fn numbered_list_marker_len_matches_multi_digit() {
+        assert_eq!(numbered_list_marker_len("1. item"), Some(2));
+        assert_eq!(numbered_list_marker_len("10. item"), Some(3));
+        assert_eq!(numbered_list_marker_len("123) item"), Some(4));
+        // No whitespace after marker → not a list item.
+        assert_eq!(numbered_list_marker_len("10.foo"), None);
+        // Letter before the period → not a list item.
+        assert_eq!(numbered_list_marker_len("a. item"), None);
+        // Missing trailing marker → not a list item.
+        assert_eq!(numbered_list_marker_len("10 item"), None);
+    }
+
+    #[test]
+    fn mechanical_bullets_detects_multi_digit_list() {
+        // cubic review: 10+ item list must still be detected.  All items use
+        // **bold** prefix — the detector should fire on the full set, not
+        // cut off at single-digit markers.
+        let mut text = String::new();
+        for i in 1..=12 {
+            text.push_str(&format!("{i}. **項目** 內容文字。\n"));
+        }
+        let issues = scan_phase2(&text);
+        let has_mechanical = issues
+            .iter()
+            .any(|i| i.context.as_ref().is_some_and(|c| c.contains("機械式列表")));
+        assert!(
+            has_mechanical,
+            "expected mechanical bullets detection across 12-item list, got {issues:?}"
+        );
+    }
+
+    #[test]
+    fn displaced_conditional_finds_late_when_sentence_starts_with_one() {
+        // Gemini round 2: a sentence that starts with 如果 but has another
+        // displaced 如果 should still flag the second one.
+        let text = "如果你來，我會走，但他不會走，如果他不想來。";
+        let issues = scan_phase2(text);
+        let has_displaced = issues
+            .iter()
+            .any(|i| i.context.as_ref().is_some_and(|c| c.contains("後置條件")));
+        assert!(
+            has_displaced,
+            "Expected displaced conditional, got {issues:?}"
+        );
     }
 
     // =======================================================================
@@ -3747,6 +4925,20 @@ mod tests {
     }
 
     #[test]
+    fn ai_formulaic_despite_ignores_challenge_before_despite() {
+        let text = "這些挑戰很多，儘管如此，團隊仍然持續改善。";
+        let issues = scan_structural(text);
+        let despite_issues: Vec<_> = issues
+            .iter()
+            .filter(|i| i.context.as_ref().is_some_and(|c| c.contains("公式化轉折")))
+            .collect();
+        assert!(
+            despite_issues.is_empty(),
+            "challenge before despite should not trigger formulaic despite: {despite_issues:?}"
+        );
+    }
+
+    #[test]
     fn ai_structural_list_density() {
         let mut text = String::new();
         for i in 0..10 {
@@ -3814,6 +5006,126 @@ mod tests {
     }
 
     #[test]
+    fn ai_excessive_bold_ignores_excluded_markers() {
+        let text =
+            "這是一段正常說明文字，內容足夠長但是沒有真的使用粗體標記，只有內嵌程式碼 `**a** **b** **c**` 作為示例。";
+        let code_start = text.find('`').unwrap();
+        let code_end = text.rfind('`').unwrap() + '`'.len_utf8();
+        let excluded = vec![ByteRange {
+            start: code_start,
+            end: code_end,
+        }];
+        let idx = BoundaryIndex::build(text, &excluded);
+        let mut issues = Vec::new();
+
+        scan_ai_excessive_bold(text, &excluded, &mut issues, &idx);
+
+        let bold_issues: Vec<_> = issues
+            .iter()
+            .filter(|i| {
+                i.context
+                    .as_ref()
+                    .is_some_and(|c| c.contains("段落粗體過多"))
+            })
+            .collect();
+        assert!(
+            bold_issues.is_empty(),
+            "excluded bold markers should not trigger excessive-bold: {bold_issues:?}"
+        );
+    }
+
+    #[test]
+    fn ai_emdash_overuse_ignores_excluded_markers() {
+        let text = "`——` 這段文字——持續補充——結尾";
+        let code_start = text.find('`').unwrap();
+        let code_end = text.rfind('`').unwrap() + '`'.len_utf8();
+        let excluded = vec![ByteRange {
+            start: code_start,
+            end: code_end,
+        }];
+        let idx = BoundaryIndex::build(text, &excluded);
+        let mut issues = Vec::new();
+
+        scan_ai_emdash_overuse(text, &excluded, &mut issues, &idx);
+
+        let dash_issues: Vec<_> = issues
+            .iter()
+            .filter(|i| i.context.as_ref().is_some_and(|c| c.contains("破折號")))
+            .collect();
+        assert_eq!(dash_issues.len(), 1, "real dashes should trigger once");
+        assert_eq!(
+            dash_issues[0].offset,
+            text.find("文字——").unwrap() + "文字".len()
+        );
+        assert!(
+            dash_issues[0]
+                .context
+                .as_ref()
+                .is_some_and(|c| c.contains("段落內 2 處")),
+            "excluded dash should not inflate count: {dash_issues:?}"
+        );
+    }
+
+    #[test]
+    fn ai_dash_overuse_ignores_excluded_markers() {
+        let text = "`———` 這是正常段落。\n\n`———` 這也是正常段落。\n\n`———` 這仍然是正常段落。";
+        let excluded: Vec<ByteRange> = text
+            .match_indices('`')
+            .collect::<Vec<_>>()
+            .chunks(2)
+            .map(|pair| ByteRange {
+                start: pair[0].0,
+                end: pair[1].0 + '`'.len_utf8(),
+            })
+            .collect();
+        let mut issues = Vec::new();
+
+        scan_ai_dash_overuse(text, &excluded, &mut issues);
+
+        let dash_issues: Vec<_> = issues
+            .iter()
+            .filter(|i| {
+                i.context
+                    .as_ref()
+                    .is_some_and(|c| c.contains("含 ≥3 個破折號"))
+            })
+            .collect();
+        assert!(
+            dash_issues.is_empty(),
+            "excluded code dashes should not create dash-overuse density: {dash_issues:?}"
+        );
+    }
+
+    #[test]
+    fn ai_hedging_density_ignores_excluded_markers() {
+        let text = "在某種程度上，這段正常文字提供足夠長的段落內容，用來測試密度提升不會被程式碼範例影響，並保留一個真正的提示。`從某個角度來看 可以說是`";
+        let code_start = text.find('`').unwrap();
+        let code_end = text.rfind('`').unwrap() + '`'.len_utf8();
+        let excluded = vec![ByteRange {
+            start: code_start,
+            end: code_end,
+        }];
+        let idx = BoundaryIndex::build(text, &excluded);
+        let mut issues = vec![Issue::new(
+            0,
+            "在某種程度上".len(),
+            "在某種程度上",
+            vec![],
+            IssueType::AiStyle,
+            Severity::Info,
+        )
+        .with_context("AI hedging: 在某種程度上")];
+
+        scan_ai_hedging_density(text, &excluded, &mut issues, &idx);
+
+        assert_eq!(
+            issues[0].severity,
+            Severity::Info,
+            "excluded hedging examples should not promote the real issue"
+        );
+    }
+
+    #[test]
     fn ai_zero_width_no_false_positive() {
         let text = "完全正常的文字，沒有任何零寬字元。";
         let issues = scan_structural(text);
@@ -3822,6 +5134,25 @@ mod tests {
             .filter(|i| i.context.as_ref().is_some_and(|c| c.contains("零寬字元")))
             .collect();
         assert!(zw.is_empty(), "clean text should have no zero-width issues");
+    }
+
+    #[test]
+    fn abstract_subject_reports_more_than_first_sentence() {
+        let text = "預算的減少導致服務縮減。品質的提高意味著效率提升。";
+        let idx = BoundaryIndex::build(text, &[]);
+        let mut issues = Vec::new();
+
+        scan_trans_abstract_subject(text, &[], &mut issues, &idx);
+
+        let abstract_issues: Vec<_> = issues
+            .iter()
+            .filter(|i| i.context.as_ref().is_some_and(|c| c.contains("抽象主語")))
+            .collect();
+        assert_eq!(
+            abstract_issues.len(),
+            2,
+            "should report one abstract-subject issue per matching sentence"
+        );
     }
 
     #[test]

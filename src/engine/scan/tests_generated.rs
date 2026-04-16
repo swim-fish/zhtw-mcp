@@ -825,15 +825,75 @@
     }
 
     #[test]
-    fn markdown_frontmatter_excluded() {
+    fn markdown_frontmatter_values_are_scanned() {
+        // Frontmatter VALUES are now scanned (key+colon and `---` fences are
+        // still excluded).  This catches lint issues in title/description
+        // that were previously hidden.
         let scanner = Scanner::new(sample_spelling_rules(), vec![]);
         let md = "---\ntitle: 軟件測試\n---\n這是正文\n";
-        let issues = scanner.scan(md).issues;
-        // "軟件" in YAML frontmatter should be excluded; "正文" is clean.
-        assert!(
-            issues.is_empty(),
-            "frontmatter content should be excluded: {issues:?}"
-        );
+        let issues = scanner
+            .scan_for_content_type(md, ContentType::Markdown, Profile::Base)
+            .issues;
+        // "軟件" in the value should now be detected.
+        assert_eq!(issues.len(), 1, "expected one issue, got: {issues:?}");
+        assert_eq!(issues[0].found, "軟件");
+    }
+
+    #[test]
+    fn markdown_table_cell_coordinates_attached() {
+        // Issues inside a Markdown table cell get (row, col) coordinates
+        // for editor integration / SARIF region output.
+        let scanner = Scanner::new(sample_spelling_rules(), vec![]);
+        let md = "| 標題 A | 標題 B |\n|---|---|\n| 正文 | 軟件 |\n";
+        let issues = scanner
+            .scan_for_content_type(md, ContentType::Markdown, Profile::Base)
+            .issues;
+        let cell_issue = issues
+            .iter()
+            .find(|i| i.found == "軟件")
+            .expect("expected 軟件 issue");
+        let cell = cell_issue
+            .table_cell
+            .expect("issue inside table cell should have table_cell metadata");
+        // The body row is row index 1 (header is 0).  Column 1 is the second cell.
+        assert_eq!(cell.row, 1, "expected body row 1, got {cell:?}");
+        assert_eq!(cell.col, 1, "expected column 1, got {cell:?}");
+    }
+
+    #[test]
+    fn heading_boost_preserves_sort_contract() {
+        // cubic review: mutating severity post-sort can leave issues out of
+        // (offset asc, severity desc) order.  Ensure the output remains
+        // sorted after the heading boost promotes Warning → Error.
+        let scanner = Scanner::new(sample_spelling_rules(), vec![]);
+        let md = "# 軟件與硬盤管理\n\n軟件是正文的一部分。\n";
+        let issues = scanner
+            .scan_for_content_type(md, ContentType::Markdown, Profile::Base)
+            .issues;
+        // Verify sort contract: offsets ascending.
+        for pair in issues.windows(2) {
+            assert!(
+                pair[0].offset <= pair[1].offset,
+                "issue offsets must be ascending, got {} > {}: {issues:?}",
+                pair[0].offset,
+                pair[1].offset
+            );
+            if pair[0].offset == pair[1].offset {
+                // Severity descending on offset tie (Error > Warning > Info).
+                assert!(
+                    pair[0].severity >= pair[1].severity,
+                    "severity must be descending on offset tie, got {:?} < {:?}",
+                    pair[0].severity,
+                    pair[1].severity
+                );
+            }
+        }
+        // The heading issues should be Error; body issues Warning.
+        let heading_issue = issues
+            .iter()
+            .find(|i| i.found == "軟件" && i.line == 1)
+            .expect("expected 軟件 in heading");
+        assert_eq!(heading_issue.severity, Severity::Error);
     }
 
     #[test]

@@ -38,6 +38,7 @@ use super::markdown::{
 };
 use super::normalize::{map_offset, normalize_nfc, Normalized};
 use super::segment::{BoundaryBitmap, Segmenter};
+use super::sentence::BoundaryIndex;
 use super::suppression::build_suppression_ranges;
 use serde::{Deserialize, Serialize};
 
@@ -118,6 +119,10 @@ pub struct ScanOutput {
     /// requested (detect_ai flag or explicit ai_score).
     #[serde(default)]
     pub ai_signature: Option<crate::engine::ai_score::AiSignatureReport>,
+    /// Translationese (翻譯腔/歐化) signature report.  Present only when
+    /// translationese detection is active.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub translationese_signature: Option<crate::engine::translationese_score::TranslationeseReport>,
     /// Coverage statistics for this scan.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub coverage: Option<CoverageReport>,
@@ -430,6 +435,58 @@ fn detect_type_lineindex_and_bitmap<'a>(
     };
 
     (zh_type, line_index, bitmap)
+}
+
+/// Attach `(row, col)` coordinates to issues that fall inside a Markdown
+/// table cell.  Cells are typically small spans, so a linear scan per issue
+/// is sufficient.
+fn annotate_table_cells(
+    issues: &mut [crate::rules::ruleset::Issue],
+    cell_spans: &[super::markdown::TableCellSpan],
+) {
+    for issue in issues.iter_mut() {
+        let issue_end = issue.offset.saturating_add(issue.length);
+        for span in cell_spans {
+            if issue.offset >= span.start && issue_end <= span.end {
+                issue.table_cell = Some(crate::rules::ruleset::TableCell {
+                    row: span.row,
+                    col: span.col,
+                });
+                break;
+            }
+        }
+    }
+}
+
+/// Boost severity for issues fully contained in Markdown heading ranges.
+/// Info -> Warning, Warning -> Error.  Error stays Error.
+///
+/// Uses strict containment (not overlap) so that issues spanning heading
+/// boundaries (rare but possible across sectioned blocks) are not boosted.
+///
+/// Returns `true` when at least one issue was boosted, signalling to the
+/// caller that the severity-descending sort contract may now be violated
+/// and the issue vec should be re-sorted.
+fn boost_heading_severity(issues: &mut [Issue], heading_ranges: &[ByteRange]) -> bool {
+    let mut changed = false;
+    for issue in issues.iter_mut() {
+        let issue_end = issue.offset.saturating_add(issue.length);
+        let inside_heading = heading_ranges
+            .iter()
+            .any(|r| issue.offset >= r.start && issue_end <= r.end);
+        if inside_heading {
+            let new_sev = match issue.severity {
+                Severity::Info => Severity::Warning,
+                Severity::Warning => Severity::Error,
+                Severity::Error => Severity::Error,
+            };
+            if new_sev != issue.severity {
+                issue.severity = new_sev;
+                changed = true;
+            }
+        }
+    }
+    changed
 }
 
 /// Remap issue offsets from NFC-normalized text back to original positions.
@@ -948,6 +1005,48 @@ impl Scanner {
             remap_issues_to_original(&mut output.issues, text, &norm);
         }
 
+        // Heading severity boost for Markdown content: issues inside headings
+        // get +1 severity because heading text is high-visibility.  Gated by
+        // ProfileConfig::heading_severity_boost (default true).
+        if cfg.heading_severity_boost
+            && matches!(
+                content_type,
+                ContentType::Markdown | ContentType::MarkdownScanCode
+            )
+        {
+            let heading_ranges =
+                super::markdown::extract_heading_ranges(if nfc_changed { text } else { scan_text });
+            if !heading_ranges.is_empty()
+                && boost_heading_severity(&mut output.issues, &heading_ranges)
+            {
+                // Mutating severity can break the (offset asc, severity desc)
+                // sort contract for issues sharing the same offset.  Re-sort
+                // to preserve the documented deterministic output order.
+                output.issues.sort_by(|a, b| {
+                    a.offset
+                        .cmp(&b.offset)
+                        .then(b.severity.cmp(&a.severity))
+                        .then(a.rule_type.sort_order().cmp(&b.rule_type.sort_order()))
+                });
+            }
+        }
+
+        // Annotate issues that fall inside Markdown table cells with their
+        // (row, col) coordinates for editor integration.
+        if matches!(
+            content_type,
+            ContentType::Markdown | ContentType::MarkdownScanCode
+        ) {
+            let cell_spans = super::markdown::extract_table_cell_spans(if nfc_changed {
+                text
+            } else {
+                scan_text
+            });
+            if !cell_spans.is_empty() {
+                annotate_table_cells(&mut output.issues, &cell_spans);
+            }
+        }
+
         output
     }
 
@@ -1036,6 +1135,7 @@ impl Scanner {
                 issues: Vec::new(),
                 detected_script: ChineseType::Unknown,
                 ai_signature: None,
+                translationese_signature: None,
                 coverage: Some(CoverageReport {
                     rules_checked,
                     rules_matched: 0,
@@ -1172,6 +1272,31 @@ impl Scanner {
             grammar::scan_ai_density(text, excluded, issues, cfg.ai_threshold_multiplier);
         }
 
+        // Build sentence/paragraph boundary index for structural detectors.
+        // Computed lazily -- only when Phase 2 detectors are active.
+        let needs_boundary_index = cfg.ai_structural_patterns || cfg.translationese_detection;
+        let boundary_index = if needs_boundary_index {
+            Some(BoundaryIndex::build(text, excluded))
+        } else {
+            None
+        };
+
+        // Structural AI pattern detectors (S1-S8, V2 density).
+        // Requires sentence/paragraph boundary index.
+        if cfg.ai_structural_patterns {
+            if let Some(ref idx) = boundary_index {
+                grammar::scan_ai_structural_phase2(text, excluded, issues, idx);
+            }
+        }
+
+        // Syntactic translationese detectors (G1-G8, Y1-Y2, S3, V7, V13).
+        // Requires sentence/paragraph boundary index.
+        if cfg.translationese_detection {
+            if let Some(ref idx) = boundary_index {
+                grammar::scan_translationese_syntactic(text, excluded, issues, idx);
+            }
+        }
+
         // Fix CN quotation mark pairing with depth-based nesting:
         // well-formed quotes use character-based depth tracking; misordered
         // or all-same-char quotes fall back to positional alternation.
@@ -1198,6 +1323,18 @@ impl Scanner {
             None
         };
 
+        // Compute translationese signature when detection is active.
+        let translationese_signature = if cfg.translationese_detection {
+            crate::engine::translationese_score::compute_translationese_score_with_domain(
+                text,
+                issues,
+                excluded,
+                cfg.translationese_domain,
+            )
+        } else {
+            None
+        };
+
         let oral_density = compute_oral_density(text);
 
         // Skip O(n) line index construction when no issues found (common case).
@@ -1210,6 +1347,7 @@ impl Scanner {
                 issues: std::mem::take(issues),
                 detected_script: zh_type,
                 ai_signature,
+                translationese_signature,
                 coverage: Some(CoverageReport {
                     rules_checked,
                     rules_matched: 0,
@@ -1246,6 +1384,7 @@ impl Scanner {
             issues: std::mem::take(issues),
             detected_script: zh_type,
             ai_signature,
+            translationese_signature,
             coverage: Some(CoverageReport {
                 rules_checked,
                 rules_matched,

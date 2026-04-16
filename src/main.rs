@@ -80,6 +80,8 @@ fn main() -> Result<()> {
     let mut relaxed = false;
     let mut detect_ai = false;
     let mut detect_translationese = false;
+    let mut translationese_domain =
+        zhtw_mcp::engine::translationese_score::TranslationeseDomain::General;
     let mut ai_threshold_multiplier: f32 = 1.0;
     let mut baseline_path: Option<PathBuf> = None;
     let mut update_baseline = false;
@@ -239,6 +241,28 @@ fn main() -> Result<()> {
                         }
                         "--detect-translationese" => {
                             detect_translationese = true;
+                        }
+                        "--translationese-domain" => {
+                            // Per-domain threshold calibration for the
+                            // translationese score: general | technical |
+                            // literary | news.
+                            if let Some(next) = args.get(i + 1) {
+                                match zhtw_mcp::engine::translationese_score::TranslationeseDomain::from_str_strict(next) {
+                                    Some(d) => {
+                                        translationese_domain = d;
+                                        i += 1;
+                                    }
+                                    None => {
+                                        anyhow::bail!(
+                                            "unknown --translationese-domain value '{next}' (expected: general|technical|literary|news)"
+                                        );
+                                    }
+                                }
+                            } else {
+                                anyhow::bail!(
+                                    "--translationese-domain requires a value (general|technical|literary|news)"
+                                );
+                            }
                         }
                         "--detect-style" => {
                             // Combined shorthand: enable both AI filler and
@@ -568,6 +592,7 @@ fn main() -> Result<()> {
             relaxed: eff_relaxed,
             detect_ai,
             detect_translationese,
+            translationese_domain,
             ai_threshold_multiplier,
             tm_path: Some(eff_tm_path),
             telemetry,
@@ -657,6 +682,8 @@ struct CliFileOutput {
     fixes_skipped: Option<usize>,
     #[serde(skip_serializing_if = "Option::is_none")]
     ai_signature: Option<zhtw_mcp::engine::ai_score::AiSignatureReport>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    translationese_signature: Option<zhtw_mcp::engine::translationese_score::TranslationeseReport>,
 }
 
 #[derive(serde::Serialize)]
@@ -759,6 +786,7 @@ struct LintBatchParams<'a> {
     relaxed: bool,
     detect_ai: bool,
     detect_translationese: bool,
+    translationese_domain: zhtw_mcp::engine::translationese_score::TranslationeseDomain,
     ai_threshold_multiplier: f32,
     tm_path: Option<PathBuf>,
     telemetry: bool,
@@ -788,6 +816,7 @@ fn run_lint_batch(params: &LintBatchParams<'_>) -> Result<()> {
     if params.detect_translationese {
         cfg.translationese_detection = true;
     }
+    cfg.translationese_domain = params.translationese_domain;
 
     // Build scanner once for all files, merging overrides + active packs.
     let ruleset = zhtw_mcp::rules::loader::load_embedded_ruleset()?;
@@ -895,6 +924,7 @@ fn run_lint_batch(params: &LintBatchParams<'_>) -> Result<()> {
             fix_mode: fix_mode_str.clone(),
             detect_ai: params.detect_ai,
             detect_translationese: cfg.translationese_detection,
+            translationese_domain: cfg.translationese_domain.name().to_owned(),
             ai_threshold: format!("{:.1}", params.ai_threshold_multiplier),
         };
 
@@ -1027,6 +1057,7 @@ fn run_lint_batch(params: &LintBatchParams<'_>) -> Result<()> {
             output.detected_script.name()
         };
         let mut ai_signature = output.ai_signature;
+        let mut translationese_signature = output.translationese_signature;
         let mut issues = output.issues;
 
         // Tier 2: local disambiguation.
@@ -1116,6 +1147,9 @@ fn run_lint_batch(params: &LintBatchParams<'_>) -> Result<()> {
                 || cfg.ai_structural_patterns;
             if ai_active {
                 ai_signature = rescan_output.ai_signature;
+            }
+            if cfg.translationese_detection {
+                translationese_signature = rescan_output.translationese_signature;
             }
             let mut rescan = rescan_output.issues;
             if let Some(ref fix) = fix_result {
@@ -1242,6 +1276,7 @@ fn run_lint_batch(params: &LintBatchParams<'_>) -> Result<()> {
                     fixes_applied: fix_result.as_ref().map(|f| f.applied),
                     fixes_skipped: fix_result.as_ref().map(|f| f.skipped),
                     ai_signature: ai_signature.clone(),
+                    translationese_signature: translationese_signature.clone(),
                 };
                 if multi {
                     all_file_results.push(output);
@@ -1320,6 +1355,23 @@ fn run_lint_batch(params: &LintBatchParams<'_>) -> Result<()> {
                     };
                     eprintln!(
                         "{prefix}{}AI score:{} {:.2} ({level})",
+                        c.cyan, c.reset, sig.score
+                    );
+                    for signal in &sig.top_signals {
+                        eprintln!("  {}{signal}{}", c.dim, c.reset);
+                    }
+                }
+                // Translationese signature score (when computed).
+                if let Some(ref sig) = translationese_signature {
+                    let level = if sig.score >= 0.7 {
+                        "high"
+                    } else if sig.score >= 0.4 {
+                        "medium"
+                    } else {
+                        "low"
+                    };
+                    eprintln!(
+                        "{prefix}{}翻譯腔 score:{} {:.2} ({level})",
                         c.cyan, c.reset, sig.score
                     );
                     for signal in &sig.top_signals {
