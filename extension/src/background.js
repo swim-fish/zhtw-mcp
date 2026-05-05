@@ -74,11 +74,14 @@ async function runScanForActiveTab(options) {
   // they ride along to the scanner without joining the options the result
   // records.  Which of them takes a run out of the scan is decided in the
   // scanner, not here.
-  const scanResult = await scanText(collected.text, {
+  const isLite = options.profile === "lite";
+  const rawScan = await scanText(collected.text, {
     ...options,
+    ...(isLite ? { profile: "base" } : {}),
     lang_spans: collected.lang_spans || [],
     excluded_spans: collected.excluded_spans || [],
   });
+  const scanResult = isLite ? withoutPunctuation(rawScan) : rawScan;
   const highlighted = await sendTabMessage(tab.id, {
     type: "HIGHLIGHT_ISSUES",
     issues: scanResult.issues,
@@ -182,4 +185,23 @@ async function getStoredResult(tabId) {
 
 function reportAsyncError(error) {
   console.warn("Background task failed.", error);
+}
+
+function withoutPunctuation(scanResult) {
+  const issues = (scanResult.issues || []).filter(
+    (issue) => issue.rule_type !== "punctuation",
+  );
+  const severity_counts = { info: 0, warning: 0, error: 0 };
+  for (const issue of issues) {
+    if (issue.severity in severity_counts) {
+      severity_counts[issue.severity] += 1;
+    }
+  }
+  return {
+    ...scanResult,
+    issues,
+    issue_count: issues.length,
+    badge_count: severity_counts.warning + severity_counts.error,
+    severity_counts,
+  };
 }
