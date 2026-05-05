@@ -56,7 +56,12 @@ async function runScanForActiveTab(options) {
     throw new Error(collected?.error || "Could not collect visible page text.");
   }
 
-  const scanResult = await scanText(collected.text, options);
+  const isLite = options.profile === "lite";
+  const wasmOptions = isLite
+    ? { ...options, profile: "base" }
+    : options;
+  const rawScan = await scanText(collected.text, wasmOptions);
+  const scanResult = isLite ? withoutPunctuation(rawScan) : rawScan;
   const highlighted = await sendTabMessage(tab.id, {
     type: "HIGHLIGHT_ISSUES",
     issues: scanResult.issues,
@@ -183,4 +188,23 @@ function countBadgeIssues(issues = []) {
   return issues.filter(
     (issue) => issue.severity === "warning" || issue.severity === "error",
   ).length;
+}
+
+function withoutPunctuation(scanResult) {
+  const issues = (scanResult.issues || []).filter(
+    (issue) => issue.rule_type !== "punctuation",
+  );
+  const severity_counts = { info: 0, warning: 0, error: 0 };
+  for (const issue of issues) {
+    if (issue.severity in severity_counts) {
+      severity_counts[issue.severity] += 1;
+    }
+  }
+  return {
+    ...scanResult,
+    issues,
+    issue_count: issues.length,
+    badge_count: severity_counts.warning + severity_counts.error,
+    severity_counts,
+  };
 }
