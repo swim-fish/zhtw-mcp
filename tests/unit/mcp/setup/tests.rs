@@ -108,7 +108,7 @@ fn translation_guide_json_contract() {
     assert_eq!(guide["host"], "translation-guide");
     assert_eq!(guide["file"], "(system prompt injection)");
     let content = guide["content"].as_str().unwrap();
-    assert!(content.contains("繁體中文"));
+    assert!(content.contains("正體中文"));
     assert!(content.contains("值得注意的是"));
     assert!(content.len() > 500);
 }

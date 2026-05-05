@@ -5,7 +5,7 @@ use super::*;
 #[test]
 fn traditional_fantizhongwenceshi() {
     assert_eq!(
-        detect_chinese_type("繁體中文測試"),
+        detect_chinese_type("正體中文測試"),
         ChineseType::Traditional
     );
 }
