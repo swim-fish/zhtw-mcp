@@ -203,7 +203,7 @@ mod tests {
 
     #[test]
     fn cjk_text_unchanged() {
-        let input = "繁體中文測試";
+        let input = "正體中文測試";
         let norm = normalize_nfc(input);
         assert_eq!(norm.text, input);
     }

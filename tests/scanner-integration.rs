@@ -62,7 +62,7 @@ fn case_rule(term: &str, alternatives: Option<&[&str]>) -> CaseRule {
 fn traditional_rule_applies_to_traditional_text() {
     // Cross-strait rule fires on Traditional Chinese text.
     let scanner = Scanner::new(vec![spelling("你好", &["Hello"])], vec![]);
-    let issues = scanner.scan("繁體中文你好").issues;
+    let issues = scanner.scan("正體中文你好").issues;
     assert_eq!(issues.len(), 1);
 }
 

@@ -67,7 +67,7 @@ fn synthetic_corpus() -> &'static str {
         "這個方案的信息量很大。\n",
         // Mixed: some terms should fire, some should not
         "使用正確的軟體開發方法論。\n", // 軟體 is zh-TW, should NOT fire
-        "正確的繁體中文排版很重要。\n", // clean text
+        "正確的正體中文排版很重要。\n", // clean text
     )
 }
 

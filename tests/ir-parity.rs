@@ -191,7 +191,7 @@ fn ir_variant_skipped_for_simplified() {
 #[test]
 fn ir_variant_fires_for_traditional() {
     let scanner = Scanner::new(vec![spelling_variant("着", &["著"])], vec![]);
-    let out = scanner.scan_profiled("繁體中文裡面着色", Profile::Strict);
+    let out = scanner.scan_profiled("正體中文裡面着色", Profile::Strict);
     // Should fire since text is Traditional Chinese.
     assert_eq!(out.issues.len(), 1, "variant should fire once for TC text");
 }
