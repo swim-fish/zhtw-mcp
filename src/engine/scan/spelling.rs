@@ -589,7 +589,7 @@ mod tests {
     #[test]
     fn coverage_report_populated() {
         let scanner = make_scanner();
-        let output = scanner.scan("這是正確的繁體中文");
+        let output = scanner.scan("這是正確的正體中文");
         let cov = output.coverage.expect("coverage must be present");
         assert!(cov.rules_checked > 100, "should have many rules checked");
         assert_eq!(cov.rules_matched, 0, "clean text should match 0 rules");

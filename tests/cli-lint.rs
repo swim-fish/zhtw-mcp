@@ -580,7 +580,7 @@ fn cli_lint_compact_format_single_issue() {
 
 #[test]
 fn cli_lint_compact_format_clean_is_empty() {
-    let output = run_lint_stdin(&["--format", "compact"], "這是正確的繁體中文。");
+    let output = run_lint_stdin(&["--format", "compact"], "這是正確的正體中文。");
     assert!(output.status.success(), "clean compact lint should exit 0");
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(

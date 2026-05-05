@@ -414,10 +414,10 @@ pub fn generate_translation_guide() -> serde_json::Value {
 
 /// The raw translation guide text content.
 fn translation_guide_text() -> String {
-    r#"# 繁體中文（台灣）翻譯風格指南
+    r#"# 正體中文（台灣）翻譯風格指南
 
 ## 目的
-本指南用於 LLM 系統提示，確保產出的繁體中文文本符合台灣教育部標準，
+本指南用於 LLM 系統提示，確保產出的正體中文文本符合台灣教育部標準，
 避免常見的 AI 翻譯偽跡（translation artifact）。
 
 ## 詞彙規範
@@ -582,7 +582,7 @@ mod tests {
         assert_eq!(guide["host"], "translation-guide");
         assert_eq!(guide["file"], "(system prompt injection)");
         let content = guide["content"].as_str().unwrap();
-        assert!(content.contains("繁體中文"));
+        assert!(content.contains("正體中文"));
         assert!(content.contains("值得注意的是"));
         assert!(content.len() > 500);
     }

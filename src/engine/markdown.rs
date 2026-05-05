@@ -623,17 +623,17 @@ mod tests {
 
     #[test]
     fn yaml_key_colon_excluded() {
-        let yaml = "title: 繁體中文文件\nsummary: 說明文字\n";
+        let yaml = "title: 正體中文文件\nsummary: 說明文字\n";
         let ranges = build_yaml_excluded_ranges(yaml);
         // "title:" should be excluded.
         let any_covers_title_colon = ranges
             .iter()
             .any(|r| yaml[r.start..r.end].contains("title:"));
         assert!(any_covers_title_colon, "YAML key colon must be excluded");
-        // The value "繁體中文文件" must NOT be excluded.
+        // The value "正體中文文件" must NOT be excluded.
         let value_excluded = ranges
             .iter()
-            .any(|r| yaml[r.start..r.end].contains("繁體中文文件"));
+            .any(|r| yaml[r.start..r.end].contains("正體中文文件"));
         assert!(!value_excluded, "YAML value must remain scannable");
     }
 

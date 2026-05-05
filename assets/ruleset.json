@@ -6026,7 +6026,7 @@
       "from": "文件描述符",
       "to": ["檔案描述子"],
       "type": "cross_strait",
-      "context": "@domain IT。「符」在繁體中文有宗教暗示；「描述子」與「運算子」(operator) 命名邏輯一致",
+      "context": "@domain IT。「符」在正體中文有宗教暗示；「描述子」與「運算子」(operator) 命名邏輯一致",
       "english": "file descriptor"
     },
     {
