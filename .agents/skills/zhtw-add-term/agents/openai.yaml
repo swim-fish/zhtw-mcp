@@ -1,0 +1,4 @@
+interface:
+  display_name: "zhtw Add Term"
+  short_description: "Add or update zhtw-mcp terminology rules"
+  default_prompt: "Use $zhtw-add-term to add or update a zhtw-mcp terminology rule."
