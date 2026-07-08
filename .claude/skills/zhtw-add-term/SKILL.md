@@ -69,6 +69,24 @@ Join-Path $dir 'zhtw-mcp\overrides.json'      # …\zhtw-mcp\packs\ for layer B
 For full merge / runtime precedence, see `references/schema.md` (one
 authoritative list lives there).
 
+### Layer A quick path: user overrides
+
+For a simple user-global `from` → `to` add/update, prefer the bundled script
+over hand-editing JSON. Resolve `$skillDir` as the directory containing this
+`SKILL.md`:
+
+```powershell
+$skillDir = "<directory containing this SKILL.md>"
+& (Join-Path $skillDir "scripts\upsert-zhtw-override.ps1") `
+  -From "圖件" `
+  -To "圖片" `
+  -Context "圖件非台灣用語；台灣常用「圖片」"
+```
+
+The script preserves existing `spelling` and `case` entries, upserts by `from`,
+writes UTF-8 without BOM, and keeps `schema_version: 3`. Use `-Path <file>` only
+for tests or when the user explicitly provides a non-default overrides file.
+
 ---
 
 ## 2. Build the rule (layers A & B share one schema)
