@@ -273,7 +273,7 @@ Edit `assets/ruleset.json`:
 
 Run `scripts/check-ruleset.py --lint` to validate before opening a PR.
 
-Fields: `from` (required), `to` (required, array), `type` (required: `cross_strait` / `political_coloring` / `confusable` / `typo` / `variant`), `disabled` (optional), `context` (optional, use `@seealso` for cross-refs), `english` (optional, recommended), `source` (required for new rules).
+Fields: `from` (required), `to` (required, array), `type` (required: `cross_strait` / `political_coloring` / `confusable` / `typo` / `variant` / `ai_filler` / `translationese`), `disabled` (optional), `context` (optional, use `@seealso` for cross-refs), `english` (optional, recommended), `source` (required for new rules).
 
 `source` is the evidence for adding the rule: either a fixture path under
 `tests/fixtures/` or the id of a case in `tests/corpus/`. The linter requires it

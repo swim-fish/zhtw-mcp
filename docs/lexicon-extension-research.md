@@ -153,7 +153,7 @@ proper_nouns = ["TSMC", "MediaTek"]       # 永遠不 flag
 - macOS:`~/Library/Application Support/zhtw-mcp/overrides.json`
 - Windows:`%APPDATA%\zhtw-mcp\overrides.json`
 
-Schema 與 `assets/ruleset.json` 相同(`src/rules/store.rs:62-72` `Overrides`):
+Schema 使用 `Overrides` 結構,也就是 `overrides.json` / pack 共用的頂層格式(`src/rules/store.rs:62-72` `Overrides`)。注意:這不是 `assets/ruleset.json` 的 `spelling_rules` / `case_rules` 頂層格式。
 
 ```json
 {
@@ -229,7 +229,7 @@ Schema 與 `Overrides` 完全相同,額外可加 `metadata`:
 ```
 
 注意事項:
-- `schema_version` **必須是 3**(否則被當作不相容自動備份重置 — `src/rules/store.rs:101-115`)
+- `schema_version` 建議固定填 `3`;目前 `OverrideStore::open()` 會對 overrides 做版本不符備份重置,但 `PackStore::validate()` / `install()` / `load()` 主要是 parse 成 `Overrides`,不強制比對版本號碼
 - `spelling[].type` 限定 7 種值(同 §2.1)
 - `metadata` 整段 optional(向後相容於純 overrides)
 
@@ -410,7 +410,7 @@ zhtw-mcp pack validate ./naer-electronics.json
 | CLI 順序的優先度 | CLI `--pack` 在前 = 優先度較低(因為合併是「後者覆蓋」) | `src/main.rs:574-578`、`src/rules/store.rs:1008-1025` |
 | Pack 沒有 glossary | `banned` / `preferred` / `proper_nouns` 僅支援在 `.zhtw-mcp.toml`;若要分享 banned list,要另外請使用者加進 toml | `src/config.rs:49`、`src/rules/glossary.rs` |
 | `editorial_confidence: "low"` | Pack 內條目可標 `low`,自動標 `auto_fix_safe = false`,適合 style preference 型詞條(避免 `--fix` 誤動) | `src/rules/ruleset.rs:481-490` |
-| Schema 升級保護 | `schema_version` 不符會自動備份成 `.vN.bak` 重置,避免啟動失敗 | `src/rules/store.rs:101-115` |
+| Schema 升級保護 | `overrides.json` 由 `OverrideStore::open()` 檢查版本並備份重置;pack 目前 validate/import/load 不強制比對 `schema_version`,仍建議固定填 `3` | `src/rules/store.rs:101-115`、`src/rules/store.rs:845-899` |
 | Pack 安全 | path traversal、Windows 保留名都被 `validate_pack_name` 擋掉 | `src/rules/store.rs:859-886` |
 | 不破壞 fixer 設計 | confusable 與 clue-gated cross_strait 規則由 scanner 標但 fixer 不動 | `docs/internals.md:57` |
 
