@@ -193,6 +193,7 @@ The server also exposes two read-only resources for assistants to consult: `zh-t
 - [docs/mcp.md](docs/mcp.md) -- MCP tool parameters, resources, prompts, sampling, usage examples
 - [docs/internals.md](docs/internals.md) -- processing pipeline, script detection, design decisions, testing
 - [docs/rules.md](docs/rules.md) -- rule type reference, extending the ruleset, runtime overrides
+- [docs/rule-packs.md](docs/rule-packs.md) -- zh-TW guide to defining, importing, enabling, and layering rule packs
 - [docs/release.md](docs/release.md) -- cargo-dist release workflow, upgrading, custom build setup
 
 ## License

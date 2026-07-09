@@ -128,7 +128,7 @@ Edit `assets/ruleset.json`:
 
 Run `scripts/check-ruleset.py --lint` to validate before opening a PR.
 
-Fields: `from` (required), `to` (required, array), `type` (required: `cross_strait` / `political_coloring` / `confusable` / `typo` / `variant`), `disabled` (optional), `context` (optional, use `@seealso` for cross-refs), `english` (optional, recommended).
+Fields: `from` (required), `to` (required, array), `type` (required: `cross_strait` / `political_coloring` / `confusable` / `typo` / `variant` / `ai_filler` / `translationese`), `disabled` (optional), `context` (optional, use `@seealso` for cross-refs), `english` (optional, recommended).
 
 ### Adding a case rule
 
