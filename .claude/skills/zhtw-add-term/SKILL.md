@@ -71,9 +71,12 @@ authoritative list lives there).
 
 ### Layer A quick path: user overrides
 
-For a simple user-global `from` → `to` add/update, prefer the bundled script
-over hand-editing JSON. Resolve `$skillDir` as the directory containing this
-`SKILL.md`:
+For a user-global add, override, or disable operation, prefer the bundled
+script over hand-editing JSON. It resolves an absolute `$XDG_CONFIG_HOME`
+before the platform default, validates the existing file before touching it,
+writes through a same-directory temporary file, and keeps a timestamped
+`*.user-edit.<timestamp>.bak` backup when replacing an existing file. Resolve
+`$skillDir` as the directory containing this `SKILL.md`:
 
 ```powershell
 $skillDir = "<directory containing this SKILL.md>"
@@ -81,11 +84,18 @@ $skillDir = "<directory containing this SKILL.md>"
   -From "圖件" `
   -To "圖片" `
   -Context "圖件非台灣用語；台灣常用「圖片」"
+
+# Disable a built-in rule while keeping the term accepted.
+& (Join-Path $skillDir "scripts\upsert-zhtw-override.ps1") `
+  -From "原始碼" `
+  -Context "「原始碼」為可接受的台灣用語。" `
+  -Disabled
 ```
 
 The script preserves existing `spelling` and `case` entries, upserts by `from`,
-writes UTF-8 without BOM, and keeps `schema_version: 3`. Use `-Path <file>` only
-for tests or when the user explicitly provides a non-default overrides file.
+writes UTF-8 without BOM, and keeps `schema_version: 3`. It refuses to modify a
+BOM-prefixed, malformed, or wrong-version file. Use `-Path <file>` only for
+tests or when the user explicitly provides a non-default overrides file.
 
 ---
 
@@ -99,11 +109,19 @@ values, `exceptions` matching rules, and `positional_clues` syntax.
 
 ### Step 0 — check what already exists (don't skip)
 
-Lint the bare `from` term first (see §4 for how). If a built-in rule already
-fires for it, your change is an **Override**, not an Add: a single-`to` override
-*replaces* the built-in's suggestions (you may be silently dropping other valid
-candidates) and changes its severity. Surface this to the user before
-proceeding.
+Check both the embedded rule data and lint behavior before editing. Search
+`assets/ruleset.json` for an exact `from` match, then lint a realistic sentence
+that satisfies any `context_clues` / `positional_clues` on that rule. A bare
+term alone can stay silent for a clue-gated built-in and falsely look like an
+Add. If a built-in rule exists, your change is an **Override**, not an Add: a
+single-`to` override *replaces* the built-in's suggestions (you may be silently
+dropping other valid candidates) and changes its severity. Surface this to the
+user before proceeding.
+
+Also lint every proposed suggestion as ordinary text. If suggestion Y is
+itself rejected by another rule (X → Y, then Y → Z), resolve that policy with
+the user before writing. Usually this means choosing Z or disabling the Y → Z
+rule in the same higher layer.
 
 ### The three operations
 
@@ -159,6 +177,9 @@ the same rule and expect them to compound.
 - An empty (0-byte) or partially-written file is also treated as corrupt. Because
   all of these reset silently (the warning is invisible without `RUST_LOG`),
   **§4 verification is the only proof the file actually loaded.**
+- For layer A, use the bundled script for both active and disabled spelling
+  rules. It validates before editing, writes atomically, and leaves a backup;
+  avoid a second ad hoc JSON rewrite just to add `disabled:true`.
 
 For English casing (e.g. `Javascript`→`JavaScript`) add a `CaseRule` to the
 `case[]` array instead — see `references/schema.md` §CaseRule.
@@ -231,9 +252,15 @@ programmatic checks (e.g. assert your `from` appears with the expected
 ### 4.3 Craft the test snippet
 
 A temp file (e.g. `tmp-zhtw-verify.md` in the repo dir, **never** in the config
-dir) with, per term: the `from` in a **real** context (expect it to fire) and
-the `from` chars in **decoy** words (expect silence). Use **fullwidth**
-punctuation so you don't get unrelated punctuation warnings muddying the check:
+dir) with the `from` in a **real** context (expect it to fire) and the `from`
+chars in **decoy** words (expect silence). Use **fullwidth** punctuation so you
+don't get unrelated punctuation warnings muddying the check.
+
+Clue windows cross line boundaries: positive or negative clues from one nearby
+case can change another case within ±40 characters (positional clues use 20).
+Use a separate temp file per independent context, or separate cases by more
+than 40 non-excluded characters. Do not put a clue-bearing positive case next
+to an exception/decoy and treat the combined result as isolated evidence:
 
 ```
 貴司提供的報價我司已收到。          ← both should fire
