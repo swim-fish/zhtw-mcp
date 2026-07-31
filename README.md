@@ -112,6 +112,9 @@ Requires stable Rust 1.91+.
 
 ```bash
 make
+
+# Ubuntu/Linux without Make
+./build.sh
 ```
 
 The binary is at `target/release/zhtw-mcp`.
